@@ -25,8 +25,7 @@ jobs:
       # Build your program with the given configuration
       shell: cmd
       run: |
-        copy ./../compile_release.bat
-        compile_release.bat
+        ./compile_release.bat
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -34,5 +33,5 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       shell: cmd
       run: |
-        ../RayT_release.exe tests
+        ./RayT_release.exe tests
 
