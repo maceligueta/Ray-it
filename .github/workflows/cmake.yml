@@ -25,7 +25,8 @@ jobs:
       # Build your program with the given configuration
       shell: cmd
       run: |
-        ../compile_release.bat
+        copy ./../compile_release.bat
+        compile_release.bat
 
     - name: Test
       working-directory: ${{github.workspace}}/build
