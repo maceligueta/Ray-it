@@ -4,14 +4,14 @@
 #include <limits>
 #include "constants.h"
 
-class Test {    
-    
+class Test {
+
     public:
 
     Test(){};
     unsigned int mNumber = 0;
     virtual bool Run(){
-        return false;
+        return 1;
     }
     bool CheckIfFloatsAreEqual(const float& a, const float& b) {
         auto c = std::numeric_limits<float>::epsilon();
@@ -26,29 +26,29 @@ class Test {
         results_mesh_file.open(results_mesh_file_name);
         if(results_mesh_file.fail()) {
             std::cout<<"Error opening file "<<results_mesh_file_name<< std::endl;
-            return 0;
+            return false;
         }
 
         std::ifstream mesh_reference_file;
         mesh_reference_file.open(mesh_reference_file_name);
         if(mesh_reference_file.fail()) {
             std::cout<<"Error opening file "<<mesh_reference_file_name<< std::endl;
-            return 0;
+            return false;
         }
 
         results_mesh_file.get(version1);
         mesh_reference_file.get(version2);
         while(!results_mesh_file.eof() && !mesh_reference_file.eof()) {
-            if (version1 != version2) k++;            
+            if (version1 != version2) k++;
             results_mesh_file.get(version1);
             mesh_reference_file.get(version2);
         }
 
         if (k!=0) {
             std::cout<<" Files are different "<<std::endl;
-            return 0;
+            return false;
         }
-        
+
 
         results_mesh_file.close();
         mesh_reference_file.close();

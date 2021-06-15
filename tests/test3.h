@@ -17,7 +17,7 @@ class Test3: public Test {
 
         echo_level = 0;
 
-        Mesh mesh; 
+        Mesh mesh;
         ReadTerrainMesh(mesh, "cases/square_test.stl");
 
         Vec3f origin(0.0f, 0.0f, 3.0f);
@@ -31,12 +31,12 @@ class Test3: public Test {
             Ray test_ray(origin, direction);
 
             if(!test_ray.Intersect(mesh)){
-                return false;                
-            }            
-        }     
+                return 1;
+            }
+        }
 
         PrintResultsInGidFormat(mesh, "cases/results3", TypeOfResultsPrint::RESULTS_ON_NODES);
-        return CheckMeshResultsAreEqualToReference("cases/results3.post.res", "cases/reference3.post.res");            
+        return !CheckMeshResultsAreEqualToReference("cases/results3.post.res", "cases/reference3.post.res");
     }
 };
 

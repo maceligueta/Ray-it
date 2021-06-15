@@ -17,7 +17,7 @@ class Test4: public Test {
 
         echo_level = 0;
 
-        Mesh mesh; 
+        Mesh mesh;
         ReadTerrainMesh(mesh, "cases/square_with_smaller_square_before_test.stl");
 
         Vec3f origin(0.0f, 0.0f, 3.0f);
@@ -29,13 +29,12 @@ class Test4: public Test {
             const float distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
             if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
                 mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
-            }  
-        }                      
+            }
+        }
 
         PrintResultsInGidFormat(mesh, "cases/results4", TypeOfResultsPrint::RESULTS_ON_NODES);
-        return CheckMeshResultsAreEqualToReference("cases/results4.post.res", "cases/reference4.post.res");        
-        return true;
-        
+        return !CheckMeshResultsAreEqualToReference("cases/results4.post.res", "cases/reference4.post.res");
+
     }
 };
 
