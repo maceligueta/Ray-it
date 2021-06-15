@@ -20,8 +20,8 @@ class Test {
 
     bool CheckMeshResultsAreEqualToReference(const std::string& results_mesh_file_name, const std::string& mesh_reference_file_name) {
 
-        char version1, version2;
-        int count = 0, k = 0;
+        std::string version1, version2;
+
         std::ifstream results_mesh_file;
         results_mesh_file.open(results_mesh_file_name);
         if(results_mesh_file.fail()) {
@@ -36,16 +36,28 @@ class Test {
             return false;
         }
 
-        results_mesh_file.get(version1);
-        mesh_reference_file.get(version2);
-        while(!results_mesh_file.eof() && !mesh_reference_file.eof()) {
-            if (version1 != version2) k++;
-            results_mesh_file.get(version1);
-            mesh_reference_file.get(version2);
+        //Three lines of each file are headers
+        if(!std::getline(results_mesh_file, version1)) return false;
+        if(!std::getline(results_mesh_file, version1)) return false;
+        if(!std::getline(results_mesh_file, version1)) return false;
+        std::getline(mesh_reference_file, version2);
+        std::getline(mesh_reference_file, version2);
+        std::getline(mesh_reference_file, version2);
+
+        int problematic_line_number = -1;
+        int line_count = 4;
+
+        while(std::getline(mesh_reference_file, version2)) {
+            std::getline(results_mesh_file, version1);
+            if (version1 != version2) {
+               problematic_line_number = line_count;
+               break;
+            }
+            line_count++;
         }
 
-        if (k!=0) {
-            std::cout<<" Files are different "<<std::endl;
+        if (problematic_line_number>=0) {
+            std::cout<<" Files are different at line "<<problematic_line_number<<std::endl;
             return false;
         }
 
