@@ -60,28 +60,28 @@ class Test7: public Test {
 
         float p;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, 0.0f)) return false;
+        if(!CheckIfFloatsAreEqual(p, 0.0f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-110.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, -8.66666698f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -8.66666698f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-24.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, -0.8f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -0.8f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(35.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, -1.16666675f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -1.16666675f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(89.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, -5.86666679f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -5.86666679f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(145.0f, 90.0f));
-        if(!CheckIfFloatsAreEqual(p, -26.6666679f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -26.6666679f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0f, 45.0f));
-        if(!CheckIfFloatsAreEqual(p, -12.5f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -12.5f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-40.0f, 45.0f));
-        if(!CheckIfFloatsAreEqual(p, -13.5f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -13.5f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(80.0f, 160.0f));
-        if(!CheckIfFloatsAreEqual(p, -34.8888893f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -34.8888893f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-173.0f, 160.0f));
-        if(!CheckIfFloatsAreEqual(p, -48.4444427f)) return false;
+        if(!CheckIfFloatsAreEqual(p, -48.4444427f)) return 1;
 
         Mesh mesh;
-        if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 0;
+        if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;
 
         float base_power = 1.0f;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
@@ -93,7 +93,7 @@ class Test7: public Test {
 
         PrintResultsInGidFormat(mesh, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
 
-        return CheckMeshResultsAreEqualToReference("cases/results7.post.msh", "cases/reference7.post.msh");
+        return !CheckMeshResultsAreEqualToReference("cases/results7.post.msh", "cases/reference7.post.msh");
     }
 
 };

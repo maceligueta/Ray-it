@@ -13,10 +13,12 @@
 #include "../tests/test6.h"
 #include "../tests/test7.h"
 
-void RunTests() {
+int RunTests() {
+
+    int number_of_errors = 0;
 
     std::vector<std::shared_ptr<Test>> list_of_tests;
-    
+
     list_of_tests.push_back(std::make_shared<Test1>());
     list_of_tests.push_back(std::make_shared<Test2>());
     list_of_tests.push_back(std::make_shared<Test3>());
@@ -27,15 +29,18 @@ void RunTests() {
 
     for(auto test:list_of_tests){
         try{
-            if(test->Run()) {
+            if(!test->Run()) {
                 std::cout<<"  Test "<<test->mNumber<<" OK"<<std::endl;
             } else {
                 std::cout<<"  Test "<<test->mNumber<<" Failed!"<<std::endl;
+                number_of_errors++;
             }
         } catch (std::exception& e) {
-            std::cout<<"  Test "<<test->mNumber<<" Failed!   "<<e.what()<<std::endl;            
+            std::cout<<"  Test "<<test->mNumber<<" Failed!   "<<e.what()<<std::endl;
         }
-    }    
+    }
+
+    return number_of_errors;
 }
 
 #endif
