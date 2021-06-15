@@ -1,5 +1,5 @@
-RayT_Debug.exe
-RayT_Release.exe
+Ray-it_Debug.exe
+Ray-it_Release.exe
 build/
 .vscode/
 cases/results.post.msh

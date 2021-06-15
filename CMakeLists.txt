@@ -1,4 +1,4 @@
-project(RayT)
+project(Ray-it)
 cmake_minimum_required(VERSION 3.10)
 set (CMAKE_CXX_STANDARD 17)
 
@@ -8,9 +8,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWIN32")
 endif (WIN32)
-
-message("pepe")
-message(${CMAKE_CXX_FLAGS})
 
 set(FILES_TO_BE_COMPILED
     src/raytracer.cpp
@@ -23,4 +20,4 @@ set(FILES_TO_BE_COMPILED
 )
 
 # add the executable
-add_executable(RayT ${FILES_TO_BE_COMPILED})
+add_executable(Ray-it ${FILES_TO_BE_COMPILED})
