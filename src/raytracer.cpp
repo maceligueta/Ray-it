@@ -4,13 +4,14 @@
 #include "stl_reader.h"
 
 #include "scene_io.h"
-#include "Timer.h"
+#include "time.h"
 #include "vector.h"
 #include "mesh.h"
 #include "ray.h"
 #include "kdTree.h"
 #include "tests_manager.h"
 #include "gid_output.h"
+#include "timer.h"
 
 
 unsigned int echo_level = 1;

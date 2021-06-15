@@ -2,7 +2,7 @@
 #define RayTracer_test
 
 #include <limits>
-#include "constants.h"
+#include "../src/constants.h"
 
 class Test {
 
