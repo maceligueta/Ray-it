@@ -1,7 +1,7 @@
 #ifndef __BasicRaytracer_radiation_patter__
 #define __BasicRaytracer_radiation_patter__
 
-#include <math.h>
+#include "constants.h"
 
 class SphericalCoordinates {
     public:
@@ -13,8 +13,11 @@ class SphericalCoordinates {
         mTheta = theta;
     }
     SphericalCoordinates(const Vec3f& cartesian_direction) {
-        mPhi = std::atan2(cartesian_direction.Y(), cartesian_direction.X()) * 180.0f / M_PI;
-        mTheta = std::atan2(std::sqrt(cartesian_direction.X()*cartesian_direction.X() + cartesian_direction.Y()*cartesian_direction.Y()), cartesian_direction.Z()) * 180.0f / M_PI;
+        const double x = (double)cartesian_direction[0];
+        const double y = (double)cartesian_direction[1];
+        const double z = (double)cartesian_direction[2];
+        mPhi = (float) atan2(y, x) * 180.0 * M_1_PI;
+        mTheta = (float) atan2(std::sqrt(x*x + y*y), z) * 180.0 * M_1_PI;
     }
 };
 
@@ -28,7 +31,7 @@ class RadiationPattern {
     RadiationPattern(){
         CheckConstantSpacingBetweenValues();
     }
-    
+
 
     float DirectionalPowerValue(const SphericalCoordinates& spherical_coordinates) {
         // phi must come [-180, 180] while theta must be [0, 180]
@@ -46,7 +49,7 @@ class RadiationPattern {
     }
 
     void CheckConstantSpacingBetweenValues(){}
-    
+
 };
 
 
