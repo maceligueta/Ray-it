@@ -21,7 +21,7 @@ class KDTreeNode{
 public:
     KDTreeNode():mLeaf(false), mTriangles(std::vector<Triangle*>()){};
 
-    KDTreeNode& KDTreeNode::operator =(const KDTreeNode & other){
+    KDTreeNode& operator =(const KDTreeNode & other){
         mLeft = other.mLeft;
         mRight = other.mRight;
         mLeaf = other.mLeaf;
@@ -37,7 +37,7 @@ public:
     SplitPlane mSplitPlane;
     Box mBounds;
     std::vector<Triangle*> mTriangles;
-    
+
     bool isDone(size_t N, float minCv) const;
     float getSplitPos();
     void build(KDTreeNode &node);

@@ -3,7 +3,7 @@
 // =========
 // High Resolution Timer.
 // This timer is able to measure the elapsed time with 1 micro-second accuracy
-// in both Windows, Linux and Unix system 
+// in both Windows, Linux and Unix system
 //
 //  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
 // CREATED: 2003-01-13
@@ -12,7 +12,7 @@
 // Copyright (c) 2003 Song Ho Ahn
 //////////////////////////////////////////////////////////////////////////////
 
-#include "Timer.h"
+#include "timer.h"
 #include <stdlib.h>
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include "../tests/test.h"
 #include "../tests/test1.h"
