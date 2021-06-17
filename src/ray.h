@@ -4,7 +4,6 @@
 #include <math.h>
 #include <unordered_set>
 #include "vector.h"
-#include "scene_io.h"
 
 class Mesh;
 

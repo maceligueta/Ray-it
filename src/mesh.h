@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <vector>
-#include "scene_io.h"
 #include "box.h"
 #include "triangle.h"
 #include "kdTree.h"
@@ -13,7 +12,7 @@ class Mesh;
 
 class Mesh {
 public:
-    Vec3f mBoundingBox[2];    
+    Vec3f mBoundingBox[2];
     KDTreeNode mTree;
     std::vector<Node> mNodes;
     std::vector<Triangle*> mTriangles;

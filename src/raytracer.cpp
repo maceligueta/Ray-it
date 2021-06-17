@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <vector>
+#include <filesystem>
 
-#include "stl_reader.h"
 
-#include "scene_io.h"
 #include "time.h"
 #include "vector.h"
 #include "mesh.h"
@@ -11,7 +10,11 @@
 #include "kdTree.h"
 #include "tests_manager.h"
 #include "gid_output.h"
-#include "timer.h"
+#include "../external_libraries/timer.h"
+#include "../external_libraries/stl_reader.h"
+#include "../external_libraries/json.hpp"
+
+using namespace nlohmann;
 
 
 unsigned int echo_level = 1;
@@ -111,26 +114,11 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
     return true;
 }
 
-int main(int argc, char *argv[]) {
+bool CheckInputParameters(json& input_parameters) {
+    return true;
+}
 
-    if(argc != 2) {
-        std::cout<<"Type one (and only one) argument specifying the STL file containing the terrain. If the argument is 'tests' the code will run the tests."<<std::endl;
-        return 1;
-    }
-
-    Timer total_timer;
-    total_timer.start();
-
-    Mesh mesh;
-
-    std::string filename = argv[1];
-    if(filename == "tests") {
-        const int number_of_errors = RunTests();
-        if (number_of_errors) return 1;
-        else return 0;
-    }
-
-    if(!ReadTerrainMesh(mesh, filename)) return 0;
+bool Compute(Mesh& mesh){
 
     if(echo_level > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
@@ -159,7 +147,64 @@ int main(int argc, char *argv[]) {
 
     if(echo_level > 0) std::cout << "Computation finished."<<std::endl;
 
-    PrintResultsInGidFormat(mesh, filename, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
+    return true;
+}
+
+bool ReadInputParameters(const std::string& parameters_filename, json& input_parameters) {
+
+    std::ifstream i(parameters_filename);
+    if(echo_level > 0) std::cout << "Reading input parameters file ("<<parameters_filename<<")..."<<std::endl;
+    if (!std::filesystem::exists(parameters_filename)) {
+        std::cout << "Error: file \""<<parameters_filename<<"\" not found!"<<std::endl;
+        return false;
+    }
+    try {
+        i >> input_parameters;
+    } catch (std::exception& e) {
+        std::cout<<e.what()<<std::endl;
+        return false;
+    }
+
+    CheckInputParameters(input_parameters);
+
+    return true;
+}
+
+int main(int argc, char *argv[]) {
+
+    if(argc > 3 || argc < 2 || (argc == 2 && strcmp(argv[1], "tests") != 0) || (argc == 3 && strcmp(argv[1], "tests") == 0)) {
+        std::cout<<"Error: wrong arguments. Type the argument 'tests' to run the tests, or type two arguments: the parameters file and the STL mesh file containing the terrain."<<std::endl;
+        return 1;
+    }
+
+    Timer total_timer;
+    total_timer.start();
+
+    std::string stl_filename;
+    std::string parameters_filename;
+
+    if(strcmp(argv[1], "tests") == 0) {
+        const int number_of_errors = RunTests();
+        if (number_of_errors) return 1;
+        else return 0;
+    } else {
+        stl_filename = argv[1];
+        parameters_filename = argv[2];
+    }
+
+    json input_parameters;
+
+    if(!ReadInputParameters(parameters_filename, input_parameters)) return 0;
+
+    Mesh mesh;
+
+    if(!ReadTerrainMesh(mesh, stl_filename)) return 0;
+
+    if(!Compute(mesh)) return 0;
+
+
+
+    PrintResultsInGidFormat(mesh, stl_filename, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
 
     total_timer.stop();
     if(echo_level > 0) std::cout << "Total time: " << total_timer.getElapsedTimeInMilliSec() << "ms." << std::endl;
