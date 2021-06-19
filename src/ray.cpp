@@ -13,17 +13,17 @@ float randf(){
 float sgn(float x){
     return (x >= 0)*2.0f-1.0f;
 }
-Ray::Ray(const Vec3f& start_position, const Vec3f& direction):u(0),v(0) {
+Ray::Ray(const Vec3& start_position, const Vec3& direction):u(0),v(0) {
     mStartPosition = start_position;
-    mDirection = Vec3f::normalize(direction);
-    mInvDirection = Vec3f(1.0f/direction.X(), 1.0f/direction.Y(), 1.0f/direction.Z());
+    mDirection = Vec3::normalize(direction);
+    mInvDirection = Vec3(1.0f/direction.X(), 1.0f/direction.Y(), 1.0f/direction.Z());
     mSign[0] = (mInvDirection.X() < 0);
     mSign[1] = (mInvDirection.Y() < 0);
     mSign[2] = (mInvDirection.Z() < 0);
     t_max = INFINITY;
 }
 
-Vec3f Ray::ComputeIntersectionPoint() const {
+Vec3 Ray::ComputeIntersectionPoint() const {
     return mStartPosition + mDirection * t_max;
 }
 

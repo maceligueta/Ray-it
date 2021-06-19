@@ -23,5 +23,5 @@ std::pair<float, float> Box::Intersect(Ray &r) const{
         tmin = tzmin;
     if (tzmax < tmax)
         tmax = tzmax;
-    return  std::pair<float,float>(tmin, tmax); 
+    return  std::pair<float,float>(tmin, tmax);
 }

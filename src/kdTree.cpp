@@ -37,15 +37,15 @@ void KDTreeNode::Traverse(Ray &ray, float t_min, float t_max) const {
             aux = INFINITY;
         } else {
             aux = ray.mInvDirection[mSplitPlane.mAxis];
-        } 
+        }
         t_split = (mSplitPlane.mPos - ray.mStartPosition[mSplitPlane.mAxis]) * aux;
 
         //t_split = (mSplitPlane.mPos - ray.mStartPosition[mSplitPlane.mAxis]) * (ray.mDirection[mSplitPlane.mAxis] == 0 ? INFINITY : ray.mInvDirection[mSplitPlane.mAxis]);
 
         // near is the side containing the origin of the ray
         KDTreeNode *near, *far;
-        if(t_split == 0.0f) {
-            if (ray.mDirection[mSplitPlane.mAxis] > 0.0f) {
+        if(t_split == 0.0) {
+            if (ray.mDirection[mSplitPlane.mAxis] > 0.0) {
                 near = mLeft;
                 far = mRight;
             } else {
@@ -60,8 +60,8 @@ void KDTreeNode::Traverse(Ray &ray, float t_min, float t_max) const {
             } else {
                 near = mRight;
                 far = mLeft;
-            }     
-        }   
+            }
+        }
 
         if( t_split > t_max + 1e-4f || t_split < 0) {
             near->Traverse(ray, t_min, t_max);
@@ -171,7 +171,7 @@ struct Event {
 };
 
 // best spliting plane using SAH heuristic
-void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V, int depth,
+void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
                SplitPlane& p_est, float& C_est, PlaneSide& pside_est) const {
     // static int count = 0;
     C_est = INFINITY;
@@ -258,7 +258,7 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
     SplitPlane p;
     float Cp;
     PlaneSide pside;
-    findPlane(triangles, V, depth, p, Cp, pside);
+    findPlane(triangles, V, p, Cp, pside);
     if(isDone(triangles.size(), Cp) || p == prev_plane) // NOT IN PAPER
     {
         // Leaf node
@@ -268,10 +268,10 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
         leafnode->mLeaf = true;
         //std::cout << "Leaf node. Depth: " << depth << ". Number of triangles: "<< triangles.size() << std::endl;
         return leafnode;
-    } 
-    
-    
-    
+    }
+
+
+
     Box VL, VR;
     splitBox(V, p, VL, VR); // TODO: avoid doing this step twice
     std::vector<Triangle *> TL, TR;
@@ -283,7 +283,7 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
     /* innerNode->mTriangles = triangles;
     innerNode->mBounds = V;
     innerNode->mLeaf = false; */
-    //// 
+    ////
 
     innerNode->mSplitPlane = p;
     innerNode->mBounds = V;

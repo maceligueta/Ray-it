@@ -22,11 +22,11 @@ class Test7: public Test {
         echo_level = 0;
 
         RadiationPattern pattern;
-        pattern.mSeparationBetweenPhiValues = 60.0f;
-        pattern.mSeparationBetweenThetaValues = 60.0f;
-        pattern.mRadiationMap.resize(360.0f / pattern.mSeparationBetweenPhiValues + 1);
+        pattern.mSeparationBetweenPhiValues = 60;
+        pattern.mSeparationBetweenThetaValues = 60;
+        pattern.mRadiationMap.resize(360 / pattern.mSeparationBetweenPhiValues + 1);
         for(size_t i=0;i<pattern.mRadiationMap.size(); i++) {
-            pattern.mRadiationMap[i].resize(180.0f / pattern.mSeparationBetweenThetaValues + 1);
+            pattern.mRadiationMap[i].resize(180 / pattern.mSeparationBetweenThetaValues + 1);
         }
 
         pattern.mRadiationMap[0][0] = -50.0f; //phi = -180 theta = 0.0
@@ -85,7 +85,7 @@ class Test7: public Test {
 
         float base_power = 1.0f;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
-            Vec3f dir(mesh.mNodes[i]);
+            Vec3 dir(mesh.mNodes[i]);
             const float p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
             float power = base_power * std::pow(10.0f, p_dB*0.1f);
             mesh.mNodes[i] = dir * power;

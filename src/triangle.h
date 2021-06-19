@@ -9,12 +9,12 @@ class Mesh;
 class Triangle {
 public:
     unsigned int mId;
-    Vec3f p0, p1, p2;
-    Vec3f mFirstSide, mSecondSide, mNormal;
+    Vec3 p0, p1, p2;
+    Vec3 mFirstSide, mSecondSide, mNormal;
     float invDenom, uu, uv, vv;
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
-    Vec3f mCenter;
+    Vec3 mCenter;
     float mIntensity;
 
     Triangle(Mesh &mesh){}
@@ -23,15 +23,15 @@ public:
         mFirstSide = p1 - p0;
         mSecondSide = p2 - p0;
         mBoundingBox = ComputeBoundingBox();
-        uu = Vec3f::DotProduct(mFirstSide, mFirstSide);
-        uv = Vec3f::DotProduct(mFirstSide , mSecondSide);
-        vv = Vec3f::DotProduct(mSecondSide, mSecondSide);
+        uu = Vec3::DotProduct(mFirstSide, mFirstSide);
+        uv = Vec3::DotProduct(mFirstSide , mSecondSide);
+        vv = Vec3::DotProduct(mSecondSide, mSecondSide);
         invDenom = 1.0f / (uv*uv - uu*vv);
-        mNormal = Vec3f::cross(mSecondSide, mFirstSide);
+        mNormal = Vec3::cross(mSecondSide, mFirstSide);
         mCenter = ComputeCenter();
     }
 
-    Vec3f ComputeCenter() {
+    Vec3 ComputeCenter() {
         return (p0 + p1 + p2) * (1.0f/3.0f);
     }
 
@@ -54,7 +54,7 @@ public:
         float zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
 
 
-        return Box(Vec3f(xmin, ymin, zmin), Vec3f(xmax, ymax, zmax));
+        return Box(Vec3(xmin, ymin, zmin), Vec3(xmax, ymax, zmax));
     }
     float ComputeArea();
 };

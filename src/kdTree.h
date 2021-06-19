@@ -49,7 +49,7 @@ public:
     void splitBox(const Box& V, const SplitPlane& p, Box& VL, Box& VR) const;
     typedef enum { LEFT=-1, RIGHT=1, UNKNOWN=0 } PlaneSide;
     void SAH(const SplitPlane& p, const Box& V, size_t NL, size_t NR, size_t NP, float& CP, PlaneSide& pside) const;
-    void findPlane(const std::vector<Triangle *>& T, const Box& V, int depth, SplitPlane& p_est, float& C_est, PlaneSide& pside_est) const;
+    void findPlane(const std::vector<Triangle *>& T, const Box& V, SplitPlane& p_est, float& C_est, PlaneSide& pside_est) const;
     void DistributeTriangles(const std::vector<Triangle*>& T, const SplitPlane& p, const PlaneSide& pside, std::vector<Triangle*>& TL, std::vector<Triangle*>& TR) const;
     KDTreeNode* RecursiveTreeNodeBuild(const std::vector<Triangle *>& T, const Box &V, int depth, const SplitPlane& prev_plane);
 };

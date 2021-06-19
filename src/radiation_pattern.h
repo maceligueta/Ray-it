@@ -5,19 +5,19 @@
 
 class SphericalCoordinates {
     public:
-    float mPhi = 0.0f;
-    float mTheta = 0.0f;
+    float mPhi = 0.0;
+    float mTheta = 0.0;
     SphericalCoordinates(){}
     SphericalCoordinates(const float& phi, const float& theta) {
         mPhi = phi;
         mTheta = theta;
     }
-    SphericalCoordinates(const Vec3f& cartesian_direction) {
+    SphericalCoordinates(const Vec3& cartesian_direction) {
         const double x = (double)cartesian_direction[0];
         const double y = (double)cartesian_direction[1];
         const double z = (double)cartesian_direction[2];
-        mPhi = (float) atan2(y, x) * 180.0 * M_1_PI;
-        mTheta = (float) atan2(std::sqrt(x*x + y*y), z) * 180.0 * M_1_PI;
+        mPhi = float(atan2(y, x) * 180.0 * M_1_PI);
+        mTheta = float(atan2(std::sqrt(x*x + y*y), z) * 180.0 * M_1_PI);
     }
 };
 
@@ -26,8 +26,8 @@ class RadiationPattern {
 
     public:
     std::vector<std::vector<float>> mRadiationMap;
-    float mSeparationBetweenPhiValues;
-    float mSeparationBetweenThetaValues;
+    int mSeparationBetweenPhiValues;
+    int mSeparationBetweenThetaValues;
     RadiationPattern(){
         CheckConstantSpacingBetweenValues();
     }
@@ -36,8 +36,8 @@ class RadiationPattern {
     float DirectionalPowerValue(const SphericalCoordinates& spherical_coordinates) {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
-        const int floor_phi_index = std::floor((spherical_coordinates.mPhi + 180.0f) / mSeparationBetweenPhiValues);
-        const int floor_theta_index = std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
+        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + 180.0f) / mSeparationBetweenPhiValues);
+        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
         const float p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index];
         const float p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index];
         const float p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1];

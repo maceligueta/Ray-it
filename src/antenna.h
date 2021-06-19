@@ -8,7 +8,7 @@ class Antenna {
 
     public:
     RadiationPattern mRadiationPattern;
-    Vec3f mOrientation;
+    Vec3 mOrientation;
 
 
 };

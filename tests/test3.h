@@ -20,11 +20,11 @@ class Test3: public Test {
         Mesh mesh;
         ReadTerrainMesh(mesh, "cases/square_test.stl");
 
-        Vec3f origin(0.0f, 0.0f, 3.0f);
-        Vec3f direction(0.0f, 0.0f, 0.0f);
+        Vec3 origin(0.0, 0.0, 3.0f);
+        Vec3 direction(0.0, 0.0, 0.0);
 
         for(size_t i = 0; i<mesh.mNodes.size(); i++) {
-            direction = Vec3f(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
+            direction = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
             const float distance_squared = direction[0] * direction[0] + direction[1] *direction[1] + direction[2] * direction[2];
             mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
 

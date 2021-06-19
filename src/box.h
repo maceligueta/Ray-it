@@ -4,12 +4,12 @@
 #include "ray.h"
 #include <stdio.h>
 struct Box {
-    Vec3f mMin;
-    Vec3f mMax;
-    Box(const Vec3f min, const Vec3f max): mMin(min), mMax(max){};
+    Vec3 mMin;
+    Vec3 mMax;
+    Box(const Vec3 min, const Vec3 max): mMin(min), mMax(max){};
     Box(){};
     std::pair<float, float> Intersect(Ray &r) const;
-    Vec3f GetBound(int type) const{
+    Vec3 GetBound(int type) const{
         if(type == 0) return mMin;
         return mMax;
     }
