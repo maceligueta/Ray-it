@@ -1,6 +1,5 @@
-#ifndef __BasicRaytracer_triangle__
-#define __BasicRaytracer_triangle__
-
+#ifndef __Ray_it_triangle__
+#define __Ray_it_triangle__
 
 #include "vector.h"
 #include "box.h"
@@ -15,8 +14,8 @@ public:
     float invDenom, uu, uv, vv;
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
-    Vec3f mCenter;   
-    float mIntensity; 
+    Vec3f mCenter;
+    float mIntensity;
 
     Triangle(Mesh &mesh){}
 
@@ -60,4 +59,4 @@ public:
     float ComputeArea();
 };
 
-#endif //__BasicRaytracer_triangle__
+#endif

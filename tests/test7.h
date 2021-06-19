@@ -2,7 +2,7 @@
 #define RayTracer_test7
 
 #include "test.h"
-#include "../src/raytracer.h"
+#include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>

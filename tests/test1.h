@@ -2,7 +2,7 @@
 #define RayTracer_test1
 
 #include "test.h"
-#include "../src/raytracer.h"
+#include "../src/ray-it.h"
 extern unsigned int echo_level;
 
 class Test1: public Test {

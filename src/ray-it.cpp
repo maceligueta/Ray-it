@@ -118,7 +118,7 @@ bool CheckInputParameters(json& input_parameters) {
     return true;
 }
 
-bool Compute(Mesh& mesh){
+bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
 
     if(echo_level > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
@@ -170,10 +170,16 @@ bool ReadInputParameters(const std::string& parameters_filename, json& input_par
     return true;
 }
 
+bool ReadAntennasFile(std::vector<Antenna>& antennas){
+
+    return true;
+}
+
 int main(int argc, char *argv[]) {
 
-    if(argc > 3 || argc < 2 || (argc == 2 && strcmp(argv[1], "tests") != 0) || (argc == 3 && strcmp(argv[1], "tests") == 0)) {
-        std::cout<<"Error: wrong arguments. Type the argument 'tests' to run the tests, or type two arguments: the parameters file and the STL mesh file containing the terrain."<<std::endl;
+    //if(argc > 3 || argc < 2 || (argc == 2 && strcmp(argv[1], "tests") != 0) || (argc == 3 && strcmp(argv[1], "tests") == 0)) {
+    if(argc!=2){
+        std::cout<<"Error: wrong number of arguments. Type the argument 'tests' to run the tests, or type the paramters file informing about the input data (antennas and terrain) and settings."<<std::endl;
         return 1;
     }
 
@@ -188,21 +194,22 @@ int main(int argc, char *argv[]) {
         if (number_of_errors) return 1;
         else return 0;
     } else {
-        stl_filename = argv[1];
-        parameters_filename = argv[2];
+        parameters_filename = argv[1];
     }
 
     json input_parameters;
 
     if(!ReadInputParameters(parameters_filename, input_parameters)) return 0;
 
+    std::vector<Antenna> antennas;
+
+    if(!ReadAntennasFile(antennas)) return 0;
+
     Mesh mesh;
 
     if(!ReadTerrainMesh(mesh, stl_filename)) return 0;
 
-    if(!Compute(mesh)) return 0;
-
-
+    if(!Compute(antennas, mesh)) return 0;
 
     PrintResultsInGidFormat(mesh, stl_filename, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
 

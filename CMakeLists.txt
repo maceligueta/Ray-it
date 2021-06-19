@@ -10,14 +10,14 @@ if (WIN32)
 endif (WIN32)
 
 set(FILES_TO_BE_COMPILED
-    external_libraries/timer.cpp
-    src/raytracer.cpp
+    src/ray-it.cpp
     src/box.cpp
     src/kdTree.cpp
     src/mesh.cpp
     src/ray.cpp
     src/triangle.cpp
     tests/test.cpp
+    external_libraries/timer.cpp
 )
 
 # add the executable
