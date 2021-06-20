@@ -2,7 +2,7 @@
 #include <vector>
 #include <filesystem>
 
-
+#include "constants.h"
 #include "time.h"
 #include "vector.h"
 #include "mesh.h"
@@ -33,13 +33,13 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
     try {
 
         if (echo_level > 0) std::cout<<"Reading STL mesh ("<<filename<<")..."<<std::endl;
-        stl_reader::StlMesh <float, unsigned int> stl_mesh (filename);
+        stl_reader::StlMesh <real, unsigned int> stl_mesh (filename);
 
         if (echo_level > 1) {
             for(size_t itri = 0; itri < stl_mesh.num_tris(); ++itri) {
                 std::cout << "Coords " << itri << ": ";
                 for(size_t icorner = 0; icorner < 3; ++icorner) {
-                    const float* c = stl_mesh.tri_corner_coords(itri, icorner);
+                    const real* c = stl_mesh.tri_corner_coords(itri, icorner);
                     std::cout << "(" << c[0] << ", " << c[1] << ", " << c[2] << ") ";
                 }
                 std::cout << std::endl;
@@ -51,14 +51,14 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
                 }
                 std::cout << ")" << std::endl;
 
-                const float* n = stl_mesh.tri_normal(itri);
+                const real* n = stl_mesh.tri_normal(itri);
                 std::cout << "normal of triangle " << itri << ": "
                         << "(" << n[0] << ", " << n[1] << ", " << n[2] << ")\n";
             }
         }
 
-        float xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
-        float xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
+        real xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
+        real xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
 
         for(int i=0; i<stl_mesh.num_vrts(); i++){
             Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
@@ -78,7 +78,7 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
             }
         }
 
-        float added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
+        real added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
@@ -128,7 +128,7 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
         Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
         Ray test_ray(origin, vec_origin_to_node);
         test_ray.Intersect(mesh);
-        const float distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
+        const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
         if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
             mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
         }
@@ -138,7 +138,7 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
         Vec3 vec_origin_to_triangle_center = Vec3(mesh.mTriangles[i]->mCenter[0] - origin[0], mesh.mTriangles[i]->mCenter[1] - origin[1], mesh.mTriangles[i]->mCenter[2] - origin[2]);
         Ray test_ray(origin, vec_origin_to_triangle_center);
         test_ray.Intersect(mesh);
-        const float distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
+        const real distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
         if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
             mesh.mTriangles[i]->mIntensity = 1.0f / distance_squared;
             test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);

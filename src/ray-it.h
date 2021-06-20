@@ -1,6 +1,7 @@
 #ifndef RayTracer_main
 #define RayTracer_main
 
+#include "constants.h"
 #include "mesh.h"
 #include "../external_libraries/json.hpp"
 #include "antenna.h"

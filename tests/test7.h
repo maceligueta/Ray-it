@@ -58,7 +58,7 @@ class Test7: public Test {
         pattern.mRadiationMap[6][2] = -50.0f; //           theta = 120.0
         pattern.mRadiationMap[6][3] = -50.0f; //           theta = 180.0
 
-        float p;
+        real p;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0f, 90.0f));
         if(!CheckIfFloatsAreEqual(p, 0.0f)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-110.0f, 90.0f));
@@ -83,11 +83,11 @@ class Test7: public Test {
         Mesh mesh;
         if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;
 
-        float base_power = 1.0f;
+        real base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
-            const float p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
-            float power = base_power * std::pow(10.0f, p_dB*0.1f);
+            const real p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
+            real power = base_power * std::pow(10.0f, p_dB*0.1f);
             mesh.mNodes[i] = dir * power;
         }
 

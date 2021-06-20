@@ -21,7 +21,7 @@ class Test1: public Test {
         ReadTerrainMesh(mesh, "cases/square_test.stl");
 
         Vec3 origin(0.0, 0.0, 3.0f);
-        Vec3 direction(0.1f, 0.0, -1.0f);
+        Vec3 direction(0.1f, 0.0, -1.0);
         Ray test_ray1(origin, direction);
         if(!mesh.Intersect(test_ray1)) return 1;
 
@@ -31,7 +31,7 @@ class Test1: public Test {
 
         //This ray is parallel to the surface to be intersected:
         origin = Vec3(0.0, 0.0, 0.0);
-        direction = Vec3(1.0f, 1.0f, 0.0);
+        direction = Vec3(1.0, 1.0, 0.0);
         Ray test_ray2(origin, direction);
         if(mesh.Intersect(test_ray2)) return 1;
         //alternative approach

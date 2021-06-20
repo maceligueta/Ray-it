@@ -14,8 +14,8 @@ class Test {
     virtual bool Run(){
         return 1;
     }
-    bool CheckIfFloatsAreEqual(const float& a, const float& b) {
-        auto c = std::numeric_limits<float>::epsilon();
+    bool CheckIfFloatsAreEqual(const real& a, const real& b) {
+        auto c = std::numeric_limits<real>::epsilon();
         return (std::abs(a - b) < c);
     }
 

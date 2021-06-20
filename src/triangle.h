@@ -11,11 +11,11 @@ public:
     unsigned int mId;
     Vec3 p0, p1, p2;
     Vec3 mFirstSide, mSecondSide, mNormal;
-    float invDenom, uu, uv, vv;
+    real invDenom, uu, uv, vv;
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
     Vec3 mCenter;
-    float mIntensity;
+    real mIntensity;
 
     Triangle(Mesh &mesh){}
 
@@ -37,26 +37,26 @@ public:
 
     bool Intersect(Ray &ray) const;
 
-    float leftExtreme(int axis){
+    real leftExtreme(int axis){
         return fmin(p0[axis], fmin(p1[axis], p2[axis]));
     }
-    float rightExtreme(int axis){
+    real rightExtreme(int axis){
         return fmax(p0[axis], fmax(p1[axis], p2[axis]));
     }
 
     Box ComputeBoundingBox(){
-        float xmin = fmin(p0.X(), fmin(p1.X(), p2.X()));
-        float ymin = fmin(p0.Y(), fmin(p1.Y(), p2.Y()));
-        float zmin = fmin(p0.Z(), fmin(p1.Z(), p2.Z()));
+        real xmin = fmin(p0.X(), fmin(p1.X(), p2.X()));
+        real ymin = fmin(p0.Y(), fmin(p1.Y(), p2.Y()));
+        real zmin = fmin(p0.Z(), fmin(p1.Z(), p2.Z()));
 
-        float xmax = fmax(p0.X(), fmax(p1.X(), p2.X()));
-        float ymax = fmax(p0.Y(), fmax(p1.Y(), p2.Y()));
-        float zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
+        real xmax = fmax(p0.X(), fmax(p1.X(), p2.X()));
+        real ymax = fmax(p0.Y(), fmax(p1.Y(), p2.Y()));
+        real zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
 
 
         return Box(Vec3(xmin, ymin, zmin), Vec3(xmax, ymax, zmax));
     }
-    float ComputeArea();
+    real ComputeArea();
 };
 
 #endif

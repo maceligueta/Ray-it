@@ -9,11 +9,11 @@
 extern unsigned int echo_level;
 
 void KDTreeNode::Traverse(Ray &r) const{
-    std::pair<float, float> t = mBounds.Intersect(r);
+    std::pair<real, real> t = mBounds.Intersect(r);
     return Traverse(r, t.first, t.second);
 }
 
-void KDTreeNode::Traverse(Ray &ray, float t_min, float t_max) const {
+void KDTreeNode::Traverse(Ray &ray, real t_min, real t_max) const {
     if(echo_level > 1) {
         std::cout<<"Triangles of this KDTreeNode:";
         for (auto triangle: mTriangles) {
@@ -30,9 +30,9 @@ void KDTreeNode::Traverse(Ray &ray, float t_min, float t_max) const {
         }
     }
     else{
-        float t_split;
+        real t_split;
 
-        float aux;
+        real aux;
         if (ray.mDirection[mSplitPlane.mAxis] == 0) {
             aux = INFINITY;
         } else {
@@ -90,17 +90,17 @@ void KDTreeNode::splitBox(const Box& V, const SplitPlane& p, Box& VL, Box& VR) c
 }
 
 // surface area of a volume V
-inline float surfaceArea(const Box& V) {
+inline real surfaceArea(const Box& V) {
     return 2*V.XWidth()*V.YWidth() + 2*V.XWidth()*V.ZWidth() + 2*V.YWidth()*V.ZWidth();
 }
 
 // Probability of hitting volume Vsub, given volume V was hit
-float prob_hit(const Box& Vsub, const Box& V){
+real prob_hit(const Box& Vsub, const Box& V){
     return surfaceArea(Vsub) / surfaceArea(V);
 }
 
 // bias for the cost function s.t. it is reduced if NL or NR becomes zero
-inline float lambda(size_t NL, size_t NR, float PL, float PR) {
+inline real lambda(size_t NL, size_t NR, real PL, real PR) {
     if((NL == 0 || NR == 0) &&
        !(PL == 1 || PR == 1) // NOT IN PAPER
        )
@@ -108,23 +108,23 @@ inline float lambda(size_t NL, size_t NR, float PL, float PR) {
     return 1.0f;
 }
 
-inline float cost(float PL, float PR, size_t NL, size_t NR) {
+inline real cost(real PL, real PR, size_t NL, size_t NR) {
     return(lambda(NL, NR, PL, PR) * (COST_TRAVERSE + COST_INTERSECT * (PL * NL + PR * NR)));
 }
 
 // SAH heuristic for computing the cost of splitting a voxel V using a plane p
-void KDTreeNode::SAH(const SplitPlane& p, const Box& V, size_t NL, size_t NR, size_t NP, float& CP, PlaneSide& pside) const {
+void KDTreeNode::SAH(const SplitPlane& p, const Box& V, size_t NL, size_t NR, size_t NP, real& CP, PlaneSide& pside) const {
     CP = INFINITY;
     Box VL, VR;
     splitBox(V, p, VL, VR);
-    float PL, PR;
+    real PL, PR;
     PL = prob_hit(VL, V);
     PR = prob_hit(VR, V);
     if(PL == 0 || PR == 0) // NOT IN PAPER
         return;
     if(V.WidthAlongAxis(p.mAxis) == 0) // NOT IN PAPER
         return;
-    float CPL, CPR;
+    real CPL, CPR;
     CPL = cost(PL, PR, NL + NP, NR);
     CPR = cost(PL, PR, NL, NP + NR );
     if(CPL < CPR) {
@@ -137,7 +137,7 @@ void KDTreeNode::SAH(const SplitPlane& p, const Box& V, size_t NL, size_t NR, si
 }
 
 // criterion for stopping subdividing a tree node
-inline bool KDTreeNode::isDone(size_t N, float minCv) const {
+inline bool KDTreeNode::isDone(size_t N, real minCv) const {
     // cerr << "terminate: minCv=" << minCv << ", KI*N=" << KI*N << endl;
     return(minCv > COST_INTERSECT*N);
 }
@@ -161,7 +161,7 @@ struct Event {
     SplitPlane splitPlane;
     EventType type;
 
-    Event(Triangle* tri, int k, float ee0, EventType type) : triangle(tri), type(type) , splitPlane(SplitPlane(k, ee0)){}
+    Event(Triangle* tri, int k, real ee0, EventType type) : triangle(tri), type(type) , splitPlane(SplitPlane(k, ee0)){}
 
     inline bool operator<(const Event& e) const {
         return((splitPlane.mPos < e.splitPlane.mPos) || (splitPlane.mPos == e.splitPlane.mPos && type < e.type));
@@ -172,7 +172,7 @@ struct Event {
 
 // best spliting plane using SAH heuristic
 void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
-               SplitPlane& p_est, float& C_est, PlaneSide& pside_est) const {
+               SplitPlane& p_est, real& C_est, PlaneSide& pside_est) const {
     // static int count = 0;
     C_est = INFINITY;
     for(int k=0; k<3; ++k) {
@@ -208,7 +208,7 @@ void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
             NP = pLyingOnPlane;
             NR -= pLyingOnPlane;
             NR -= pEndingOnPlane;
-            float C;
+            real C;
             PlaneSide pside = UNKNOWN;
             SAH(p, V, NL, NR, NP, C, pside);
             if(C < C_est) {
@@ -256,7 +256,7 @@ void KDTreeNode::DistributeTriangles(const std::vector<Triangle*>& T, const Spli
 int nnodes = 0;
 KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& triangles, const Box &V, int depth, const SplitPlane& prev_plane){
     SplitPlane p;
-    float Cp;
+    real Cp;
     PlaneSide pside;
     findPlane(triangles, V, p, Cp, pside);
     if(isDone(triangles.size(), Cp) || p == prev_plane) // NOT IN PAPER

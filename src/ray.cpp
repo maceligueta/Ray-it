@@ -6,11 +6,11 @@ size_t Ray::mCounter = 0;
 
 #define GLOBAL_PHOTON_COUNT 1000000
 
-float randf(){
-    return ((float)rand()/(float)RAND_MAX);
+real randf(){
+    return ((real)rand()/(real)RAND_MAX);
 }
 
-float sgn(float x){
+real sgn(real x){
     return (x >= 0)*2.0f-1.0f;
 }
 Ray::Ray(const Vec3& start_position, const Vec3& direction):u(0),v(0) {
