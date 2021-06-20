@@ -3,7 +3,7 @@
 #include "constants.h"
 
 real Triangle::ComputeArea(){
-    return Vec3::cross(mFirstSide, mSecondSide).length() * 0.5f;
+    return Vec3::cross(mFirstSide, mSecondSide).length() * real(0.5);
 }
 
 bool Triangle::Intersect(Ray &ray) const{
@@ -30,8 +30,8 @@ bool Triangle::Intersect(Ray &ray) const{
         const real vw = Vec3::DotProduct(mSecondSide, w);
         const real s = (uv * vw - vv*uw) * invDenom;
         const real t = (uv * uw - uu*vw) * invDenom;
-        const real tolerance = 1e-4f;
-        if (s < 0.0-tolerance || t < 0.0-tolerance || s + t > 1.0f+tolerance){
+        const real tolerance = EPSILON;
+        if (s < 0.0-tolerance || t < 0.0-tolerance || s + t > real(1.0)+tolerance){
             return false;
         } // Outside triangle
 

@@ -26,13 +26,13 @@ public:
         uu = Vec3::DotProduct(mFirstSide, mFirstSide);
         uv = Vec3::DotProduct(mFirstSide , mSecondSide);
         vv = Vec3::DotProduct(mSecondSide, mSecondSide);
-        invDenom = 1.0f / (uv*uv - uu*vv);
+        invDenom = real(1.0) / (uv*uv - uu*vv);
         mNormal = Vec3::cross(mSecondSide, mFirstSide);
         mCenter = ComputeCenter();
     }
 
     Vec3 ComputeCenter() {
-        return (p0 + p1 + p2) * (1.0f/3.0f);
+        return (p0 + p1 + p2) * ONE_THIRD;
     }
 
     bool Intersect(Ray &ray) const;

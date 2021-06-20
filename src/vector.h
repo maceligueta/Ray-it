@@ -30,7 +30,7 @@ public:
     }
 
     inline Vec3& normalize(){
-        real inv_length = 1.0f / this->length();
+        real inv_length = real(1.0) / this->length();
         mCoordinates[0] *= inv_length;
         mCoordinates[1] *= inv_length;
         mCoordinates[2] *= inv_length;
@@ -38,7 +38,7 @@ public:
     };
 
     static Vec3 normalize(const Vec3 &v) {
-        real inv_length = 1.0f / v.length();
+        real inv_length = real(1.0) / v.length();
         Vec3 result = Vec3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
         return result;
     };

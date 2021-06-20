@@ -14,6 +14,7 @@ typedef float real;
 #endif
 
 #define EPSILON 0.00001f
+#define ONE_THIRD 0.333333333333333f
 enum TypeOfResultsPrint {RESULTS_ON_NODES, RESULTS_ON_ELEMENTS};
 
 

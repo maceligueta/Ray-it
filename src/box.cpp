@@ -8,7 +8,7 @@ std::pair<real, real> Box::Intersect(Ray &r) const{
     tymin = (GetBound(r.mSign[1]).Y() - r.mStartPosition.Y()) * r.mInvDirection.Y();
     tymax = (GetBound(1-r.mSign[1]).Y() - r.mStartPosition.Y()) * r.mInvDirection.Y();
     if ((tmin > tymax) || (tymin > tmax)){
-        return std::pair<real,real>(0.0f, 0.0f);
+        return std::pair<real,real>(real(0.0), real(0.0));
     }
     if (tymin > tmin)
         tmin = tymin;
@@ -17,7 +17,7 @@ std::pair<real, real> Box::Intersect(Ray &r) const{
     tzmin = (GetBound(r.mSign[2]).Z() - r.mStartPosition.Z()) * r.mInvDirection.Z();
     tzmax = (GetBound(1-r.mSign[2]).Z() - r.mStartPosition.Z()) * r.mInvDirection.Z();
     if ((tmin > tzmax) || (tzmin > tmax)){
-        return std::pair<real,real>(0.0f, 0.0f);
+        return std::pair<real,real>(real(0.0), real(0.0));
     }
     if (tzmin > tmin)
         tmin = tzmin;

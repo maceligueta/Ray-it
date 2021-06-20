@@ -27,13 +27,13 @@ void PrintResultsInGidFormat(Mesh& mesh, const std::string& file_name, const Typ
     if(echo_level > 0) std::cout << "  done!"<<std::endl;
 }
 
-bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
+bool ReadTerrainMesh(Mesh& mesh, const std::string& stl_file_name) {
 
 
     try {
 
-        if (echo_level > 0) std::cout<<"Reading STL mesh ("<<filename<<")..."<<std::endl;
-        stl_reader::StlMesh <real, unsigned int> stl_mesh (filename);
+        if (echo_level > 0) std::cout<<"Reading STL mesh ("<<stl_file_name<<")..."<<std::endl;
+        stl_reader::StlMesh <real, unsigned int> stl_mesh (stl_file_name);
 
         if (echo_level > 1) {
             for(size_t itri = 0; itri < stl_mesh.num_tris(); ++itri) {
@@ -99,7 +99,7 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& filename) {
             mesh.mTriangles.push_back(t);
         }
 
-        if (echo_level > 0) std::cout<<"File "<<filename<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
+        if (echo_level > 0) std::cout<<"File "<<stl_file_name<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
         if(echo_level > 0) std::cout << "Building KD-tree... " << std::endl;
         KDTreeNode* root= new KDTreeNode();
@@ -122,15 +122,15 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
 
     if(echo_level > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
-    Vec3 origin(0.0, 0.0, 3.0f);
+    Vec3 origin(0.0, 0.0, 3.0);
 
     /* for(size_t i = 0; i<mesh.mNodes.size(); i++) {
         Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
         Ray test_ray(origin, vec_origin_to_node);
         test_ray.Intersect(mesh);
         const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
-        if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
-            mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
+        if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
+            mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
         }
     }  */
 
@@ -139,8 +139,8 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
         Ray test_ray(origin, vec_origin_to_triangle_center);
         test_ray.Intersect(mesh);
         const real distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-        if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
-            mesh.mTriangles[i]->mIntensity = 1.0f / distance_squared;
+        if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
+            mesh.mTriangles[i]->mIntensity = real(1.0) / distance_squared;
             test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);
         }
     }
@@ -170,7 +170,7 @@ bool ReadInputParameters(const std::string& parameters_filename, json& input_par
     return true;
 }
 
-bool ReadAntennasFile(std::vector<Antenna>& antennas){
+bool ReadAntennasFile(std::vector<Antenna>& antennas, const std::string& antennas_input_file_name){
 
     return true;
 }
@@ -197,21 +197,23 @@ int main(int argc, char *argv[]) {
         parameters_filename = argv[1];
     }
 
-    json input_parameters;
+    json parameters;
 
-    if(!ReadInputParameters(parameters_filename, input_parameters)) return 0;
+    if(!ReadInputParameters(parameters_filename, parameters)) return 0;
 
     std::vector<Antenna> antennas;
+    const std::string antennas_input_file_name = parameters["antennas_input_file_name"].get<std::string>();
 
-    if(!ReadAntennasFile(antennas)) return 0;
+    if(!ReadAntennasFile(antennas, antennas_input_file_name)) return 0;
 
     Mesh mesh;
+    const std::string stl_file_name = parameters["stl_file_name"].get<std::string>();
 
-    if(!ReadTerrainMesh(mesh, stl_filename)) return 0;
+    if(!ReadTerrainMesh(mesh, stl_file_name)) return 0;
 
     if(!Compute(antennas, mesh)) return 0;
 
-    PrintResultsInGidFormat(mesh, stl_filename, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
+    PrintResultsInGidFormat(mesh, stl_file_name, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
 
     total_timer.stop();
     if(echo_level > 0) std::cout << "Total time: " << total_timer.getElapsedTimeInMilliSec() << "ms." << std::endl;

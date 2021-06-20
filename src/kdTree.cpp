@@ -63,10 +63,10 @@ void KDTreeNode::Traverse(Ray &ray, real t_min, real t_max) const {
             }
         }
 
-        if( t_split > t_max + 1e-4f || t_split < 0) {
+        if( t_split > t_max + EPSILON || t_split < 0) {
             near->Traverse(ray, t_min, t_max);
         }
-        else if(t_split < t_min - 1e-4f) {
+        else if(t_split < t_min - EPSILON) {
             far->Traverse(ray, t_min, t_max);
         }
         else {
@@ -79,8 +79,8 @@ void KDTreeNode::Traverse(Ray &ray, real t_min, real t_max) const {
 }
 
 
-#define COST_TRAVERSE 1.0f
-#define COST_INTERSECT 1.5f
+#define COST_TRAVERSE real(1.0)
+#define COST_INTERSECT real(1.5)
 
 void KDTreeNode::splitBox(const Box& V, const SplitPlane& p, Box& VL, Box& VR) const {
     VL = V;
@@ -104,8 +104,8 @@ inline real lambda(size_t NL, size_t NR, real PL, real PR) {
     if((NL == 0 || NR == 0) &&
        !(PL == 1 || PR == 1) // NOT IN PAPER
        )
-        return 0.8f;
-    return 1.0f;
+        return real(0.8);
+    return real(1.0);
 }
 
 inline real cost(real PL, real PR, size_t NL, size_t NR) {

@@ -36,14 +36,14 @@ class RadiationPattern {
     real DirectionalPowerValue(const SphericalCoordinates& spherical_coordinates) {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
-        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + 180.0f) / mSeparationBetweenPhiValues);
+        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real(180.0)) / mSeparationBetweenPhiValues);
         const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
         const real p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index];
         const real p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index];
         const real p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1];
         const real p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1];
-        const real value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - 180.0f));
-        const real value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - 180.0f));
+        const real value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real(180.0)));
+        const real value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real(180.0)));
         const real final_value = value_at_floor_theta + (value_at_floor_theta_plus_one - value_at_floor_theta) / mSeparationBetweenThetaValues * (spherical_coordinates.mTheta - floor_theta_index*mSeparationBetweenThetaValues);
         return final_value;
     }

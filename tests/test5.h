@@ -27,8 +27,8 @@ class Test5: public Test {
             Ray test_ray(origin, vec_origin_to_node);
             test_ray.Intersect(mesh);
             const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
-            if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
-                mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
+            if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
+                mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
             }
         }
 

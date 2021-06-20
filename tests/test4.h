@@ -20,15 +20,15 @@ class Test4: public Test {
         Mesh mesh;
         ReadTerrainMesh(mesh, "cases/square_with_smaller_square_before_test.stl");
 
-        Vec3 origin(0.0, 0.0, 3.0f);
+        Vec3 origin(0.0, 0.0, 3.0);
 
         for(size_t i = 0; i<mesh.mNodes.size(); i++) {
             Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
             Ray test_ray(origin, vec_origin_to_node);
             test_ray.Intersect(mesh);
             const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
-            if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < 1e-4f) {
-                mesh.mNodes[i].mIntensity = 1.0f / distance_squared;
+            if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
+                mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
             }
         }
 
