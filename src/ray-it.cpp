@@ -122,8 +122,6 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
 
     if(echo_level > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
-    Vec3 origin(0.0, 0.0, 3.0);
-
     /* for(size_t i = 0; i<mesh.mNodes.size(); i++) {
         Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
         Ray test_ray(origin, vec_origin_to_node);
@@ -134,14 +132,20 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
         }
     }  */
 
-    for(size_t i = 0; i<mesh.mTriangles.size(); i++) {
-        Vec3 vec_origin_to_triangle_center = Vec3(mesh.mTriangles[i]->mCenter[0] - origin[0], mesh.mTriangles[i]->mCenter[1] - origin[1], mesh.mTriangles[i]->mCenter[2] - origin[2]);
-        Ray test_ray(origin, vec_origin_to_triangle_center);
-        test_ray.Intersect(mesh);
-        const real distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-        if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
-            mesh.mTriangles[i]->mIntensity = real(1.0) / distance_squared;
-            test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);
+    for(size_t antenna_index=0; antenna_index<antennas.size(); ++antenna_index) {
+        Vec3 origin = antennas[antenna_index].mCoordinates;
+        std::cout<<"Antenna '"<<antennas[antenna_index].mName<<"' at position: "<<std::setprecision(15)<<origin<<std::endl;
+
+        for(size_t i = 0; i<mesh.mTriangles.size(); i++) {
+            Vec3 vec_origin_to_triangle_center = Vec3(mesh.mTriangles[i]->mCenter[0] - origin[0], mesh.mTriangles[i]->mCenter[1] - origin[1], mesh.mTriangles[i]->mCenter[2] - origin[2]);
+            Ray test_ray(origin, vec_origin_to_triangle_center);
+            test_ray.Intersect(mesh);
+            const real distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
+            const real distance = sqrt(distance_squared);
+            if(std::abs(test_ray.t_max - distance) < 1.0) {
+                mesh.mTriangles[i]->mIntensity = real(1.0) / distance_squared;
+                test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);
+            }
         }
     }
 
@@ -170,8 +174,19 @@ bool ReadInputParameters(const std::string& parameters_filename, json& input_par
     return true;
 }
 
-bool ReadAntennasFile(std::vector<Antenna>& antennas, const std::string& antennas_input_file_name){
+bool ReadAntennas(std::vector<Antenna>& antennas, nlohmann::json& input_parameters){
 
+    for (auto& single_antenna_data : input_parameters["antennas_list"]) {
+        Antenna a;
+        a.mName = single_antenna_data["name"].get<std::string>();
+
+        auto coords = single_antenna_data["coordinates"].get<std::vector<real>>();
+        a.mCoordinates[0] = coords[0];
+        a.mCoordinates[1] = coords[1];
+        a.mCoordinates[2] = coords[2];
+
+        antennas.push_back(a);
+    }
     return true;
 }
 
@@ -181,6 +196,18 @@ int main(int argc, char *argv[]) {
     if(argc!=2){
         std::cout<<"Error: wrong number of arguments. Type the argument 'tests' to run the tests, or type the paramters file informing about the input data (antennas and terrain) and settings."<<std::endl;
         return 1;
+    }
+
+    if(echo_level > 0) {
+        std::cout << "Ray-it starting. Using ";
+        #ifdef RAY_IT_USE_DOUBLES
+        #pragma message("---- Compiling with double precision ----")
+        std::cout << "double precision ('double' variables). ";
+        #else
+        #pragma message("---- Compiling with single precision ----")
+        std::cout << "single precision ('float' variables). ";
+        #endif
+        std::cout<<std::endl<<std::endl;
     }
 
     Timer total_timer;
@@ -202,9 +229,9 @@ int main(int argc, char *argv[]) {
     if(!ReadInputParameters(parameters_filename, parameters)) return 0;
 
     std::vector<Antenna> antennas;
-    const std::string antennas_input_file_name = parameters["antennas_input_file_name"].get<std::string>();
 
-    if(!ReadAntennasFile(antennas, antennas_input_file_name)) return 0;
+
+    if(!ReadAntennas(antennas, parameters)) return 0;
 
     Mesh mesh;
     const std::string stl_file_name = parameters["stl_file_name"].get<std::string>();

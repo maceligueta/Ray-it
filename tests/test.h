@@ -15,8 +15,7 @@ class Test {
         return 1;
     }
     bool CheckIfFloatsAreEqual(const real& a, const real& b) {
-        auto c = std::numeric_limits<real>::epsilon();
-        return (std::abs(a - b) < c);
+        return (std::abs(a - b) < EPSILON);
     }
 
     bool CheckMeshResultsAreEqualToReference(const std::string& results_mesh_file_name, const std::string& mesh_reference_file_name);

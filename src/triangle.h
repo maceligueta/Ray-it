@@ -15,7 +15,7 @@ public:
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
     Vec3 mCenter;
-    real mIntensity;
+    real mIntensity = 0.0;
 
     Triangle(Mesh &mesh){}
 
@@ -27,7 +27,7 @@ public:
         uv = Vec3::DotProduct(mFirstSide , mSecondSide);
         vv = Vec3::DotProduct(mSecondSide, mSecondSide);
         invDenom = real(1.0) / (uv*uv - uu*vv);
-        mNormal = Vec3::cross(mSecondSide, mFirstSide);
+        mNormal = Vec3::normalize(Vec3::CrossProduct(mSecondSide, mFirstSide));
         mCenter = ComputeCenter();
     }
 

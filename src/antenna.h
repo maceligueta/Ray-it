@@ -8,6 +8,8 @@
 class Antenna {
 
     public:
+    std::string mName;
+    Vec3 mCoordinates;
     RadiationPattern mRadiationPattern;
     Vec3 mOrientation;
 

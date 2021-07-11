@@ -49,7 +49,7 @@ public:
                  + a.Z() * b.Z());
 
     };
-    static inline Vec3 cross(const Vec3 &a, const Vec3 &b){
+    static inline Vec3 CrossProduct(const Vec3 &a, const Vec3 &b){
         return Vec3(a.Y()*b.Z() - a.Z()*b.Y(),
                      a.Z()*b.X() - a.X()*b.Z(),
                      a.X()*b.Y() - a.Y()*b.X());
@@ -86,7 +86,7 @@ public:
         return mCoordinates[axis];
     }
     friend std::ostream& operator<<(std::ostream& strm, const Vec3 &vec) {
-        return strm << "[" << vec.X()  << vec.Y() << vec.Z() << "]";
+        return strm << "[" << vec.X()<<"  "<< vec.Y() <<"  "<< vec.Z() << "]";
     }
 
 };
