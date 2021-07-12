@@ -1,14 +1,14 @@
 #ifndef RayTracer_node
 #define RayTracer_node
 
-class Node : public Vec3f {
+class Node : public Vec3 {
 
     public:
 
     Node(){};
-    Node(const Vec3f& pos):Vec3f(pos){}
+    Node(const Vec3& pos):Vec3(pos){}
 
-    float mIntensity = 0.0;
+    real mIntensity = 0.0;
 };
 
 #endif

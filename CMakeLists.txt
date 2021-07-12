@@ -9,15 +9,19 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWIN32")
 endif (WIN32)
 
+IF(RAY_IT_USE_DOUBLES MATCHES ON)
+    ADD_DEFINITIONS(-DRAY_IT_USE_DOUBLES)
+ENDIF(RAY_IT_USE_DOUBLES MATCHES ON)
+
 set(FILES_TO_BE_COMPILED
-    external_libraries/timer.cpp
-    src/raytracer.cpp
+    src/ray-it.cpp
     src/box.cpp
     src/kdTree.cpp
     src/mesh.cpp
     src/ray.cpp
     src/triangle.cpp
     tests/test.cpp
+    external_libraries/timer.cpp
 )
 
 # add the executable

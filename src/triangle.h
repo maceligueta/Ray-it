@@ -1,6 +1,5 @@
-#ifndef __BasicRaytracer_triangle__
-#define __BasicRaytracer_triangle__
-
+#ifndef __Ray_it_triangle__
+#define __Ray_it_triangle__
 
 #include "vector.h"
 #include "box.h"
@@ -10,13 +9,13 @@ class Mesh;
 class Triangle {
 public:
     unsigned int mId;
-    Vec3f p0, p1, p2;
-    Vec3f mFirstSide, mSecondSide, mNormal;
-    float invDenom, uu, uv, vv;
+    Vec3 p0, p1, p2;
+    Vec3 mFirstSide, mSecondSide, mNormal;
+    real invDenom, uu, uv, vv;
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
-    Vec3f mCenter;   
-    float mIntensity; 
+    Vec3 mCenter;
+    real mIntensity = 0.0;
 
     Triangle(Mesh &mesh){}
 
@@ -24,40 +23,40 @@ public:
         mFirstSide = p1 - p0;
         mSecondSide = p2 - p0;
         mBoundingBox = ComputeBoundingBox();
-        uu = Vec3f::DotProduct(mFirstSide, mFirstSide);
-        uv = Vec3f::DotProduct(mFirstSide , mSecondSide);
-        vv = Vec3f::DotProduct(mSecondSide, mSecondSide);
-        invDenom = 1.0f / (uv*uv - uu*vv);
-        mNormal = Vec3f::cross(mSecondSide, mFirstSide);
+        uu = Vec3::DotProduct(mFirstSide, mFirstSide);
+        uv = Vec3::DotProduct(mFirstSide , mSecondSide);
+        vv = Vec3::DotProduct(mSecondSide, mSecondSide);
+        invDenom = real(1.0) / (uv*uv - uu*vv);
+        mNormal = Vec3::normalize(Vec3::CrossProduct(mSecondSide, mFirstSide));
         mCenter = ComputeCenter();
     }
 
-    Vec3f ComputeCenter() {
-        return (p0 + p1 + p2) * (1.0f/3.0f);
+    Vec3 ComputeCenter() {
+        return (p0 + p1 + p2) * ONE_THIRD;
     }
 
     bool Intersect(Ray &ray) const;
 
-    float leftExtreme(int axis){
+    real leftExtreme(int axis){
         return fmin(p0[axis], fmin(p1[axis], p2[axis]));
     }
-    float rightExtreme(int axis){
+    real rightExtreme(int axis){
         return fmax(p0[axis], fmax(p1[axis], p2[axis]));
     }
 
     Box ComputeBoundingBox(){
-        float xmin = fmin(p0.X(), fmin(p1.X(), p2.X()));
-        float ymin = fmin(p0.Y(), fmin(p1.Y(), p2.Y()));
-        float zmin = fmin(p0.Z(), fmin(p1.Z(), p2.Z()));
+        real xmin = fmin(p0.X(), fmin(p1.X(), p2.X()));
+        real ymin = fmin(p0.Y(), fmin(p1.Y(), p2.Y()));
+        real zmin = fmin(p0.Z(), fmin(p1.Z(), p2.Z()));
 
-        float xmax = fmax(p0.X(), fmax(p1.X(), p2.X()));
-        float ymax = fmax(p0.Y(), fmax(p1.Y(), p2.Y()));
-        float zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
+        real xmax = fmax(p0.X(), fmax(p1.X(), p2.X()));
+        real ymax = fmax(p0.Y(), fmax(p1.Y(), p2.Y()));
+        real zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
 
 
-        return Box(Vec3f(xmin, ymin, zmin), Vec3f(xmax, ymax, zmax));
+        return Box(Vec3(xmin, ymin, zmin), Vec3(xmax, ymax, zmax));
     }
-    float ComputeArea();
+    real ComputeArea();
 };
 
-#endif //__BasicRaytracer_triangle__
+#endif

@@ -56,7 +56,6 @@ class GidOutput {
             gidresfo <<"Result \"Intensity\" \"Analysis/time\" "<<0.0<<" Scalar OnGaussPoints \"Triangle1GausPoint\" "<<std::endl;
             gidresfo <<"Values"<<std::endl;
             for(size_t i=0; i<mesh.mTriangles.size(); i++) {
-                //mesh.mTriangles[i]->mIntensity = (mesh.mNodes[mesh.mTriangles[i]->mNodeIndices[0]].mIntensity + mesh.mNodes[mesh.mTriangles[i]->mNodeIndices[1]].mIntensity +mesh.mNodes[mesh.mTriangles[i]->mNodeIndices[2]].mIntensity) / 3.0f;
                 gidresfo << i+1<<"   "<<mesh.mTriangles[i]->mIntensity<<std::endl;
             }
             gidresfo <<"End Values"<<std::endl;

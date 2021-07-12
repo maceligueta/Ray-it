@@ -12,11 +12,11 @@ class Mesh;
 
 class Mesh {
 public:
-    Vec3f mBoundingBox[2];
+    Vec3 mBoundingBox[2];
     KDTreeNode mTree;
     std::vector<Node> mNodes;
     std::vector<Triangle*> mTriangles;
-    std::vector<Vec3f> mNormals;
+    std::vector<Vec3> mNormals;
     long mTriangleCount;
 
     Mesh(){};

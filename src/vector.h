@@ -5,87 +5,89 @@
 #include <cmath>
 #include <stdio.h>
 
-class Vec3f{
+#include "constants.h"
+
+class Vec3{
 public:
-    float mCoordinates[3] = {0.0f, 0.0f, 0.0f};
-    Vec3f(){}
-    Vec3f(float x, float y, float z){
+    real mCoordinates[3] = {0.0, 0.0, 0.0};
+    Vec3(){}
+    Vec3(real x, real y, real z){
         mCoordinates[0] = x;
         mCoordinates[1] = y;
         mCoordinates[2] = z;
     }
-    inline float& X(){ return mCoordinates[0];}
-    const inline float& X() const { return mCoordinates[0];}
-    inline float& Y(){ return mCoordinates[1];}
-    const inline float& Y() const { return mCoordinates[1];}
-    inline float& Z(){ return mCoordinates[2];}
-    const inline float& Z() const { return mCoordinates[2];}
-    inline float length(void) const{
+    inline real& X(){ return mCoordinates[0];}
+    const inline real& X() const { return mCoordinates[0];}
+    inline real& Y(){ return mCoordinates[1];}
+    const inline real& Y() const { return mCoordinates[1];}
+    inline real& Z(){ return mCoordinates[2];}
+    const inline real& Z() const { return mCoordinates[2];}
+    inline real length(void) const{
         return std::sqrt(lengthSq());
     };
-    inline float lengthSq(void) const {
+    inline real lengthSq(void) const {
         return X()*X() + Y()*Y() + Z()*Z();
     }
 
-    inline Vec3f& normalize(){
-        float inv_length = 1.0f / this->length();
+    inline Vec3& normalize(){
+        real inv_length = real(1.0) / this->length();
         mCoordinates[0] *= inv_length;
         mCoordinates[1] *= inv_length;
-        mCoordinates[2] *= inv_length;        
+        mCoordinates[2] *= inv_length;
         return *this;
     };
 
-    static Vec3f normalize(const Vec3f &v) {
-        float inv_length = 1.0f / v.length();
-        Vec3f result = Vec3f(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
+    static Vec3 normalize(const Vec3 &v) {
+        real inv_length = real(1.0) / v.length();
+        Vec3 result = Vec3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
         return result;
     };
 
-    static inline float DotProduct(const Vec3f &a, const Vec3f &b){
+    static inline real DotProduct(const Vec3 &a, const Vec3 &b){
         return    (a.X() * b.X()
                  + a.Y() * b.Y()
                  + a.Z() * b.Z());
 
     };
-    static inline Vec3f cross(const Vec3f &a, const Vec3f &b){
-        return Vec3f(a.Y()*b.Z() - a.Z()*b.Y(),
+    static inline Vec3 CrossProduct(const Vec3 &a, const Vec3 &b){
+        return Vec3(a.Y()*b.Z() - a.Z()*b.Y(),
                      a.Z()*b.X() - a.X()*b.Z(),
                      a.X()*b.Y() - a.Y()*b.X());
     };
 
-    static inline float angle(const Vec3f &a, const Vec3f &b){
+    static inline real angle(const Vec3 &a, const Vec3 &b){
         return acos(DotProduct(a,b) / (a.length() * b.length()));
-    };    
-
-    inline Vec3f operator+(const Vec3f &other) const{
-        return Vec3f(X()+other.X(), Y()+other.Y(), Z()+other.Z());
-    };
-    inline Vec3f operator-(const Vec3f &other) const{
-        return Vec3f(X()-other.X(), Y()-other.Y(), Z()-other.Z());
     };
 
-    inline Vec3f operator+=(const Vec3f &other){
+    inline Vec3 operator+(const Vec3 &other) const{
+        return Vec3(X()+other.X(), Y()+other.Y(), Z()+other.Z());
+    };
+    inline Vec3 operator-(const Vec3 &other) const{
+        return Vec3(X()-other.X(), Y()-other.Y(), Z()-other.Z());
+    };
+
+    inline Vec3 operator+=(const Vec3 &other){
         X() += other.X(), Y()+= other.Y(), Z() += other.Z();
         return *this;
     };
 
-    inline Vec3f operator*(const Vec3f &other){
-        return Vec3f(X()*other.X(), Y()*other.Y(), Z()*other.Z());
+    inline Vec3 operator*(const Vec3 &other){
+        return Vec3(X()*other.X(), Y()*other.Y(), Z()*other.Z());
     };
 
-    inline Vec3f operator*(const float scale) const{
-        return Vec3f(X()*scale, Y()*scale, Z()*scale);
+    inline Vec3 operator*(const real scale) const{
+        return Vec3(X()*scale, Y()*scale, Z()*scale);
     };
 
-    inline float operator[](const int axis) const{
+    inline real operator[](const int axis) const{
         return mCoordinates[axis];
     }
-    inline float &operator[](const int axis){
+    inline real &operator[](const int axis){
         return mCoordinates[axis];
     }
-    friend std::ostream& operator<<(std::ostream& strm, const Vec3f &vec) {
-        return strm << "[" << vec.X()  << vec.Y() << vec.Z() << "]";
+    friend std::ostream& operator<<(std::ostream& strm, const Vec3 &vec) {
+        return strm << "[" << vec.X()<<"  "<< vec.Y() <<"  "<< vec.Z() << "]";
     }
-    
+
 };
 #endif /* defined(__BasicRaytracer__Vec3f__) */

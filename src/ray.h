@@ -14,21 +14,21 @@ public:
 	size_t mId;
     bool mTriangleFound = false;
 
-    Vec3f mStartPosition;
-    Vec3f mDirection;
+    Vec3 mStartPosition;
+    Vec3 mDirection;
 
-    Vec3f mInvDirection;
+    Vec3 mInvDirection;
     int mSign[3];
 
-    float t_max;
-    float u;
-    float v;
-    Vec3f intersectionNormal;
-    float mPower = 0.0f;
+    real t_max;
+    real u;
+    real v;
+    Vec3 intersectionNormal;
+    real mPower = 0.0;
 
-    Ray(const Vec3f& mStartPosition, const Vec3f& direction);
+    Ray(const Vec3& mStartPosition, const Vec3& direction);
 
-    Vec3f ComputeIntersectionPoint() const;
+    Vec3 ComputeIntersectionPoint() const;
     bool Intersect(const Mesh& mesh);
 };
 
