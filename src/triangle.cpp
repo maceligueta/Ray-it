@@ -8,6 +8,7 @@ real_number Triangle::ComputeArea(){
 
 bool Triangle::Intersect(Ray &ray) const{
 
+    //MOLLER-TRUMBORE method:
     Vec3 pvec = Vec3::CrossProduct(ray.mDirection, mSecondSide);
     const real_number det = Vec3::DotProduct(mFirstSide, pvec);
 
