@@ -5,11 +5,11 @@
 
 #ifdef RAY_IT_USE_DOUBLES
 //#pragma message("Compiling Ray-it with double precision")
-typedef double real;
+typedef double real_number;
 #define EPSILON 0.000000001f
 #else
 //#pragma message("Compiling Ray-it with float (simple precision)")
-typedef float real;
+typedef float real_number;
 #define EPSILON 0.00001f
 #endif
 

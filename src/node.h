@@ -8,7 +8,7 @@ class Node : public Vec3 {
     Node(){};
     Node(const Vec3& pos):Vec3(pos){}
 
-    real mIntensity = 0.0;
+    real_number mIntensity = 0.0;
 };
 
 #endif

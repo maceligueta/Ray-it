@@ -33,13 +33,13 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& stl_file_name) {
     try {
 
         if (echo_level > 0) std::cout<<"Reading STL mesh ("<<stl_file_name<<")..."<<std::endl;
-        stl_reader::StlMesh <real, unsigned int> stl_mesh (stl_file_name);
+        stl_reader::StlMesh <real_number, unsigned int> stl_mesh (stl_file_name);
 
         if (echo_level > 1) {
             for(size_t itri = 0; itri < stl_mesh.num_tris(); ++itri) {
                 std::cout << "Coords " << itri << ": ";
                 for(size_t icorner = 0; icorner < 3; ++icorner) {
-                    const real* c = stl_mesh.tri_corner_coords(itri, icorner);
+                    const real_number* c = stl_mesh.tri_corner_coords(itri, icorner);
                     std::cout << "(" << c[0] << ", " << c[1] << ", " << c[2] << ") ";
                 }
                 std::cout << std::endl;
@@ -51,14 +51,14 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& stl_file_name) {
                 }
                 std::cout << ")" << std::endl;
 
-                const real* n = stl_mesh.tri_normal(itri);
+                const real_number* n = stl_mesh.tri_normal(itri);
                 std::cout << "normal of triangle " << itri << ": "
                         << "(" << n[0] << ", " << n[1] << ", " << n[2] << ")\n";
             }
         }
 
-        real xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
-        real xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
+        real_number xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
+        real_number xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
 
         for(int i=0; i<stl_mesh.num_vrts(); i++){
             Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
@@ -78,7 +78,7 @@ bool ReadTerrainMesh(Mesh& mesh, const std::string& stl_file_name) {
             }
         }
 
-        real added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
+        real_number added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
@@ -126,9 +126,9 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
         Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
         Ray test_ray(origin, vec_origin_to_node);
         test_ray.Intersect(mesh);
-        const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
+        const real_number distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
         if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
-            mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
+            mesh.mNodes[i].mIntensity = real_number(1.0) / distance_squared;
         }
     }  */
 
@@ -140,10 +140,10 @@ bool Compute(const std::vector<Antenna>& antennas, Mesh& mesh){
             Vec3 vec_origin_to_triangle_center = Vec3(mesh.mTriangles[i]->mCenter[0] - origin[0], mesh.mTriangles[i]->mCenter[1] - origin[1], mesh.mTriangles[i]->mCenter[2] - origin[2]);
             Ray test_ray(origin, vec_origin_to_triangle_center);
             test_ray.Intersect(mesh);
-            const real distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-            const real distance = sqrt(distance_squared);
+            const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
+            const real_number distance = sqrt(distance_squared);
             if(std::abs(test_ray.t_max - distance) < 1.0) {
-                mesh.mTriangles[i]->mIntensity = real(1.0) / distance_squared;
+                mesh.mTriangles[i]->mIntensity = real_number(1.0) / distance_squared;
                 test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);
             }
         }
@@ -180,7 +180,7 @@ bool ReadAntennas(std::vector<Antenna>& antennas, nlohmann::json& input_paramete
         Antenna a;
         a.mName = single_antenna_data["name"].get<std::string>();
 
-        auto coords = single_antenna_data["coordinates"].get<std::vector<real>>();
+        auto coords = single_antenna_data["coordinates"].get<std::vector<real_number>>();
         a.mCoordinates[0] = coords[0];
         a.mCoordinates[1] = coords[1];
         a.mCoordinates[2] = coords[2];

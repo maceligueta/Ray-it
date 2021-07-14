@@ -9,28 +9,28 @@
 
 class Vec3{
 public:
-    real mCoordinates[3] = {0.0, 0.0, 0.0};
+    real_number mCoordinates[3] = {0.0, 0.0, 0.0};
     Vec3(){}
-    Vec3(real x, real y, real z){
+    Vec3(real_number x, real_number y, real_number z){
         mCoordinates[0] = x;
         mCoordinates[1] = y;
         mCoordinates[2] = z;
     }
-    inline real& X(){ return mCoordinates[0];}
-    const inline real& X() const { return mCoordinates[0];}
-    inline real& Y(){ return mCoordinates[1];}
-    const inline real& Y() const { return mCoordinates[1];}
-    inline real& Z(){ return mCoordinates[2];}
-    const inline real& Z() const { return mCoordinates[2];}
-    inline real length(void) const{
+    inline real_number& X(){ return mCoordinates[0];}
+    const inline real_number& X() const { return mCoordinates[0];}
+    inline real_number& Y(){ return mCoordinates[1];}
+    const inline real_number& Y() const { return mCoordinates[1];}
+    inline real_number& Z(){ return mCoordinates[2];}
+    const inline real_number& Z() const { return mCoordinates[2];}
+    inline real_number length(void) const{
         return std::sqrt(lengthSq());
     };
-    inline real lengthSq(void) const {
+    inline real_number lengthSq(void) const {
         return X()*X() + Y()*Y() + Z()*Z();
     }
 
     inline Vec3& normalize(){
-        real inv_length = real(1.0) / this->length();
+        real_number inv_length = real_number(1.0) / this->length();
         mCoordinates[0] *= inv_length;
         mCoordinates[1] *= inv_length;
         mCoordinates[2] *= inv_length;
@@ -38,12 +38,12 @@ public:
     };
 
     static Vec3 normalize(const Vec3 &v) {
-        real inv_length = real(1.0) / v.length();
+        real_number inv_length = real_number(1.0) / v.length();
         Vec3 result = Vec3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
         return result;
     };
 
-    static inline real DotProduct(const Vec3 &a, const Vec3 &b){
+    static inline real_number DotProduct(const Vec3 &a, const Vec3 &b){
         return    (a.X() * b.X()
                  + a.Y() * b.Y()
                  + a.Z() * b.Z());
@@ -55,7 +55,7 @@ public:
                      a.X()*b.Y() - a.Y()*b.X());
     };
 
-    static inline real angle(const Vec3 &a, const Vec3 &b){
+    static inline real_number angle(const Vec3 &a, const Vec3 &b){
         return acos(DotProduct(a,b) / (a.length() * b.length()));
     };
 
@@ -75,14 +75,14 @@ public:
         return Vec3(X()*other.X(), Y()*other.Y(), Z()*other.Z());
     };
 
-    inline Vec3 operator*(const real scale) const{
+    inline Vec3 operator*(const real_number scale) const{
         return Vec3(X()*scale, Y()*scale, Z()*scale);
     };
 
-    inline real operator[](const int axis) const{
+    inline real_number operator[](const int axis) const{
         return mCoordinates[axis];
     }
-    inline real &operator[](const int axis){
+    inline real_number &operator[](const int axis){
         return mCoordinates[axis];
     }
     friend std::ostream& operator<<(std::ostream& strm, const Vec3 &vec) {

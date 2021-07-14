@@ -58,36 +58,36 @@ class Test7: public Test {
         pattern.mRadiationMap[6][2] = -50.0; //           theta = 120.0
         pattern.mRadiationMap[6][3] = -50.0; //           theta = 180.0
 
-        real p;
+        real_number p;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 90.0));
         if(!CheckIfValuesAreEqual(p, 0.0)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-110.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real(-8.66666698))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-8.66666698))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-24.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real(-0.8))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-0.8))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(35.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real(-1.16666675))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-1.16666675))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(89.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real(-5.86666679))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-5.86666679))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(145.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real(-26.6666679))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-26.6666679))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 45.0));
         if(!CheckIfValuesAreEqual(p, -12.5)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-40.0, 45.0));
         if(!CheckIfValuesAreEqual(p, -13.5)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(80.0, 160.0));
-        if(!CheckIfValuesAreEqual(p, real(-34.8888893))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-34.8888893))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-173.0, 160.0));
-        if(!CheckIfValuesAreEqual(p, real(-48.4444427))) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(-48.4444427))) return 1;
 
         Mesh mesh;
         if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;
 
-        real base_power = 1.0;
+        real_number base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
-            const real p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
-            real power = base_power * std::pow(real(10.0), p_dB*real(0.1));
+            const real_number p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
+            real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1));
             mesh.mNodes[i] = dir * power;
         }
 

@@ -25,8 +25,8 @@ class Test3: public Test {
 
         for(size_t i = 0; i<mesh.mNodes.size(); i++) {
             direction = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
-            const real distance_squared = direction[0] * direction[0] + direction[1] *direction[1] + direction[2] * direction[2];
-            mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
+            const real_number distance_squared = direction[0] * direction[0] + direction[1] *direction[1] + direction[2] * direction[2];
+            mesh.mNodes[i].mIntensity = real_number(1.0) / distance_squared;
 
             Ray test_ray(origin, direction);
 
