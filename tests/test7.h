@@ -60,25 +60,25 @@ class Test7: public Test {
 
         real p;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, 0.0)) return 1;
+        if(!CheckIfValuesAreEqual(p, 0.0)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-110.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, real(-8.66666698))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-8.66666698))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-24.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, real(-0.8))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-0.8))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(35.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, real(-1.16666675))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-1.16666675))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(89.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, real(-5.86666679))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-5.86666679))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(145.0, 90.0));
-        if(!CheckIfFloatsAreEqual(p, real(-26.6666679))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-26.6666679))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 45.0));
-        if(!CheckIfFloatsAreEqual(p, -12.5)) return 1;
+        if(!CheckIfValuesAreEqual(p, -12.5)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-40.0, 45.0));
-        if(!CheckIfFloatsAreEqual(p, -13.5)) return 1;
+        if(!CheckIfValuesAreEqual(p, -13.5)) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(80.0, 160.0));
-        if(!CheckIfFloatsAreEqual(p, real(-34.8888893))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-34.8888893))) return 1;
         p = pattern.DirectionalPowerValue(SphericalCoordinates(-173.0, 160.0));
-        if(!CheckIfFloatsAreEqual(p, real(-48.4444427))) return 1;
+        if(!CheckIfValuesAreEqual(p, real(-48.4444427))) return 1;
 
         Mesh mesh;
         if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;

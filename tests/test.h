@@ -14,7 +14,7 @@ class Test {
     virtual bool Run(){
         return 1;
     }
-    bool CheckIfFloatsAreEqual(const real& a, const real& b) {
+    bool CheckIfValuesAreEqual(const real& a, const real& b) {
         return (std::abs(a - b) < EPSILON);
     }
 
