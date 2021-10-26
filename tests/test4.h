@@ -26,14 +26,19 @@ class Test4: public Test {
             Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
             Ray test_ray(origin, vec_origin_to_node);
             test_ray.Intersect(mesh);
-            const real distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
+            const real_number distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
             if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
-                mesh.mNodes[i].mIntensity = real(1.0) / distance_squared;
+                mesh.mNodes[i].mIntensity = real_number(1.0) / distance_squared;
             }
         }
 
         PrintResultsInGidFormat(mesh, "cases/results4", TypeOfResultsPrint::RESULTS_ON_NODES);
-        return !CheckMeshResultsAreEqualToReference("cases/results4.post.res", "cases/reference4.post.res");
+        #ifdef RAY_IT_USE_FLOATS
+        std::string reference_result_file_name = "cases/reference4_float.post.res";
+        #else
+        std::string reference_result_file_name = "cases/reference4_double.post.res";
+        #endif
+        return !CheckMeshResultsAreEqualToReference("cases/results4.post.res", reference_result_file_name);
 
     }
 };

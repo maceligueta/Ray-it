@@ -13,6 +13,7 @@
 #include "../tests/test5.h"
 #include "../tests/test6.h"
 #include "../tests/test7.h"
+#include "../tests/test8.h"
 
 int RunTests() {
 
@@ -27,6 +28,7 @@ int RunTests() {
     list_of_tests.push_back(std::make_shared<Test5>());
     list_of_tests.push_back(std::make_shared<Test6>());
     list_of_tests.push_back(std::make_shared<Test7>());
+    list_of_tests.push_back(std::make_shared<Test8>());
 
     for(auto test:list_of_tests){
         try{

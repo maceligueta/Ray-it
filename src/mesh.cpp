@@ -2,7 +2,7 @@
 
 //https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 bool Mesh::IntersectBoundingBox(Ray &r) const {
-    real tmin, tmax, tymin, tymax, tzmin, tzmax;
+    real_number tmin, tmax, tymin, tymax, tzmin, tzmax;
     tmin = (mBoundingBox[r.mSign[0]].X() - r.mStartPosition.X()) * r.mInvDirection.X();
     tmax = (mBoundingBox[1-r.mSign[0]].X() - r.mStartPosition.X()) * r.mInvDirection.X();
     tymin = (mBoundingBox[r.mSign[1]].Y() - r.mStartPosition.Y()) * r.mInvDirection.Y();

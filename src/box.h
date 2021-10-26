@@ -8,24 +8,24 @@ struct Box {
     Vec3 mMax;
     Box(const Vec3 min, const Vec3 max): mMin(min), mMax(max){};
     Box(){};
-    std::pair<real, real> Intersect(Ray &r) const;
+    std::pair<real_number, real_number> Intersect(Ray &r) const;
     Vec3 GetBound(int type) const{
         if(type == 0) return mMin;
         return mMax;
     }
-    real XWidth() const {
+    real_number XWidth() const {
         return mMax.X() - mMin.X();
     };
-    real YWidth() const {
+    real_number YWidth() const {
         return mMax.Y() - mMin.Y();
     };
-    real ZWidth() const {
+    real_number ZWidth() const {
         return mMax.Z() - mMin.Z();
     };
-    real WidthAlongAxis(int axis) const {
+    real_number WidthAlongAxis(int axis) const {
         return mMax[axis] - mMin[axis];
     }
-    real isPlanar(){
+    real_number isPlanar(){
         return XWidth() <= 0.01 || YWidth() <= 0.01 || ZWidth() <= 0.01;
     }
 };

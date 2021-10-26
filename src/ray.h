@@ -20,11 +20,11 @@ public:
     Vec3 mInvDirection;
     int mSign[3];
 
-    real t_max;
-    real u;
-    real v;
+    real_number t_max;
+    real_number u;
+    real_number v;
     Vec3 intersectionNormal;
-    real mPower = 0.0;
+    real_number mPower = 0.0;
 
     Ray(const Vec3& mStartPosition, const Vec3& direction);
 

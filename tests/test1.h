@@ -21,13 +21,13 @@ class Test1: public Test {
         ReadTerrainMesh(mesh, "cases/square_test.stl");
 
         Vec3 origin(0.0, 0.0, 3.0);
-        Vec3 direction(real(0.1), 0.0, -1.0);
+        Vec3 direction(real_number(0.1), 0.0, -1.0);
         Ray test_ray1(origin, direction);
         if(!mesh.Intersect(test_ray1)) return 1;
 
-        if(!CheckIfFloatsAreEqual(test_ray1.ComputeIntersectionPoint()[0], real(0.3))) return 1;
-        if(!CheckIfFloatsAreEqual(test_ray1.ComputeIntersectionPoint()[1], 0.0)) return 1;
-        if(!CheckIfFloatsAreEqual(test_ray1.ComputeIntersectionPoint()[2], 0.0)) return 1;
+        if(!CheckIfValuesAreEqual(test_ray1.ComputeIntersectionPoint()[0], real_number(0.3))) return 1;
+        if(!CheckIfValuesAreEqual(test_ray1.ComputeIntersectionPoint()[1], 0.0)) return 1;
+        if(!CheckIfValuesAreEqual(test_ray1.ComputeIntersectionPoint()[2], 0.0)) return 1;
 
         //This ray is parallel to the surface to be intersected:
         origin = Vec3(0.0, 0.0, 0.0);
