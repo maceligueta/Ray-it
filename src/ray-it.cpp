@@ -200,14 +200,20 @@ int main(int argc, char *argv[]) {
 
     if(echo_level > 0) {
         std::cout << "Ray-it starting. Using ";
-        #ifdef RAY_IT_USE_DOUBLES
-        #pragma message("---- Compiling with double precision ----")
-        std::cout << "double precision ('double' variables). ";
-        #else
+        #ifdef RAY_IT_USE_FLOATS
         #pragma message("---- Compiling with single precision ----")
         std::cout << "single precision ('float' variables). ";
+        #else
+        #pragma message("---- Compiling with double precision ----")
+        std::cout << "double precision ('double' variables). ";
         #endif
         std::cout<<std::endl<<std::endl;
+
+        #ifdef RAY_IT_DEBUG
+            #pragma message("---- Compiling in Debug mode ----")
+        #else
+            #pragma message("---- Compiling in Release mode ----")
+        #endif
     }
 
     Timer total_timer;
@@ -229,7 +235,6 @@ int main(int argc, char *argv[]) {
     if(!ReadInputParameters(parameters_filename, parameters)) return 0;
 
     std::vector<Antenna> antennas;
-
 
     if(!ReadAntennas(antennas, parameters)) return 0;
 

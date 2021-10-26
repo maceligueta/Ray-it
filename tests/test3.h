@@ -36,7 +36,12 @@ class Test3: public Test {
         }
 
         PrintResultsInGidFormat(mesh, "cases/results3", TypeOfResultsPrint::RESULTS_ON_NODES);
-        return !CheckMeshResultsAreEqualToReference("cases/results3.post.res", "cases/reference3.post.res");
+        #ifdef RAY_IT_USE_FLOATS
+        std::string reference_result_file_name = "cases/reference3_float.post.res";
+        #else
+        std::string reference_result_file_name = "cases/reference3_double.post.res";
+        #endif
+        return !CheckMeshResultsAreEqualToReference("cases/results3.post.res", reference_result_file_name);
     }
 };
 

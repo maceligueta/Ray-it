@@ -15,7 +15,7 @@ bool Triangle::Intersect(Ray &ray) const{
     // ray and triangle are parallel if det is close to 0
     if (fabs(det) < EPSILON) return false;
 
-    const real_number invDet = 1.0 / det;
+    const real_number invDet = real_number(1.0) / det;
 
     Vec3 tvec = ray.mStartPosition - p0;
     const real_number u = Vec3::DotProduct(tvec, pvec) * invDet;

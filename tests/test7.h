@@ -22,63 +22,66 @@ class Test7: public Test {
         echo_level = 0;
 
         RadiationPattern pattern;
-        pattern.mSeparationBetweenPhiValues = 60;
-        pattern.mSeparationBetweenThetaValues = 60;
-        pattern.mRadiationMap.resize(360 / pattern.mSeparationBetweenPhiValues + 1);
+        pattern.mSeparationBetweenPhiValues = 60.0;
+        pattern.mSeparationBetweenThetaValues = 60.0;
+        pattern.mRadiationMap.resize(int(360.0 / pattern.mSeparationBetweenPhiValues) + 1);
         for(size_t i=0;i<pattern.mRadiationMap.size(); i++) {
-            pattern.mRadiationMap[i].resize(180 / pattern.mSeparationBetweenThetaValues + 1);
+            pattern.mRadiationMap[i].resize(int(180.0 / pattern.mSeparationBetweenThetaValues) + 1);
+            for (size_t j=0; j<pattern.mRadiationMap[i].size(); j++){
+                pattern.mRadiationMap[i][j].resize(1);
+            }
         }
 
-        pattern.mRadiationMap[0][0] = -50.0; //phi = -180 theta = 0.0
-        pattern.mRadiationMap[0][1] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[0][2] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[0][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[1][0] = -50.0;  //phi = -120  theta = 0.0
-        pattern.mRadiationMap[1][1] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[1][2] = -10.0; //           theta = 120.0
-        pattern.mRadiationMap[1][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[2][0] = -50.0;  //phi = -60  theta = 0.0
-        pattern.mRadiationMap[2][1] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[2][2] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[2][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[3][0] = -50.0;  //phi = 0  theta = 0.0
-        pattern.mRadiationMap[3][1] = 0.0; //           theta = 60.0
-        pattern.mRadiationMap[3][2] = 0.0; //           theta = 120.0
-        pattern.mRadiationMap[3][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[4][0] = -50.0;  //phi = 60  theta = 0.0
-        pattern.mRadiationMap[4][1] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[4][2] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[4][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[5][0] = -50.0;  //phi = 120  theta = 0.0
-        pattern.mRadiationMap[5][1] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][2] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][3] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[6][0] = -50.0;  //phi = 180  theta = 0.0
-        pattern.mRadiationMap[6][1] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[6][2] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[6][3] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[0][0][0] = -50.0; //phi = -180 theta = 0.0
+        pattern.mRadiationMap[0][1][0] = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[0][2][0] = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[0][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[1][0][0] = -50.0;  //phi = -120  theta = 0.0
+        pattern.mRadiationMap[1][1][0] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[1][2][0] = -10.0; //           theta = 120.0
+        pattern.mRadiationMap[1][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[2][0][0] = -50.0;  //phi = -60  theta = 0.0
+        pattern.mRadiationMap[2][1][0] = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[2][2][0] = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[2][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[3][0][0] = -50.0;  //phi = 0  theta = 0.0
+        pattern.mRadiationMap[3][1][0] = 0.0; //           theta = 60.0
+        pattern.mRadiationMap[3][2][0] = 0.0; //           theta = 120.0
+        pattern.mRadiationMap[3][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[4][0][0] = -50.0;  //phi = 60  theta = 0.0
+        pattern.mRadiationMap[4][1][0] = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[4][2][0] = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[4][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[5][0][0] = -50.0;  //phi = 120  theta = 0.0
+        pattern.mRadiationMap[5][1][0] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][2][0] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][3][0] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[6][0][0] = -50.0;  //phi = 180  theta = 0.0
+        pattern.mRadiationMap[6][1][0] = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[6][2][0] = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[6][3][0] = -50.0; //           theta = 180.0
 
         real_number p;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 90.0));
+        p = pattern.DirectionalGainValue(0.0, 90.0);
         if(!CheckIfValuesAreEqual(p, 0.0)) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(-110.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real_number(-8.66666698))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(-24.0, 90.0));
+        p = pattern.DirectionalGainValue(-110.0, 90.0);
+        if(!CheckIfValuesAreEqual(p, real_number(-8.6666666666666661))) return 1;
+        p = pattern.DirectionalGainValue(-24.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-0.8))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(35.0, 90.0));
+        p = pattern.DirectionalGainValue(35.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-1.16666675))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(89.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real_number(-5.86666679))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(145.0, 90.0));
-        if(!CheckIfValuesAreEqual(p, real_number(-26.6666679))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(0.0, 45.0));
+        p = pattern.DirectionalGainValue(89.0, 90.0);
+        if(!CheckIfValuesAreEqual(p, real_number(-5.8666666666666671))) return 1;
+        p = pattern.DirectionalGainValue(145.0, 90.0);
+        if(!CheckIfValuesAreEqual(p, real_number(-26.666666666666664))) return 1;
+        p = pattern.DirectionalGainValue(0.0, 45.0);
         if(!CheckIfValuesAreEqual(p, -12.5)) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(-40.0, 45.0));
+        p = pattern.DirectionalGainValue(-40.0, 45.0);
         if(!CheckIfValuesAreEqual(p, -13.5)) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(80.0, 160.0));
-        if(!CheckIfValuesAreEqual(p, real_number(-34.8888893))) return 1;
-        p = pattern.DirectionalPowerValue(SphericalCoordinates(-173.0, 160.0));
-        if(!CheckIfValuesAreEqual(p, real_number(-48.4444427))) return 1;
+        p = pattern.DirectionalGainValue(80.0, 160.0);
+        if(!CheckIfValuesAreEqual(p, real_number(-34.888888888888893))) return 1;
+        p = pattern.DirectionalGainValue(-173.0, 160.0);
+        if(!CheckIfValuesAreEqual(p, real_number(-48.444444444444443))) return 1;
 
         Mesh mesh;
         if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;
@@ -86,14 +89,20 @@ class Test7: public Test {
         real_number base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
-            const real_number p_dB = pattern.DirectionalPowerValue(SphericalCoordinates(dir)); // in dB
+            const real_number p_dB = pattern.DirectionalGainValue(SphericalCoordinates(dir)); // in dB
             real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1));
             mesh.mNodes[i] = dir * power;
         }
 
         PrintResultsInGidFormat(mesh, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
 
-        return !CheckMeshResultsAreEqualToReference("cases/results7.post.msh", "cases/reference7.post.msh");
+        #ifdef RAY_IT_USE_FLOATS
+        std::string reference_result_file_name = "cases/reference7_float.post.msh";
+        #else
+        std::string reference_result_file_name = "cases/reference7_double.post.msh";
+        #endif
+
+        return !CheckMeshResultsAreEqualToReference("cases/results7.post.msh", reference_result_file_name);
     }
 
 };
