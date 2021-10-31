@@ -1,5 +1,5 @@
-#ifndef __BasicRayTracer__box_triangle__
-#define __BasicRayTracer__box_triangle__
+#ifndef __Ray_it__box_triangle__
+#define __Ray_it__box_triangle__
 #include "vector.h"
 #include "ray.h"
 #include <stdio.h>
@@ -30,4 +30,4 @@ struct Box {
     }
 };
 
-#endif /* defined(__BasicRayTracer__box_triangle__) */
+#endif /* defined(__Ray_it__box_triangle__) */

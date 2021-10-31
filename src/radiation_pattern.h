@@ -1,5 +1,5 @@
-#ifndef __BasicRaytracer_radiation_patter__
-#define __BasicRaytracer_radiation_patter__
+#ifndef __Ray_it_radiation_patter__
+#define __Ray_it_radiation_patter__
 
 #include "constants.h"
 

@@ -1,13 +1,11 @@
-#ifndef RayTracer_test6
-#define RayTracer_test6
+#ifndef __Ray_ittest6
+#define __Ray_ittest6
 
 #include "test.h"
 #include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-extern unsigned int echo_level;
 
 class Test6: public Test {
 
@@ -19,7 +17,7 @@ class Test6: public Test {
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"...";
 
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 0.0, 0.0), SphericalCoordinates(0.0, 90.0), EPSILON)) return 1;
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 1.0, 1.0), SphericalCoordinates(45.0, real_number(54.735610317245346)), EPSILON)) return 1;

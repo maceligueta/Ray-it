@@ -1,9 +1,8 @@
-#ifndef RayTracer_test5
-#define RayTracer_test5
+#ifndef __Ray_ittest5
+#define __Ray_ittest5
 
 #include "test.h"
 #include "../src/ray-it.h"
-extern unsigned int echo_level;
 
 class Test5: public Test {
 
@@ -15,10 +14,11 @@ class Test5: public Test {
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"...";
 
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         Mesh mesh;
-        ReadTerrainMesh(mesh, "cases/square_with_smaller_square_after_test.stl");
+        InputsReader reader;
+        reader.ReadTerrainSTLMesh(mesh, "cases/square_with_smaller_square_after_test.stl");
 
         Vec3 origin(0.0, 0.0, 3.0);
 
@@ -32,13 +32,14 @@ class Test5: public Test {
             }
         }
 
-        PrintResultsInGidFormat(mesh, "cases/results5", TypeOfResultsPrint::RESULTS_ON_NODES);
+        OutputsWriter writer;
+        writer.PrintResultsInGidFormat(mesh, "cases/results5", TypeOfResultsPrint::RESULTS_ON_NODES);
         #ifdef RAY_IT_USE_FLOATS
         std::string reference_result_file_name = "cases/reference5_float.post.res";
         #else
         std::string reference_result_file_name = "cases/reference5_double.post.res";
         #endif
-        return !CheckMeshResultsAreEqualToReference("cases/results5.post.res", reference_result_file_name);
+        return CheckMeshResultsAreEqualToReference("cases/results5.post.res", reference_result_file_name);
     }
 };
 

@@ -1,13 +1,11 @@
-#ifndef RayTracer_test7
-#define RayTracer_test7
+#ifndef __Ray_ittest7
+#define __Ray_ittest7
 
 #include "test.h"
 #include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-extern unsigned int echo_level;
 
 class Test7: public Test {
 
@@ -19,7 +17,7 @@ class Test7: public Test {
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"...";
 
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         RadiationPattern pattern;
         pattern.mSeparationBetweenPhiValues = 60.0;
@@ -84,7 +82,8 @@ class Test7: public Test {
         if(!CheckIfValuesAreEqual(p, real_number(-48.444444444444443))) return 1;
 
         Mesh mesh;
-        if(!ReadTerrainMesh(mesh, "cases/sphere.stl")) return 1;
+        InputsReader reader;
+        if(reader.ReadTerrainSTLMesh(mesh, "cases/sphere.stl")) return 1;
 
         real_number base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
@@ -94,7 +93,8 @@ class Test7: public Test {
             mesh.mNodes[i] = dir * power;
         }
 
-        PrintResultsInGidFormat(mesh, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
+        OutputsWriter writer;
+        writer.PrintResultsInGidFormat(mesh, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
 
         #ifdef RAY_IT_USE_FLOATS
         std::string reference_result_file_name = "cases/reference7_float.post.msh";
@@ -102,7 +102,7 @@ class Test7: public Test {
         std::string reference_result_file_name = "cases/reference7_double.post.msh";
         #endif
 
-        return !CheckMeshResultsAreEqualToReference("cases/results7.post.msh", reference_result_file_name);
+        return CheckMeshResultsAreEqualToReference("cases/results7.post.msh", reference_result_file_name);
     }
 
 };

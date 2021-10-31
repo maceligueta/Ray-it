@@ -1,7 +1,10 @@
-#ifndef __BasicRaytracer_constants__
-#define __BasicRaytracer_constants__
+#ifndef __Ray_it_constants__
+#define __Ray_it_constants__
 
 #include <math.h>
+
+static unsigned int RAY_IT_ECHO_LEVEL = 1;
+static std::string CURRENT_WORKING_DIR = "";
 
 #ifdef RAY_IT_USE_FLOATS
 //#pragma message("Compiling Ray-it with float (simple precision)")

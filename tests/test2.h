@@ -1,5 +1,5 @@
-#ifndef RayTracer_test2
-#define RayTracer_test2
+#ifndef __Ray_ittest2
+#define __Ray_ittest2
 
 #include "test.h"
 
@@ -12,12 +12,14 @@ class Test2: public Test {
     }
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"...";
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         Mesh mesh;
-        ReadTerrainMesh(mesh, "cases/square_test.stl");
-        PrintResultsInGidFormat(mesh, "cases/results2", TypeOfResultsPrint::RESULTS_ON_NODES);
-        return !CheckMeshResultsAreEqualToReference("cases/results2.post.msh", "cases/reference2.post.msh");
+        InputsReader reader;
+        reader.ReadTerrainSTLMesh(mesh, "cases/square_test.stl");
+        OutputsWriter writer;
+        writer.PrintResultsInGidFormat(mesh, "cases/results2", TypeOfResultsPrint::RESULTS_ON_NODES);
+        return CheckMeshResultsAreEqualToReference("cases/results2.post.msh", "cases/reference2.post.msh");
 
     }
 };

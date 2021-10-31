@@ -1,0 +1,17 @@
+{
+    "terrain_input_settings":{
+        "type": "asc",
+        "file_name": "111531.asc"
+    },
+    "antennas_list":[{
+        "name": "Corner antenna",
+        "coordinates":[742499, 232999, 1820.0],
+        "power": 100.0,
+        "orientation":{
+            "front": [1.0, 0.0, 0.0],
+            "up": [0.0, 0.0, 1.0]
+        },
+        "radiation_patter_file_name": "radar_antenna_pattern.pat"
+    }]
+
+}

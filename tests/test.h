@@ -1,5 +1,5 @@
-#ifndef RayTracer_test
-#define RayTracer_test
+#ifndef __Ray_ittest
+#define __Ray_ittest
 
 #include <limits>
 #include <string>

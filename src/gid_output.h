@@ -1,5 +1,5 @@
-#ifndef RayTracer_gid_output
-#define RayTracer_gid_output
+#ifndef __Ray_itgid_output
+#define __Ray_itgid_output
 
 #include <fstream>
 #include <iomanip>

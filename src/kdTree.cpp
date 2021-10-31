@@ -6,15 +6,13 @@
 #include <omp.h>
 //#include <execution>
 
-extern unsigned int echo_level;
-
 void KDTreeNode::Traverse(Ray &r) const{
     std::pair<real_number, real_number> t = mBounds.Intersect(r);
     return Traverse(r, t.first, t.second);
 }
 
 void KDTreeNode::Traverse(Ray &ray, real_number t_min, real_number t_max) const {
-    if(echo_level > 1) {
+    if(RAY_IT_ECHO_LEVEL > 1) {
         std::cout<<"Triangles of this KDTreeNode:";
         for (auto triangle: mTriangles) {
             std::cout<<" "<<triangle->mId;
@@ -291,7 +289,7 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
     innerNode->mLeft = RecursiveTreeNodeBuild(TL, VL, depth+1, p);
     innerNode->mRight = RecursiveTreeNodeBuild(TR, VR, depth+1, p);
 
-    if(echo_level > 1) {
+    if(RAY_IT_ECHO_LEVEL > 1) {
         std::cout<<"Depth "<<depth<<" Splitting axis: "<<p.mAxis<<"  split pos: "<<p.mPos<<std::endl;
         std::cout<<"Triangles Left:";
         for(Triangle* tri : TL){
