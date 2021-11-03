@@ -340,6 +340,25 @@ public:
             a.mCoordinates[1] = coords[1];
             a.mCoordinates[2] = coords[2];
 
+            auto vector = single_antenna_data["orientation"]["front"].get<std::vector<real_number>>();
+            a.mVectorPointingFront[0] = vector[0];
+            a.mVectorPointingFront[1] = vector[1];
+            a.mVectorPointingFront[2] = vector[2];
+
+            a.mVectorPointingFront.normalize();
+
+
+            vector = single_antenna_data["orientation"]["up"].get<std::vector<real_number>>();
+            a.mVectorPointingUp[0] = vector[0];
+            a.mVectorPointingUp[1] = vector[1];
+            a.mVectorPointingUp[2] = vector[2];
+
+            a.mVectorPointingUp.normalize();
+
+            a.mVectorPointingLeft = Vec3::CrossProduct(a.mVectorPointingUp, a.mVectorPointingFront);
+            a.mVectorPointingLeft.normalize();
+
+
             const std::string radiation_pattern_file_name = single_antenna_data["radiation_pattern_file_name"].get<std::string>();
             std::string file_name_to_be_used_here = radiation_pattern_file_name;
 

@@ -20,6 +20,9 @@ class Test5: public Test {
         InputsReader reader;
         reader.ReadTerrainSTLMesh(mesh, "cases/square_with_smaller_square_after_test.stl");
 
+        KDTreeNode* root= new KDTreeNode();
+        mesh.mTree = *root->RecursiveTreeNodeBuild(mesh.mTriangles, Box(mesh.mBoundingBox[0], mesh.mBoundingBox[1]), 0, SplitPlane());
+
         Vec3 origin(0.0, 0.0, 3.0);
 
         for(size_t i = 0; i<mesh.mNodes.size(); i++) {

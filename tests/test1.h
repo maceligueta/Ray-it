@@ -20,6 +20,9 @@ class Test1: public Test {
         InputsReader reader;
         reader.ReadTerrainSTLMesh(mesh, "cases/square_test.stl");
 
+        KDTreeNode* root= new KDTreeNode();
+        mesh.mTree = *root->RecursiveTreeNodeBuild(mesh.mTriangles, Box(mesh.mBoundingBox[0], mesh.mBoundingBox[1]), 0, SplitPlane());
+
         Vec3 origin(0.0, 0.0, 3.0);
         Vec3 direction(real_number(0.1), 0.0, -1.0);
         Ray test_ray1(origin, direction);

@@ -184,7 +184,7 @@ void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
     // static int count = 0;
     C_est = INFINITY;
     Box B;
-    const int target_box=T.size();
+    const size_t target_box=T.size();
     for(int k=0; k<3; ++k) {
         std::vector<Event> events;
         events.reserve(target_box*2);

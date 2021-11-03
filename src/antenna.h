@@ -9,13 +9,28 @@
 class Antenna {
 
     public:
+
+    Antenna(){};
+
+
     std::string mName;
     Vec3 mCoordinates;
     RadiationPattern mRadiationPattern;
-    Vec3 mOrientation;
+    Vec3 mVectorPointingFront;
+    Vec3 mVectorPointingUp;
+    Vec3 mVectorPointingLeft;
 
-    real_number DirectionalPowerValue(const Vec3& cartesian_direction) const {
-        real_number power_out = mRadiationPattern.mTotalPower * std::pow(10.0, 0.1* mRadiationPattern.DirectionalGainValue(cartesian_direction));
+    Vec3 ConvertGlobalDirIntoLocalDirAccordingToAntennaOrientation(const Vec3& global_direction) const {
+        Vec3 local_dir;
+        local_dir[0] = Vec3::DotProduct(global_direction, mVectorPointingFront);
+        local_dir[1] = Vec3::DotProduct(global_direction, mVectorPointingLeft);
+        local_dir[2] = Vec3::DotProduct(global_direction, mVectorPointingUp);
+        return local_dir;
+    }
+
+    real_number DirectionalPowerValue(const Vec3& global_direction) const {
+        Vec3 local_dir = ConvertGlobalDirIntoLocalDirAccordingToAntennaOrientation(global_direction);
+        real_number power_out = mRadiationPattern.mTotalPower * std::pow(10.0, 0.1* mRadiationPattern.DirectionalGainValue(local_dir));
         return power_out;
     }
 
