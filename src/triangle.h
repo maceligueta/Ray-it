@@ -27,7 +27,7 @@ public:
         uv = Vec3::DotProduct(mFirstSide , mSecondSide);
         vv = Vec3::DotProduct(mSecondSide, mSecondSide);
         invDenom = real_number(1.0) / (uv*uv - uu*vv);
-        mNormal = Vec3::normalize(Vec3::CrossProduct(mSecondSide, mFirstSide));
+        mNormal = Vec3::normalize(Vec3::CrossProduct(mFirstSide, mSecondSide));
         mCenter = ComputeCenter();
     }
 

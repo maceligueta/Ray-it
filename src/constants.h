@@ -15,7 +15,7 @@ typedef float real_number;
 #else
 //#pragma message("Compiling Ray-it with double precision")
 typedef double real_number;
-#define EPSILON 0.0000001
+#define EPSILON 0.000000000000001
 #define ONE_THIRD 0.333333333333333333333
 #define SQRT_OF_2_OVER_2 0.5*M_SQRT2
 #endif

@@ -13,9 +13,21 @@ using namespace nlohmann;
 
 class InputsReader {
 public:
+
     InputsReader(){};
 
+    bool CheckPresenceOfKey(const json& input_parameters, const std::string key_to_be_checked) {
+        if (!input_parameters.contains(key_to_be_checked)){
+            std::cout<<"Error: the json input file must contain the key \""<<key_to_be_checked<<"\"";
+            return false;
+        }
+        else{ return true; }
+    }
+
     bool CheckInputParameters(json& input_parameters) {
+        if(!CheckPresenceOfKey(input_parameters, "case_name")) return 1;
+        if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
+        if(!CheckPresenceOfKey(input_parameters,"antennas_list")) return 1;
         return 0;
     }
 
@@ -34,7 +46,7 @@ public:
             return 1;
         }
 
-        CheckInputParameters(input_parameters);
+        if(CheckInputParameters(input_parameters)) return 1;
 
         return 0;
     }
@@ -53,8 +65,21 @@ public:
             return 0;
         }
         if (terrain_input_settings["type"].get<std::string>() == "asc"){
-            ReadTerrainASCMesh(mesh, file_name);
-            return 0;
+            if(terrain_input_settings["keep_one_node_out_of"].is_number_integer()){
+                const int keep_one_node_out_of = terrain_input_settings["keep_one_node_out_of"].get<int>();
+                if(keep_one_node_out_of>=1){
+                    ReadTerrainASCMesh(mesh, file_name, keep_one_node_out_of);
+                    return 0;
+                }
+                else {
+                    std::cout<<"ERROR: the value 'keep_one_node_out_of' must be greater or equal than 1"<<std::endl;
+                    return 1;
+                }
+            }
+            else {
+                std::cout<<"ERROR: the value 'keep_one_node_out_of' must be an integer"<<std::endl;
+                return 1;
+            }
         }
         return 0;
     }
@@ -63,7 +88,7 @@ public:
         std::cout<<"Error reading file "<<file_name<<" at line number "<<line_count<<std::endl;
     }
 
-    bool ReadTerrainASCMesh(Mesh& mesh, const std::string& file_name) {
+    bool ReadTerrainASCMesh(Mesh& mesh, const std::string& file_name, const int& keep_one_node_out_of) {
 
         //std::cout<<std::filesystem::current_path()<<std::endl;
         std::string file_name_to_be_used_here = file_name;
@@ -132,13 +157,18 @@ public:
         real_number xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
         real_number xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
 
+        mesh.mNodes.reserve(nrows*ncols);
+
+        int actual_rows_read = 0;
+        int actual_cols_read = 0;
         for (int i=0; i<nrows; i++){
             getline(asc_file, line); line_count++;
             line_stream = std::stringstream(line);
+            actual_cols_read = 0;
             for(int j=0; j<ncols; j++){
                 line_stream >> token;
                 real_number x = xllcorner + j * cellsize;
-                real_number y = yllcorner + (nrows - i) * cellsize;
+                real_number y = yllcorner + (nrows - i - 1) * cellsize;
                 real_number z = std::stod(token);
                 Vec3 node(x, y, z);
                 mesh.mNodes.push_back(node);
@@ -148,6 +178,16 @@ public:
                 xmax = fmax(xmax, node[0]);
                 ymax = fmax(ymax, node[1]);
                 zmax = fmax(zmax, node[2]);
+                actual_cols_read++;
+                for(int l=0; l<keep_one_node_out_of-1; l++){
+                    line_stream >> token;
+                    j++;
+                }
+            }
+            actual_rows_read++;
+            for(int k=0; k<keep_one_node_out_of-1; k++){
+                getline(asc_file, line); line_count++;
+                i++;
             }
         }
 
@@ -156,33 +196,46 @@ public:
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
         int counter = 0;
-        for (int i=0; i<nrows-1; i++){
-            for(int j=0; j<ncols-1; j++){
+        std::vector<std::vector<Triangle*>> triangles_by_threads;
+        triangles_by_threads.resize(omp_get_max_threads());
+        for (int i=0; i<omp_get_max_threads(); i++){
+            triangles_by_threads[i].reserve( nrows * ncols * 2 / omp_get_max_threads());
+        }
+        #pragma omp parallel for
+        for (int i=0; i<actual_rows_read-1; i++){
+            for(int j=0; j<actual_cols_read-1; j++){
                 Triangle* t = new Triangle(mesh);
-                t->mNodeIndices[0] = j + i * ncols;
-                t->mNodeIndices[1] = j + (i+1) * ncols;
-                t->mNodeIndices[2] = (j+1) + i * ncols;
+                t->mNodeIndices[0] = j + i * actual_cols_read;
+                t->mNodeIndices[1] = j + (i+1) * actual_cols_read;
+                t->mNodeIndices[2] = (j+1) + i * actual_cols_read;
                 t->p0 = mesh.mNodes[t->mNodeIndices[0]];
                 t->p1 = mesh.mNodes[t->mNodeIndices[1]];
                 t->p2 = mesh.mNodes[t->mNodeIndices[2]];
                 t->SetEdgesAndPrecomputedValues();
                 t->mId = counter;
                 counter++;
-                mesh.mTriangles.push_back(t);
+                triangles_by_threads[omp_get_thread_num()].push_back(t);
+                //mesh.mTriangles.push_back(t);
 
                 Triangle* t2 = new Triangle(mesh);
-                t->mNodeIndices[0] = (j+1) + i * ncols;
-                t->mNodeIndices[1] = j + (i+1) * ncols;
-                t->mNodeIndices[2] = (j+1) + (i+1) * ncols;
-                t->p0 = mesh.mNodes[t->mNodeIndices[0]];
-                t->p1 = mesh.mNodes[t->mNodeIndices[1]];
-                t->p2 = mesh.mNodes[t->mNodeIndices[2]];
-                t->SetEdgesAndPrecomputedValues();
-                t->mId = counter;
+                t2->mNodeIndices[0] = (j+1) + i * actual_cols_read;
+                t2->mNodeIndices[1] = j + (i+1) * actual_cols_read;
+                t2->mNodeIndices[2] = (j+1) + (i+1) * actual_cols_read;
+                t2->p0 = mesh.mNodes[t2->mNodeIndices[0]];
+                t2->p1 = mesh.mNodes[t2->mNodeIndices[1]];
+                t2->p2 = mesh.mNodes[t2->mNodeIndices[2]];
+                t2->SetEdgesAndPrecomputedValues();
+                t2->mId = counter;
                 counter++;
-                mesh.mTriangles.push_back(t2);
+                triangles_by_threads[omp_get_thread_num()].push_back(t2);
+                //mesh.mTriangles.push_back(t2);
             }
         }
+
+        for (int i=0; i<omp_get_max_threads(); i++){
+            mesh.mTriangles.insert( mesh.mTriangles.end(), triangles_by_threads[i].begin(), triangles_by_threads[i].end() );
+        }
+
 
         if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name_to_be_used_here<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
@@ -268,11 +321,6 @@ public:
 
             if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Building KD-tree... " << std::endl;
-            KDTreeNode* root= new KDTreeNode();
-            mesh.mTree = *root->RecursiveTreeNodeBuild(mesh.mTriangles, Box(mesh.mBoundingBox[0], mesh.mBoundingBox[1]), 0, SplitPlane());
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Finished building KD-tree."<< std::endl;
-
         } catch (std::exception& e) {
             std::cout<<e.what()<<std::endl;
             return 1;
@@ -291,6 +339,22 @@ public:
             a.mCoordinates[0] = coords[0];
             a.mCoordinates[1] = coords[1];
             a.mCoordinates[2] = coords[2];
+
+            const std::string radiation_pattern_file_name = single_antenna_data["radiation_pattern_file_name"].get<std::string>();
+            std::string file_name_to_be_used_here = radiation_pattern_file_name;
+
+            if (!std::filesystem::exists(radiation_pattern_file_name)) {
+                const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
+                if (!std::filesystem::exists(file_name_with_current_path)) {
+                    std::cout << "Error: files \""<<radiation_pattern_file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
+                    return 1;
+                }
+                else{
+                file_name_to_be_used_here = file_name_with_current_path;
+                }
+            }
+
+            a.LoadRadiationPattern(file_name_to_be_used_here);
 
             antennas.push_back(a);
         }

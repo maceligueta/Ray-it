@@ -11,10 +11,10 @@ public:
 
     OutputsWriter(){};
 
-    void PrintResultsInGidFormat(Mesh& mesh, const std::string& file_name, const TypeOfResultsPrint& print_type) {
+    void PrintResultsInGidFormat(const Mesh& mesh, const std::vector<Antenna>& antennas, const std::string& file_name, const TypeOfResultsPrint& print_type) {
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Printing results in GiD Post-process format... ";
         GidOutput gid_printer;
-        gid_printer.PrintResults(mesh, file_name, print_type);
+        gid_printer.PrintResults(mesh, antennas, file_name, print_type);
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "  done!"<<std::endl;
     }
 

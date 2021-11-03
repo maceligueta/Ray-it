@@ -94,7 +94,8 @@ class Test7: public Test {
         }
 
         OutputsWriter writer;
-        writer.PrintResultsInGidFormat(mesh, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
+        std::vector<Antenna> antennas;
+        writer.PrintResultsInGidFormat(mesh, antennas, "cases/results7", TypeOfResultsPrint::RESULTS_ON_NODES);
 
         #ifdef RAY_IT_USE_FLOATS
         std::string reference_result_file_name = "cases/reference7_float.post.msh";

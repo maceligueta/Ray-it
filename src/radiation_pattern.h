@@ -60,11 +60,15 @@ class RadiationPattern {
         CheckConstantSpacingBetweenValues();
     }
 
-    real_number DirectionalGainValue(const real_number& phi, const real_number& theta) {
+    real_number DirectionalGainValue(const Vec3& cartesian_direction) const {
+        return DirectionalGainValue(SphericalCoordinates(cartesian_direction));
+    }
+
+    real_number DirectionalGainValue(const real_number& phi, const real_number& theta) const {
         return DirectionalGainValue(SphericalCoordinates(phi, theta));
     }
 
-    real_number DirectionalGainValue(const SphericalCoordinates& spherical_coordinates) {
+    real_number DirectionalGainValue(const SphericalCoordinates& spherical_coordinates) const {
         const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
         const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][0];

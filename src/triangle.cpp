@@ -7,6 +7,8 @@ real_number Triangle::ComputeArea(){
 }
 
 bool Triangle::Intersect(Ray &ray) const{
+    const real_number dot_product_between_normal_and_ray_dir = Vec3::DotProduct(ray.mDirection, mNormal);
+    if(dot_product_between_normal_and_ray_dir > 0.0) return false;
 
     //MOLLER-TRUMBORE method:
     Vec3 pvec = Vec3::CrossProduct(ray.mDirection, mSecondSide);

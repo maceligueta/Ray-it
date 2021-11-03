@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 #include <filesystem>
+#include <omp.h>
 
 #include "constants.h"
 #include "time.h"
@@ -48,21 +49,21 @@ int main(int argc, char *argv[]) {
     std::string parameters_filename;
 
     if(strcmp(argv[1], "tests") == 0) {
-        const int number_of_errors = RunTests();
-        if (number_of_errors) return 1;
-        else return 0;
+        if (RunTests()) return 1;
     } else {
         parameters_filename = argv[1];
-    }
-    json parameters;
-    InputsReader reader;
-    if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
 
-    Computation job;
-    if( job.Run(parameters) ) return 1;
+        json parameters;
+        InputsReader reader;
+        CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
+        if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
+
+        Computation job;
+        if( job.Run(parameters) ) return 1;
+    }
 
     total_timer.stop();
-    if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Total time: " << total_timer.getElapsedTimeInMilliSec() << "ms." << std::endl;
-    if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Process finished normally."<<std::endl;
+    std::cout << "\nTotal time: " << total_timer.getElapsedTimeInSec() << " s." << std::endl;
+    std::cout << "Process finished normally."<<std::endl;
     return 0;
 }

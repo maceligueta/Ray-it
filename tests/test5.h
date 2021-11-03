@@ -33,7 +33,8 @@ class Test5: public Test {
         }
 
         OutputsWriter writer;
-        writer.PrintResultsInGidFormat(mesh, "cases/results5", TypeOfResultsPrint::RESULTS_ON_NODES);
+        std::vector<Antenna> antennas;
+        writer.PrintResultsInGidFormat(mesh, antennas, "cases/results5", TypeOfResultsPrint::RESULTS_ON_NODES);
         #ifdef RAY_IT_USE_FLOATS
         std::string reference_result_file_name = "cases/reference5_float.post.res";
         #else

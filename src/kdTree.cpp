@@ -12,14 +12,14 @@ void KDTreeNode::Traverse(Ray &r) const{
 }
 
 void KDTreeNode::Traverse(Ray &ray, real_number t_min, real_number t_max) const {
-    if(RAY_IT_ECHO_LEVEL > 1) {
+    /*if(RAY_IT_ECHO_LEVEL > 1) {
         std::cout<<"Triangles of this KDTreeNode:";
         for (auto triangle: mTriangles) {
             std::cout<<" "<<triangle->mId;
             triangle->Intersect(ray);
         }
         std::cout<<std::endl;
-    }
+    }*/
 
     if (mLeaf) {
         for (auto triangle: mTriangles) {
@@ -144,13 +144,23 @@ inline bool KDTreeNode::isDone(size_t N, real_number minCv) const {
 // get primitives's clipped bounding box
 Box clipTriangleToBox(Triangle* t, const Box& V) {
     Box b = t->mBoundingBox;
-    for(int k=0; k<3; k++) {
+    for(int k=0; k<3; ++k) {
         if(V.mMin[k] > b.mMin[k])
             b.mMin[k] = V.mMin[k];
         if(V.mMax[k] < b.mMax[k])
             b.mMax[k] = V.mMax[k];
     }
     return b;
+}
+
+void clipTriangleToBox(Triangle* t, const Box& V, Box& target_box) {
+    target_box = t->mBoundingBox;
+    for(int k=0; k<3; ++k) {
+        if(V.mMin[k] > target_box.mMin[k])
+            target_box.mMin[k] = V.mMin[k];
+        if(V.mMax[k] < target_box.mMax[k])
+            target_box.mMax[k] = V.mMax[k];
+    }
 }
 
 struct Event {
@@ -173,11 +183,13 @@ void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
                SplitPlane& p_est, real_number& C_est, PlaneSide& pside_est) const {
     // static int count = 0;
     C_est = INFINITY;
+    Box B;
+    const int target_box=T.size();
     for(int k=0; k<3; ++k) {
         std::vector<Event> events;
-        events.reserve(T.size()*2);
-        for(size_t i=0; i<T.size(); i++) {
-            Box B = clipTriangleToBox(T[i], V);
+        events.reserve(target_box*2);
+        for(size_t i=0; i<target_box; ++i) {
+            clipTriangleToBox(T[i], V, B);
             if(B.isPlanar()) {
                 events.push_back(Event(T[i], k, B.mMin[k], Event::lyingOnPlane));
             } else {
@@ -187,7 +199,7 @@ void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
         }
         //sort(std::execution::par_unseq, events.begin(), events.end());
         sort(events.begin(), events.end());
-        size_t NL = 0, NP = 0, NR = T.size();
+        size_t NL = 0, NP = 0, NR = target_box;
         for(std::vector<Event>::size_type Ei = 0; Ei < events.size(); ++Ei) {
             const SplitPlane& p = events[Ei].splitPlane;
             int pLyingOnPlane = 0, pStartingOnPlane = 0, pEndingOnPlane = 0;
