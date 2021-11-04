@@ -15,6 +15,7 @@
 #include "../tests/test7.h"
 #include "../tests/test8.h"
 #include "../tests/test9.h"
+#include "../tests/test10.h"
 
 int RunTests() {
 
@@ -22,7 +23,7 @@ int RunTests() {
 
     std::vector<std::shared_ptr<Test>> list_of_tests;
 
-    list_of_tests.push_back(std::make_shared<Test1>());
+    /*list_of_tests.push_back(std::make_shared<Test1>());
     list_of_tests.push_back(std::make_shared<Test2>());
     list_of_tests.push_back(std::make_shared<Test3>());
     list_of_tests.push_back(std::make_shared<Test4>());
@@ -30,7 +31,8 @@ int RunTests() {
     list_of_tests.push_back(std::make_shared<Test6>());
     list_of_tests.push_back(std::make_shared<Test7>());
     list_of_tests.push_back(std::make_shared<Test8>());
-    list_of_tests.push_back(std::make_shared<Test9>());
+    list_of_tests.push_back(std::make_shared<Test9>());*/
+    list_of_tests.push_back(std::make_shared<Test10>());
 
     for(auto test:list_of_tests){
         try{

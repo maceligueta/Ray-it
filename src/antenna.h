@@ -20,6 +20,18 @@ class Antenna {
     Vec3 mVectorPointingUp;
     Vec3 mVectorPointingLeft;
 
+    void InitializeOrientation(const Vec3& front_direction, const Vec3& up_direction) {
+        mVectorPointingFront = front_direction;
+        mVectorPointingUp = up_direction;
+
+        mVectorPointingFront.normalize();
+        mVectorPointingUp.normalize();
+
+        mVectorPointingLeft = Vec3::CrossProduct(mVectorPointingUp, mVectorPointingFront);
+        mVectorPointingLeft.normalize();
+    }
+
+
     Vec3 ConvertGlobalDirIntoLocalDirAccordingToAntennaOrientation(const Vec3& global_direction) const {
         Vec3 local_dir;
         local_dir[0] = Vec3::DotProduct(global_direction, mVectorPointingFront);

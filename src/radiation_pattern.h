@@ -70,7 +70,7 @@ class RadiationPattern {
 
     real_number DirectionalGainValue(const SphericalCoordinates& spherical_coordinates) const {
         const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
-        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
+        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][0];
         const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][0];
         const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][0];
