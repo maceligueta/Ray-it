@@ -37,7 +37,8 @@ public:
         if(ComputeRays(antennas, mesh)) return 1;
 
         OutputsWriter writer;
-        writer.PrintResultsInGidFormat(mesh, antennas, parameters["case_name"].get<std::string>(), TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
+        const std::string output_file_name_with_current_path = CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
+        writer.PrintResultsInGidFormat(mesh, antennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
 
         return 0;
     }
