@@ -69,8 +69,10 @@ class RadiationPattern {
     }
 
     real_number DirectionalGainValue(const SphericalCoordinates& spherical_coordinates) const {
-        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
-        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
+        int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
+        if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
+        int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
+        if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][0];
         const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][0];
         const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][0];
@@ -88,8 +90,10 @@ class RadiationPattern {
     real_number DirectionalRMSPhiPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) const {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
-        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
-        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
+        int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
+        if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
+        int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
+        if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][1];
         const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][1];
         const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][1];
@@ -107,8 +111,10 @@ class RadiationPattern {
     real_number DirectionalRMSThetaPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) const {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
-        const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
-        const int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues);
+        int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
+        if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
+        int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
+        if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][2];
         const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][2];
         const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][2];

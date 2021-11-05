@@ -11,7 +11,7 @@ class Test2: public Test {
         mNumber = 2;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"...";
+        std::cout<<"Running test "<<mNumber<<"... ";
         RAY_IT_ECHO_LEVEL = 0;
 
         Mesh mesh;

@@ -15,7 +15,7 @@ class Test7: public Test {
         mNumber = 7;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"...";
+        std::cout<<"Running test "<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 

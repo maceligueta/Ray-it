@@ -18,7 +18,7 @@ class Test10: public Test {
         mNumber = 10;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"...";
+        std::cout<<"Running test "<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 
@@ -74,8 +74,14 @@ class Test10: public Test {
         p = a1.DirectionalPowerValue(Vec3(1.0, 0.0, 0.0));
         if(!CheckIfValuesAreEqual(p, 1.0)) return 1;
 
-        p = a2.DirectionalPowerValue(Vec3(1.0, 0.0, 0.0));
-        if(!CheckIfValuesAreEqual(p, 0.0)) return 1;
+        p = a2.DirectionalPowerValue(Vec3(0.0, 1.0, 0.0));
+        if(!CheckIfValuesAreEqual(p, 1.0)) return 1;
+
+        p = a1.DirectionalPowerValue(Vec3(1.0, 1.0, 1.0));
+        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
+
+        p = a2.DirectionalPowerValue(Vec3(-1.0, 1.0, -1.0));
+        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
 
 
         return 0;
