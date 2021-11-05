@@ -1,5 +1,5 @@
-#ifndef RayTracer_test
-#define RayTracer_test
+#ifndef __Ray_ittest
+#define __Ray_ittest
 
 #include <limits>
 #include <string>
@@ -16,7 +16,7 @@ class Test {
         return 1;
     }
     bool CheckIfValuesAreEqual(const real_number& a, const real_number& b) {
-        if(std::abs(a - b) < EPSILON){
+        if(std::abs(a - b) < TOLERANCE_FOR_TESTS){
             return true;
         }
         else {

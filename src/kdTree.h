@@ -1,5 +1,5 @@
-#ifndef __BasicRayTracer__kdTree__
-#define __BasicRayTracer__kdTree__
+#ifndef __Ray_it__kdTree__
+#define __Ray_it__kdTree__
 
 #include <stdio.h>
 #include "box.h"
@@ -57,4 +57,4 @@ public:
 
 
 
-#endif /* defined(__BasicRayTracer__kdTree__) */
+#endif /* defined(__Ray_it__kdTree__) */

@@ -10,20 +10,20 @@ bool Test::CheckMeshResultsAreEqualToReference(const std::string& results_mesh_f
         results_mesh_file.open(results_mesh_file_name);
         if(results_mesh_file.fail()) {
             std::cout<<"Error opening file "<<results_mesh_file_name<< std::endl;
-            return false;
+            return 1;
         }
 
         std::ifstream mesh_reference_file;
         mesh_reference_file.open(mesh_reference_file_name);
         if(mesh_reference_file.fail()) {
             std::cout<<"Error opening file "<<mesh_reference_file_name<< std::endl;
-            return false;
+            return 1;
         }
 
         //Three lines of each file are headers
-        if(!std::getline(results_mesh_file, version1)) return false;
-        if(!std::getline(results_mesh_file, version1)) return false;
-        if(!std::getline(results_mesh_file, version1)) return false;
+        if(!std::getline(results_mesh_file, version1)) return 1;
+        if(!std::getline(results_mesh_file, version1)) return 1;
+        if(!std::getline(results_mesh_file, version1)) return 1;
         std::getline(mesh_reference_file, version2);
         std::getline(mesh_reference_file, version2);
         std::getline(mesh_reference_file, version2);
@@ -42,12 +42,12 @@ bool Test::CheckMeshResultsAreEqualToReference(const std::string& results_mesh_f
 
         if (problematic_line_number>=0) {
             std::cout<<" Files are different at line "<<problematic_line_number<<std::endl;
-            return false;
+            return 1;
         }
 
 
         results_mesh_file.close();
         mesh_reference_file.close();
 
-        return true;
+        return 0;
     }

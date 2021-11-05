@@ -1,5 +1,5 @@
-#ifndef RayTracer_node
-#define RayTracer_node
+#ifndef __Ray_itnode
+#define __Ray_itnode
 
 class Node : public Vec3 {
 

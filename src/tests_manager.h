@@ -1,5 +1,5 @@
-#ifndef RayTracer_tests_manager
-#define RayTracer_tests_manager
+#ifndef __Ray_ittests_manager
+#define __Ray_ittests_manager
 
 #include <iostream>
 #include <vector>
@@ -14,6 +14,8 @@
 #include "../tests/test6.h"
 #include "../tests/test7.h"
 #include "../tests/test8.h"
+#include "../tests/test9.h"
+#include "../tests/test10.h"
 
 int RunTests() {
 
@@ -29,6 +31,8 @@ int RunTests() {
     list_of_tests.push_back(std::make_shared<Test6>());
     list_of_tests.push_back(std::make_shared<Test7>());
     list_of_tests.push_back(std::make_shared<Test8>());
+    list_of_tests.push_back(std::make_shared<Test9>());
+    list_of_tests.push_back(std::make_shared<Test10>());
 
     for(auto test:list_of_tests){
         try{

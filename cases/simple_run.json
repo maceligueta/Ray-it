@@ -1,0 +1,19 @@
+{
+    "case_name": "simple_run",
+    "terrain_input_settings":{
+        "type": "asc",
+        "file_name": "111531.asc",
+        "keep_one_node_out_of": 100
+    },
+    "antennas_list":[{
+        "name": "Corner antenna",
+        "coordinates":[742499, 232999, 1850.0],
+        "power": 100.0,
+        "orientation":{
+            "front": [1.0, 0.0, 0.0],
+            "up": [0.0, 0.0, 1.0]
+        },
+        "radiation_pattern_file_name": "Dipole1.out"
+    }]
+
+}

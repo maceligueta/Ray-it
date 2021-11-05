@@ -10,8 +10,6 @@
 #include <string>
 #include <sstream>
 
-extern unsigned int echo_level;
-
 class Test8: public Test {
 
     public:
@@ -20,9 +18,9 @@ class Test8: public Test {
         mNumber = 8;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"...";
+        std::cout<<"Running test "<<mNumber<<"... ";
 
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         RadiationPattern pattern;
         pattern.FillPatternInfoFrom4NEC2File("cases/Dipole1.out");

@@ -1,5 +1,5 @@
-#ifndef __BasicRaytracer__Vec3f__
-#define __BasicRaytracer__Vec3f__
+#ifndef __Ray_it__Vec3f__
+#define __Ray_it__Vec3f__
 #include <iostream>
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -90,4 +90,4 @@ public:
     }
 
 };
-#endif /* defined(__BasicRaytracer__Vec3f__) */
+#endif /* defined(__Ray_it__Vec3f__) */

@@ -1,9 +1,8 @@
-#ifndef RayTracer_test1
-#define RayTracer_test1
+#ifndef __Ray_ittest1
+#define __Ray_ittest1
 
 #include "test.h"
 #include "../src/ray-it.h"
-extern unsigned int echo_level;
 
 class Test1: public Test {
 
@@ -13,12 +12,16 @@ class Test1: public Test {
         mNumber = 1;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"...";
+        std::cout<<"Running test "<<mNumber<<"... ";
 
-        echo_level = 0;
+        RAY_IT_ECHO_LEVEL = 0;
 
         Mesh mesh;
-        ReadTerrainMesh(mesh, "cases/square_test.stl");
+        InputsReader reader;
+        reader.ReadTerrainSTLMesh(mesh, "cases/square_test.stl");
+
+        KDTreeNode* root= new KDTreeNode();
+        mesh.mTree = *root->RecursiveTreeNodeBuild(mesh.mTriangles, Box(mesh.mBoundingBox[0], mesh.mBoundingBox[1]), 0, SplitPlane());
 
         Vec3 origin(0.0, 0.0, 3.0);
         Vec3 direction(real_number(0.1), 0.0, -1.0);

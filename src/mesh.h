@@ -1,5 +1,5 @@
-#ifndef __BasicRayTracer__Mesh__
-#define __BasicRayTracer__Mesh__
+#ifndef __Ray_it__Mesh__
+#define __Ray_it__Mesh__
 
 #include <stdio.h>
 #include <vector>
@@ -16,7 +16,6 @@ public:
     KDTreeNode mTree;
     std::vector<Node> mNodes;
     std::vector<Triangle*> mTriangles;
-    std::vector<Vec3> mNormals;
     long mTriangleCount;
 
     Mesh(){};
@@ -25,4 +24,4 @@ public:
     bool Intersect(Ray &ray) const;
 
 };
-#endif /* defined(__BasicRayTracer__Mesh__) */
+#endif /* defined(__Ray_it__Mesh__) */
