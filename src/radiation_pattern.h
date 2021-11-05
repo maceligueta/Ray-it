@@ -81,11 +81,11 @@ class RadiationPattern {
         return final_value;
     }
 
-    real_number DirectionalRMSPhiPolarizationElectricFieldValue(const real_number& phi, const real_number& theta) {
+    real_number DirectionalRMSPhiPolarizationElectricFieldValue(const real_number& phi, const real_number& theta) const {
         return DirectionalRMSPhiPolarizationElectricFieldValue(SphericalCoordinates(phi, theta));
     }
 
-    real_number DirectionalRMSPhiPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) {
+    real_number DirectionalRMSPhiPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) const {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
         const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);
@@ -100,11 +100,11 @@ class RadiationPattern {
         return final_value;
     }
 
-    real_number DirectionalRMSThetaPolarizationElectricFieldValue(const real_number& phi, const real_number& theta) {
+    real_number DirectionalRMSThetaPolarizationElectricFieldValue(const real_number& phi, const real_number& theta) const {
         return DirectionalRMSThetaPolarizationElectricFieldValue(SphericalCoordinates(phi, theta));
     }
 
-    real_number DirectionalRMSThetaPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) {
+    real_number DirectionalRMSThetaPolarizationElectricFieldValue(const SphericalCoordinates& spherical_coordinates) const {
         // phi must come [-180, 180] while theta must be [0, 180]
         //TODO: check values are in range in debug version
         const int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) / mSeparationBetweenPhiValues);

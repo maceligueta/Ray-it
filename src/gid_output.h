@@ -93,7 +93,7 @@ class GidOutput {
         gidresfo <<"GID Post Results File 1.0 \n";
 
         if(print_type == RESULTS_ON_NODES) {
-            gidresfo <<"Result \"Intensity\" \"Analysis/time\" "<<0.0<<" Scalar OnNodes\n";
+            gidresfo <<"Result \"Electric Field Intensity (V/m)\" \"Analysis/time\" "<<0.0<<" Scalar OnNodes\n";
             gidresfo <<"Values\n";
             for(size_t i=0; i<mesh.mNodes.size(); i++) {
                 gidresfo << i+1<<"   "<<mesh.mNodes[i].mIntensity<<"\n";
@@ -104,7 +104,7 @@ class GidOutput {
             gidresfo <<"Number Of Gauss Points: 1\n";
             gidresfo <<"Natural Coordinates: internal\n";
             gidresfo <<"end gausspoints\n";
-            gidresfo <<"Result \"Intensity\" \"Analysis/time\" "<<0.0<<" Scalar OnGaussPoints \"Triangle1GausPoint\" \n";
+            gidresfo <<"Result \"Electric Field Intensity (V/m)\" \"Analysis/time\" "<<0.0<<" Scalar OnGaussPoints \"Triangle1GausPoint\" \n";
             gidresfo <<"Values\n";
             for(size_t i=0; i<mesh.mTriangles.size(); i++) {
                 gidresfo << i+1<<"   "<<mesh.mTriangles[i]->mIntensity<<"\n";
