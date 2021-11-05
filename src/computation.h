@@ -47,16 +47,6 @@ public:
 
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
-        /* for(size_t i = 0; i<mesh.mNodes.size(); i++) {
-            Vec3 vec_origin_to_node = Vec3(mesh.mNodes[i][0] - origin[0], mesh.mNodes[i][1] - origin[1], mesh.mNodes[i][2] - origin[2]);
-            Ray test_ray(origin, vec_origin_to_node);
-            test_ray.Intersect(mesh);
-            const real_number distance_squared = vec_origin_to_node[0] * vec_origin_to_node[0] + vec_origin_to_node[1] *vec_origin_to_node[1] + vec_origin_to_node[2] * vec_origin_to_node[2];
-            if(std::abs(test_ray.t_max * test_ray.t_max - distance_squared) < EPSILON) {
-                mesh.mNodes[i].mIntensity = real_number(1.0) / distance_squared;
-            }
-        }  */
-
         for(size_t antenna_index=0; antenna_index<antennas.size(); ++antenna_index) {
             Vec3 origin = antennas[antenna_index].mCoordinates;
             const real_number measuring_dist_squared = antennas[antenna_index].mMeasuringDistance * antennas[antenna_index].mMeasuringDistance;
