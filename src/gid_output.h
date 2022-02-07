@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include "constants.h"
+#include <string>
 
 class GidOutput {
 
@@ -13,7 +14,7 @@ class GidOutput {
     static void PrintResults(const Mesh& mesh, const std::vector<Antenna>& antennas, const std::string& file_name, const TypeOfResultsPrint& print_type=RESULTS_ON_NODES) {
         std::ofstream gidmshfo(file_name + ".post.msh");
         std::ofstream gidresfo(file_name + ".post.res");
-
+        std::string buffer = "";
         gidmshfo <<std::setprecision(8);
         gidmshfo <<"MESH "<<"dimension "<<3<<" ElemType Triangle Nnode 3\n";
         gidmshfo <<"Coordinates\n";
@@ -23,8 +24,9 @@ class GidOutput {
         const size_t num_nodes = mesh.mNodes.size();
         for(size_t i=0; i<num_nodes; i++) {
             const Vec3& node_i = mesh.mNodes[i];
-            gidmshfo << i+1<<"   "<<node_i[0]<<"   "<<node_i[1]<< "   "<<node_i[2]<<"\n";
+            buffer += std::to_string(i+1) + "  " + std::to_string(node_i[0]) + "  " + std::to_string(node_i[1]) + "  " + std::to_string(node_i[2])+"\n";
         }
+        gidmshfo << buffer;
 
         for(size_t i=0; i<antennas.size(); i++) {
             const Vec3& node_i = antennas[i].mCoordinates;
@@ -36,16 +38,16 @@ class GidOutput {
         gidmshfo <<"Elements\n";
 
         const size_t num_tris = mesh.mTriangles.size();
-
+        buffer = "";
         for(size_t i=0; i<num_tris; i++) {
-            gidmshfo << i+1;
-            gidmshfo <<"   "<< mesh.mTriangles[i]->mNodeIndices[0] + 1;
-            gidmshfo <<"   "<< mesh.mTriangles[i]->mNodeIndices[1] + 1;
-            gidmshfo <<"   "<< mesh.mTriangles[i]->mNodeIndices[2] + 1;
-            gidmshfo <<"   "<< "1";
-            gidmshfo <<"\n";
-
+            buffer += std::to_string(i+1);
+            buffer += "  " + std::to_string(mesh.mTriangles[i]->mNodeIndices[0] + 1);
+            buffer += "  " + std::to_string(mesh.mTriangles[i]->mNodeIndices[1] + 1);
+            buffer += "  " + std::to_string(mesh.mTriangles[i]->mNodeIndices[2] + 1);
+            buffer += "  1\n";
         }
+        gidmshfo << buffer;
+
         gidmshfo <<"end elements\n\n";
 
         gidmshfo <<"MESH "<<"dimension "<<3<<" ElemType Sphere Nnode 1\n";
@@ -91,6 +93,7 @@ class GidOutput {
 
         gidresfo <<std::setprecision(8);
         gidresfo <<"GID Post Results File 1.0 \n";
+        buffer = "";
 
         if(print_type == RESULTS_ON_NODES) {
             gidresfo <<"Result \"Electric Field Intensity (V/m)\" \"Analysis/time\" "<<0.0<<" Scalar OnNodes\n";
@@ -107,8 +110,9 @@ class GidOutput {
             gidresfo <<"Result \"Electric Field Intensity (V/m)\" \"Analysis/time\" "<<0.0<<" Scalar OnGaussPoints \"Triangle1GausPoint\" \n";
             gidresfo <<"Values\n";
             for(size_t i=0; i<mesh.mTriangles.size(); i++) {
-                gidresfo << i+1<<"   "<<mesh.mTriangles[i]->mIntensity<<"\n";
+                buffer += std::to_string(i+1) + "  " + std::to_string(mesh.mTriangles[i]->mIntensity) + "\n";
             }
+            gidmshfo << buffer;
             gidresfo <<"End Values\n";
         }
     }
