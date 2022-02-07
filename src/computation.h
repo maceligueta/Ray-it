@@ -19,7 +19,7 @@ public:
 
     Computation(){}
 
-    bool Run(json parameters) {
+    bool Run(const json& parameters) {
 
         std::vector<Antenna> antennas;
 
@@ -38,8 +38,12 @@ public:
 
         OutputsWriter writer;
         const std::string output_file_name_with_current_path = CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
-        writer.PrintResultsInGidFormat(mesh, antennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
-
+        if(parameters["output_settings"]["print_for_gid"].get<bool>()) {
+            writer.PrintResultsInGidFormat(mesh, antennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
+        }
+        if(parameters["output_settings"]["print_for_matlab"].get<bool>()) {
+            writer.PrintResultsInMatlabFormat(mesh, antennas, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
+        }
         return 0;
     }
 

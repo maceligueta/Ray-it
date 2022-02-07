@@ -1,5 +1,5 @@
 {
-    "case_name": "simple_run",
+    "case_name": "simple_run_matlab_output",
     "terrain_input_settings":{
         "type": "asc",
         "file_name": "111531.asc",
@@ -16,7 +16,7 @@
         "radiation_pattern_file_name": "Dipole1.out"
     }],
     "output_settings":{
-        "print_for_gid": true,
-        "print_for_matlab": false
+        "print_for_gid": false,
+        "print_for_matlab": true
     }
 }
