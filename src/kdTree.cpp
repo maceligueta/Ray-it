@@ -198,7 +198,7 @@ void KDTreeNode::findPlane(const std::vector<Triangle *>& T, const Box& V,
             }
         }
         //sort(std::execution::par_unseq, events.begin(), events.end());
-        sort(events.begin(), events.end());
+        std::sort(events.begin(), events.end());
         size_t NL = 0, NP = 0, NR = target_box;
         for(std::vector<Event>::size_type Ei = 0; Ei < events.size(); ++Ei) {
             const SplitPlane& p = events[Ei].splitPlane;
@@ -280,20 +280,12 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
         return leafnode;
     }
 
-
-
     Box VL, VR;
     splitBox(V, p, VL, VR); // TODO: avoid doing this step twice
     std::vector<Triangle *> TL, TR;
     DistributeTriangles(triangles, p, pside, TL, TR);
     // Inner node
     KDTreeNode * innerNode = new KDTreeNode();
-
-    ////TODO: remove
-    /* innerNode->mTriangles = triangles;
-    innerNode->mBounds = V;
-    innerNode->mLeaf = false; */
-    ////
 
     innerNode->mSplitPlane = p;
     innerNode->mBounds = V;
