@@ -191,6 +191,9 @@ public:
             }
         }
 
+        mesh.mRowsOfStructuredMeshNodes = actual_rows_read;
+        mesh.mColumnsOfStructuredMeshNodes = actual_cols_read;
+
         real_number added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
@@ -329,7 +332,7 @@ public:
         return 0;
     }
 
-    bool ReadAntennas(std::vector<Antenna>& antennas, json& input_parameters){
+    bool ReadAntennas(std::vector<Antenna>& antennas, const json& input_parameters){
 
         for (auto& single_antenna_data : input_parameters["antennas_list"]) {
             Antenna a;

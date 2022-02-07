@@ -18,5 +18,69 @@ public:
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "  done!"<<std::endl;
     }
 
+    void PrintResultsInMatlabFormat(const Mesh& mesh, const std::vector<Antenna>& antennas, const TypeOfResultsPrint& print_type) {
+        std::ofstream Xfo(CURRENT_WORKING_DIR + "/" + "X.mat");
+        std::ofstream Yfo(CURRENT_WORKING_DIR + "/" + "Y.mat");
+        std::ofstream Zfo(CURRENT_WORKING_DIR + "/" + "Z.mat");
+        std::ofstream Vfo(CURRENT_WORKING_DIR + "/" + "V.mat");
+
+        std::string X0buffer = "";
+        std::string X1buffer = "";
+        std::string X2buffer = "";
+        std::string Y0buffer = "";
+        std::string Y1buffer = "";
+        std::string Y2buffer = "";
+        std::string Z0buffer = "";
+        std::string Z1buffer = "";
+        std::string Z2buffer = "";
+        std::string Vbuffer = "";
+
+        std::vector<double> nodal_values(mesh.mNodes.size());
+        std::vector<int> num_triangles_per_node(mesh.mNodes.size());
+
+        const size_t num_tris = mesh.mTriangles.size();
+        for(size_t i=0; i<num_tris; i++) {
+            for(int j=0; j<3; ++j){
+                nodal_values[mesh.mTriangles[i]->mNodeIndices[j]] += mesh.mTriangles[i]->mIntensity;
+                num_triangles_per_node[mesh.mTriangles[i]->mNodeIndices[j]]++;
+            }
+        }
+        for(size_t i=0; i<mesh.mNodes.size(); i++) {
+            nodal_values[i] /= num_triangles_per_node[i];
+        }
+
+        for(int i=0; i<mesh.mRowsOfStructuredMeshNodes; i++) {
+            for (int j=0; j<mesh.mColumnsOfStructuredMeshNodes; j++){
+                X0buffer += std::to_string(mesh.mNodes[i*mesh.mColumnsOfStructuredMeshNodes+j][0]) + "  ";
+                Y0buffer += std::to_string(mesh.mNodes[i*mesh.mColumnsOfStructuredMeshNodes+j][1]) + "  ";
+                Z0buffer += std::to_string(mesh.mNodes[i*mesh.mColumnsOfStructuredMeshNodes+j][2]) + "  ";
+                Vbuffer  += std::to_string(nodal_values[i*mesh.mColumnsOfStructuredMeshNodes+j]) + "  ";
+            }
+            X0buffer += "\n";
+            Y0buffer += "\n";
+            Z0buffer += "\n";
+            Vbuffer += "\n";
+        }
+
+        /*for(size_t i=0; i<num_tris; i++) {
+            X0buffer += std::to_string(mesh.mTriangles[i]->p0[0]) + "  ";
+            Y0buffer += std::to_string(mesh.mTriangles[i]->p0[1]) + "  ";
+            Z0buffer += std::to_string(mesh.mTriangles[i]->p0[2]) + "  ";
+            X1buffer += std::to_string(mesh.mTriangles[i]->p1[0]) + "  ";
+            Y1buffer += std::to_string(mesh.mTriangles[i]->p1[1]) + "  ";
+            Z1buffer += std::to_string(mesh.mTriangles[i]->p1[2]) + "  ";
+            X2buffer += std::to_string(mesh.mTriangles[i]->p2[0]) + "  ";
+            Y2buffer += std::to_string(mesh.mTriangles[i]->p2[1]) + "  ";
+            Z2buffer += std::to_string(mesh.mTriangles[i]->p2[2]) + "  ";
+            Vbuffer  += std::to_string(mesh.mTriangles[i]->mIntensity) + "  ";
+        }*/
+
+        Xfo<<X0buffer<<"\n"<<X1buffer<<"\n"<<X2buffer<<"\n";
+        Yfo<<Y0buffer<<"\n"<<Y1buffer<<"\n"<<Y2buffer<<"\n";
+        Zfo<<Z0buffer<<"\n"<<Z1buffer<<"\n"<<Z2buffer<<"\n";
+        //Vfo<<Vbuffer <<"\n"<<Vbuffer <<"\n"<<Vbuffer<<"\n";
+        Vfo<<Vbuffer;
+    }
+
 };
 #endif /* defined(__Ray_it__OutputsWriter__) */

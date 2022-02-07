@@ -17,6 +17,8 @@ public:
     std::vector<Node> mNodes;
     std::vector<Triangle*> mTriangles;
     long mTriangleCount;
+    int mRowsOfStructuredMeshNodes = -1;
+    int mColumnsOfStructuredMeshNodes = -1;
 
     Mesh(){};
 
