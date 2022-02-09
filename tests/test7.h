@@ -14,50 +14,52 @@ class Test7: public Test {
     Test7():Test(){
         mNumber = 7;
     }
+
+    void FillRadiationPattern(RadiationPattern& pattern){
+        pattern.mSeparationBetweenPhiValues = 60.0;
+        pattern.mSeparationBetweenThetaValues = 60.0;
+        pattern.mRadiationMap.resize(int(360.0 / pattern.mSeparationBetweenPhiValues) + 1);
+        for(size_t i=0;i<pattern.mRadiationMap.size(); i++) {
+            pattern.mRadiationMap[i].resize(int(180.0 / pattern.mSeparationBetweenThetaValues) + 1);
+        }
+
+        pattern.mRadiationMap[0][0].mGain = -50.0; //phi = -180 theta = 0.0
+        pattern.mRadiationMap[0][1].mGain = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[0][2].mGain = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[0][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[1][0].mGain = -50.0;  //phi = -120  theta = 0.0
+        pattern.mRadiationMap[1][1].mGain = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[1][2].mGain = -10.0; //           theta = 120.0
+        pattern.mRadiationMap[1][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[2][0].mGain = -50.0;  //phi = -60  theta = 0.0
+        pattern.mRadiationMap[2][1].mGain = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[2][2].mGain = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[2][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[3][0].mGain = -50.0;  //phi = 0  theta = 0.0
+        pattern.mRadiationMap[3][1].mGain = 0.0; //           theta = 60.0
+        pattern.mRadiationMap[3][2].mGain = 0.0; //           theta = 120.0
+        pattern.mRadiationMap[3][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[4][0].mGain = -50.0;  //phi = 60  theta = 0.0
+        pattern.mRadiationMap[4][1].mGain = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[4][2].mGain = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[4][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[5][0].mGain = -50.0;  //phi = 120  theta = 0.0
+        pattern.mRadiationMap[5][1].mGain = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][2].mGain = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[6][0].mGain = -50.0;  //phi = 180  theta = 0.0
+        pattern.mRadiationMap[6][1].mGain = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[6][2].mGain = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[6][3].mGain = -50.0; //           theta = 180.0
+    }
+
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 
         RadiationPattern pattern;
-        pattern.mSeparationBetweenPhiValues = 60.0;
-        pattern.mSeparationBetweenThetaValues = 60.0;
-        pattern.mRadiationMap.resize(int(360.0 / pattern.mSeparationBetweenPhiValues) + 1);
-        for(size_t i=0;i<pattern.mRadiationMap.size(); i++) {
-            pattern.mRadiationMap[i].resize(int(180.0 / pattern.mSeparationBetweenThetaValues) + 1);
-            for (size_t j=0; j<pattern.mRadiationMap[i].size(); j++){
-                pattern.mRadiationMap[i][j].resize(1);
-            }
-        }
-
-        pattern.mRadiationMap[0][0][0] = -50.0; //phi = -180 theta = 0.0
-        pattern.mRadiationMap[0][1][0] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[0][2][0] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[0][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[1][0][0] = -50.0;  //phi = -120  theta = 0.0
-        pattern.mRadiationMap[1][1][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[1][2][0] = -10.0; //           theta = 120.0
-        pattern.mRadiationMap[1][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[2][0][0] = -50.0;  //phi = -60  theta = 0.0
-        pattern.mRadiationMap[2][1][0] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[2][2][0] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[2][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[3][0][0] = -50.0;  //phi = 0  theta = 0.0
-        pattern.mRadiationMap[3][1][0] = 0.0; //           theta = 60.0
-        pattern.mRadiationMap[3][2][0] = 0.0; //           theta = 120.0
-        pattern.mRadiationMap[3][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[4][0][0] = -50.0;  //phi = 60  theta = 0.0
-        pattern.mRadiationMap[4][1][0] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[4][2][0] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[4][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[5][0][0] = -50.0;  //phi = 120  theta = 0.0
-        pattern.mRadiationMap[5][1][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][2][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[6][0][0] = -50.0;  //phi = 180  theta = 0.0
-        pattern.mRadiationMap[6][1][0] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[6][2][0] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[6][3][0] = -50.0; //           theta = 180.0
+        FillRadiationPattern(pattern);
 
         real_number p;
         p = pattern.DirectionalGainValue(0.0, 90.0);

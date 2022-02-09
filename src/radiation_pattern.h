@@ -48,12 +48,19 @@ class SphericalCoordinates {
     }
 };
 
+struct RadiationValues {
+  real_number mGain;
+  real_number mEPhi;
+  real_number mETheta;
+};
+
 
 class RadiationPattern {
 
     public:
     real_number mTotalPower = 0.0;
-    std::vector<std::vector<std::vector<real_number>>> mRadiationMap;
+    real_number mMeasuringDistance;
+    std::vector<std::vector<RadiationValues>> mRadiationMap;
     real_number mSeparationBetweenPhiValues;
     real_number mSeparationBetweenThetaValues;
     RadiationPattern(){
@@ -73,10 +80,10 @@ class RadiationPattern {
         if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
         int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
         if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
-        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][0];
-        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][0];
-        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][0];
-        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1][0];
+        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index].mGain;
+        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index].mGain;
+        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1].mGain;
+        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1].mGain;
         const real_number value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number final_value = value_at_floor_theta + (value_at_floor_theta_plus_one - value_at_floor_theta) / mSeparationBetweenThetaValues * (spherical_coordinates.mTheta - floor_theta_index*mSeparationBetweenThetaValues);
@@ -94,10 +101,10 @@ class RadiationPattern {
         if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
         int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
         if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
-        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][1];
-        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][1];
-        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][1];
-        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1][1];
+        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index].mEPhi;
+        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index].mEPhi;
+        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1].mEPhi;
+        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1].mEPhi;
         const real_number value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number final_value = value_at_floor_theta + (value_at_floor_theta_plus_one - value_at_floor_theta) / mSeparationBetweenThetaValues * (spherical_coordinates.mTheta - floor_theta_index*mSeparationBetweenThetaValues);
@@ -115,10 +122,10 @@ class RadiationPattern {
         if(spherical_coordinates.mPhi==180.0) floor_phi_index--;
         int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta/ mSeparationBetweenThetaValues); //TODO: BUG when THeta = 180.0
         if(spherical_coordinates.mTheta==180.0) floor_theta_index--;
-        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][2];
-        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][2];
-        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][2];
-        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1][2];
+        const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index].mETheta;
+        const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index].mETheta;
+        const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1].mETheta;
+        const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1].mETheta;
         const real_number value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) / mSeparationBetweenPhiValues * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
         const real_number final_value = value_at_floor_theta + (value_at_floor_theta_plus_one - value_at_floor_theta) / mSeparationBetweenThetaValues * (spherical_coordinates.mTheta - floor_theta_index*mSeparationBetweenThetaValues);
@@ -197,9 +204,6 @@ class RadiationPattern {
         mRadiationMap.resize(int(std::round(360.0 / mSeparationBetweenPhiValues)) + 1);
         for(size_t i=0; i<mRadiationMap.size(); ++i) {
             mRadiationMap[i].resize(int(std::round(180.0 / mSeparationBetweenThetaValues)) + 1);
-            for(size_t j=0; j<mRadiationMap[i].size(); ++j) {
-                mRadiationMap[i][j].resize(3);
-            }
         }
 
         real_number min_theta = 10000.0;
@@ -214,7 +218,7 @@ class RadiationPattern {
         #ifdef RAY_IT_DEBUG
         for (size_t i=0; i<mRadiationMap.size(); ++i) {
             for (size_t j=0; j<mRadiationMap[i].size(); ++j) {
-                mRadiationMap[i][j][0] = -1e10;
+                mRadiationMap[i][j].mGain = -1e10;
             }
         }
         #endif
@@ -224,31 +228,47 @@ class RadiationPattern {
             const int theta_position_in_pattern_matrix = (int)round((sc.mTheta - min_theta)/ mSeparationBetweenThetaValues);
             const int phi_position_in_pattern_matrix = (int)round((sc.mPhi - min_phi)/ mSeparationBetweenPhiValues);
             if(phi_position_in_pattern_matrix == 0 || phi_position_in_pattern_matrix == mRadiationMap.size()-1){
-                mRadiationMap[0][theta_position_in_pattern_matrix][0] = list_of_power_gains[i];
-                mRadiationMap[0][theta_position_in_pattern_matrix][1] = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
-                mRadiationMap[0][theta_position_in_pattern_matrix][2] = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
-                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix][0] = real_number(list_of_power_gains[i]);
-                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix][1] = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
-                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix][2] = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
+                mRadiationMap[0][theta_position_in_pattern_matrix].mGain = list_of_power_gains[i];
+                mRadiationMap[0][theta_position_in_pattern_matrix].mEPhi = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
+                mRadiationMap[0][theta_position_in_pattern_matrix].mETheta = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
+                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix].mGain = real_number(list_of_power_gains[i]);
+                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix].mEPhi = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
+                mRadiationMap[mRadiationMap.size()-1][theta_position_in_pattern_matrix].mETheta = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
             }
             else {
-                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix][0] = real_number(list_of_power_gains[i]);
-                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix][1] = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
-                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix][2] = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
+                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix].mGain = real_number(list_of_power_gains[i]);
+                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix].mEPhi = real_number(SQRT_OF_2_OVER_2 * list_of_E_phi[i]);
+                mRadiationMap[phi_position_in_pattern_matrix][theta_position_in_pattern_matrix].mETheta = real_number(SQRT_OF_2_OVER_2 * list_of_E_theta[i]);
             }
         }
 
         #ifdef RAY_IT_DEBUG
         for (size_t i=0; i<mRadiationMap.size(); ++i) {
             for (size_t j=0; j<mRadiationMap[i].size(); ++j) {
-                if (mRadiationMap[i][j][0] == -1e10){
+                if (mRadiationMap[i][j].mGain == -1e10){
                     std::cout<<"Error: undefined value in radiation map, coordinates "<<i<<", "<<j<<std::endl;
                 }
             }
         }
         #endif
+    }
 
+    double IntegratePatternSurfaceTotalPower() {
+        #include "points_on_unit_sphere.h"
+        const auto& p = POINT_COORDINATES_ON_SPHERE;
+        const size_t num_points = p.size();
+        const double weight_of_each_point = 4.0 * M_PI / num_points;
+        const double isotropic_power_density = mTotalPower / (4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
+        double integral = 0.0;
+        for(int i=0; i<num_points; i++){
+            Vec3 dir = Vec3(p[i][0], p[i][1], p[i][2]);
+            const double gain = DirectionalGainValue(dir);
+            const double power_density = isotropic_power_density * std::pow(real_number(10.0), gain * real_number(0.1));
+            integral += power_density;
+        }
+        integral *= weight_of_each_point;
 
+        return integral;
     }
 
     bool IsANumber(const std::string& s) {

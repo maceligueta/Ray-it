@@ -15,6 +15,12 @@
         },
         "radiation_pattern_file_name": "Dipole1.out"
     }],
+    "computation_settings":{
+        "number_of_reflections": 0,
+        "portion_of_elements_contributing_to_reflection": 0.5,
+        "Fresnel_reflection_coefficient": 0.3,
+        "minimum_intensity_to_be_reflected": 1.0e-8
+    },
     "output_settings":{
         "print_for_gid": true,
         "print_for_matlab": false

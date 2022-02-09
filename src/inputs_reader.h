@@ -371,7 +371,7 @@ public:
                 }
             }
 
-            a.LoadRadiationPattern(file_name_to_be_used_here);
+            a.LoadRadiationPatternFromFile(file_name_to_be_used_here);
 
             antennas.push_back(a);
         }
