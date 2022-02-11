@@ -56,19 +56,19 @@ public:
     }
 
     bool ComputeRays(const std::vector<Antenna>& antennas, const json& computation_settings, Mesh& mesh){
-        const int number_of_reflections = computation_settings["number_of_reflections"].get<int>();
-        const real_number portion_of_elements_contributing_to_reflection =  computation_settings["portion_of_elements_contributing_to_reflection"].get<double>();
-        const real_number fresnel_reflection_coefficient =  computation_settings["Fresnel_reflection_coefficient"].get<double>();
+        const int number_of_reflexions = computation_settings["number_of_reflexions"].get<int>();
+        const real_number portion_of_elements_contributing_to_reflexion =  computation_settings["portion_of_elements_contributing_to_reflexion"].get<double>();
+        const real_number fresnel_reflexion_coefficient =  computation_settings["Fresnel_reflexion_coefficient"].get<double>();
         const real_number minimum_intensity_to_be_reflected = computation_settings["minimum_intensity_to_be_reflected"].get<double>();
 
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
         std::vector<std::vector<std::vector<Antenna>>> bdrf_antennas;
 
-        if(number_of_reflections){
-            bdrf_antennas.resize(number_of_reflections);
-            for(int reflection_number=0; reflection_number<number_of_reflections; reflection_number++) {
-                bdrf_antennas[reflection_number].resize(mesh.mTriangles.size());
+        if(number_of_reflexions){
+            bdrf_antennas.resize(number_of_reflexions);
+            for(int reflexion_number=0; reflexion_number<number_of_reflexions; reflexion_number++) {
+                bdrf_antennas[reflexion_number].resize(mesh.mTriangles.size());
             }
         }
 
@@ -90,14 +90,14 @@ public:
                     const real_number power_density_times_impedance = (E_phi_at_measuring_distance*E_phi_at_measuring_distance + E_theta_at_measuring_distance*E_theta_at_measuring_distance) * measuring_dist_squared / distance_squared;
                     triangle->mIntensity = std::sqrt(power_density_times_impedance);
 
-                    if (number_of_reflections) {
+                    if (number_of_reflexions) {
                         const real_number total_power_received_by_triangle = power_density_times_impedance / 377.0 * triangle->ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle->mNormal);
                         #if RAY_IT_DEBUG
                         if(total_power_received_by_triangle < 0.0) {
                             std::cout<<"Error: negative power!"<<std::endl;
                         }
                         #endif
-                        const real_number total_power_reflected_by_triangle = fresnel_reflection_coefficient * fresnel_reflection_coefficient * total_power_received_by_triangle; //squared coefficient because we are reflecting power
+                        const real_number total_power_reflected_by_triangle = fresnel_reflexion_coefficient * fresnel_reflexion_coefficient * total_power_received_by_triangle; //squared coefficient because we are reflecting power
                         //isotropic radiation pattern:
                         Antenna a;
                         a.mRadiationPattern.mTotalPower = total_power_reflected_by_triangle;
@@ -122,20 +122,20 @@ public:
             }
         }
 
-        if(number_of_reflections){
+        if(number_of_reflexions){
             std::uniform_real_distribution<> uniform_distribution_zero_to_one(0.0, 1.0);
 
-            const real_number representation_factor = 1.0 / portion_of_elements_contributing_to_reflection;
+            const real_number representation_factor = 1.0 / portion_of_elements_contributing_to_reflexion;
 
-            for(int reflection_number=0; reflection_number<number_of_reflections; reflection_number++) {
-                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computing reflection "<< reflection_number + 1 << " ... "<<std::endl;
+            for(int reflexion_number=0; reflexion_number<number_of_reflexions; reflexion_number++) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computing reflexion "<< reflexion_number + 1 << " ... "<<std::endl;
                 #pragma omp parallel for schedule(dynamic, 500)
                 for(int i = 0; i<(int)mesh.mTriangles.size(); i++) {
                     const auto& triangle = mesh.mTriangles[i];
-                    for(int j = 0; j<(int)bdrf_antennas[reflection_number].size(); j++) {
+                    for(int j = 0; j<(int)bdrf_antennas[reflexion_number].size(); j++) {
                         if(j == i) continue;
                         if(mesh.mTriangles[j]->mIntensity < minimum_intensity_to_be_reflected) continue;
-                        if( ! random_bool_with_prob(uniform_distribution_zero_to_one, portion_of_elements_contributing_to_reflection) ) continue;
+                        if( ! random_bool_with_prob(uniform_distribution_zero_to_one, portion_of_elements_contributing_to_reflexion) ) continue;
                         if(Vec3::DotProduct(triangle->mNormal, mesh.mTriangles[j]->mNormal) < 0.0) continue;
 
                         Vec3 vec_origin_to_triangle_center = Vec3(triangle->mCenter[0] - mesh.mTriangles[j]->mCenter[0], triangle->mCenter[1] - mesh.mTriangles[j]->mCenter[1], triangle->mCenter[2] - mesh.mTriangles[j]->mCenter[2]);
@@ -144,15 +144,15 @@ public:
                         const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
                         const real_number distance = sqrt(distance_squared);
                         if(std::abs(ray.t_max - distance) < 1.0) {
-                            for(int k=0; k<bdrf_antennas[reflection_number][j].size(); k++) {
-                                const real_number E_phi_at_measuring_distance = bdrf_antennas[reflection_number][j][k].DirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                                const real_number E_theta_at_measuring_distance = bdrf_antennas[reflection_number][j][k].DirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                                const real_number measuring_dist_squared = bdrf_antennas[reflection_number][j][k].mRadiationPattern.mMeasuringDistance * bdrf_antennas[reflection_number][j][k].mRadiationPattern.mMeasuringDistance;
+                            for(int k=0; k<bdrf_antennas[reflexion_number][j].size(); k++) {
+                                const real_number E_phi_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].DirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                                const real_number E_theta_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].DirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                                const real_number measuring_dist_squared = bdrf_antennas[reflexion_number][j][k].mRadiationPattern.mMeasuringDistance * bdrf_antennas[reflexion_number][j][k].mRadiationPattern.mMeasuringDistance;
                                 const real_number power_density_times_impedance = (E_phi_at_measuring_distance*E_phi_at_measuring_distance + E_theta_at_measuring_distance*E_theta_at_measuring_distance) * measuring_dist_squared / distance_squared;
                                 triangle->mIntensity += representation_factor * std::sqrt(power_density_times_impedance);
 
-                                if (number_of_reflections > reflection_number+1){
-                                    bdrf_antennas[reflection_number+1][i].push_back(Antenna());
+                                if (number_of_reflexions > reflexion_number+1){
+                                    bdrf_antennas[reflexion_number+1][i].push_back(Antenna());
                                 }
                             }
                         }

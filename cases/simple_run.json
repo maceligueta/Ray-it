@@ -3,7 +3,7 @@
     "terrain_input_settings":{
         "type": "asc",
         "file_name": "111531.asc",
-        "keep_one_node_out_of": 100
+        "keep_one_node_out_of": 20
     },
     "antennas_list":[{
         "name": "Corner antenna",
@@ -16,9 +16,9 @@
         "radiation_pattern_file_name": "Dipole1.out"
     }],
     "computation_settings":{
-        "number_of_reflections": 0,
-        "portion_of_elements_contributing_to_reflection": 0.5,
-        "Fresnel_reflection_coefficient": 0.3,
+        "number_of_reflexions": 1,
+        "portion_of_elements_contributing_to_reflexion": 1.0,
+        "Fresnel_reflexion_coefficient": 0.3,
         "minimum_intensity_to_be_reflected": 1.0e-8
     },
     "output_settings":{
