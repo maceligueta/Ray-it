@@ -20,7 +20,7 @@ class Test12: public Test7 {
     bool Run() override{
         std::cout<<"Running test "<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 1;
+        RAY_IT_ECHO_LEVEL = 0;
 
         RadiationPattern pattern;
         Test7::FillRadiationPattern(pattern);

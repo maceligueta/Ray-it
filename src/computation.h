@@ -9,6 +9,8 @@
 #include "constants.h"
 #include "inputs_reader.h"
 #include "outputs_writer.h"
+#include "wave.h"
+#include "jones.h"
 #include "mesh.h"
 #include "../external_libraries/json.hpp"
 #include <random>
@@ -72,23 +74,27 @@ public:
             }
         }
 
-        for(size_t antenna_index=0; antenna_index<antennas.size(); ++antenna_index) {
-            Vec3 origin = antennas[antenna_index].mCoordinates;
-            const real_number measuring_dist_squared = antennas[antenna_index].mRadiationPattern.mMeasuringDistance * antennas[antenna_index].mRadiationPattern.mMeasuringDistance;
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout<<"Antenna '"<<antennas[antenna_index].mName<<"' at position: "<<std::setprecision(15)<<origin<<std::endl;
-            #pragma omp parallel for schedule(dynamic, 500)
-            for(int i = 0; i<(int)mesh.mTriangles.size(); i++) {
-                const auto& triangle = mesh.mTriangles[i];
+        #pragma omp parallel for schedule(dynamic, 500)
+        for(int i = 0; i<(int)mesh.mTriangles.size(); i++) {
+            const auto& triangle = mesh.mTriangles[i];
+            for(size_t antenna_index=0; antenna_index<antennas.size(); ++antenna_index) {
+                Vec3 origin = antennas[antenna_index].mCoordinates;
+                const real_number measuring_dist_squared = antennas[antenna_index].mRadiationPattern.mMeasuringDistance * antennas[antenna_index].mRadiationPattern.mMeasuringDistance;
                 Vec3 vec_origin_to_triangle_center = Vec3(triangle->mCenter[0] - origin[0], triangle->mCenter[1] - origin[1], triangle->mCenter[2] - origin[2]);
                 Ray ray(origin, vec_origin_to_triangle_center);
                 ray.Intersect(mesh);
                 const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-                const real_number distance = sqrt(distance_squared);
+                const real_number distance = std::sqrt(distance_squared);
                 if(std::abs(ray.t_max - distance) < 1.0) {
-                    const real_number E_phi_at_measuring_distance = antennas[antenna_index].DirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                    const real_number E_theta_at_measuring_distance = antennas[antenna_index].DirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                    const real_number E_phi_at_measuring_distance = antennas[antenna_index].GetDirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                    const real_number E_theta_at_measuring_distance = antennas[antenna_index].GetDirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
                     const real_number power_density_times_impedance = (E_phi_at_measuring_distance*E_phi_at_measuring_distance + E_theta_at_measuring_distance*E_theta_at_measuring_distance) * measuring_dist_squared / distance_squared;
                     triangle->mIntensity = std::sqrt(power_density_times_impedance);
+
+                    JonesVector jones_vector_at_origin = antennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
+                    JonesVector jones_vector_at_destination = jones_vector_at_origin;
+                    jones_vector_at_destination.PropagateDistance(distance - antennas[antenna_index].mRadiationPattern.mMeasuringDistance);
+                    const real_number jones_intensity = jones_vector_at_destination.ComputeRMSElectricFieldIntensity();
 
                     if (number_of_reflexions) {
                         const real_number total_power_received_by_triangle = power_density_times_impedance / 377.0 * triangle->ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle->mNormal);
@@ -145,8 +151,8 @@ public:
                         const real_number distance = sqrt(distance_squared);
                         if(std::abs(ray.t_max - distance) < 1.0) {
                             for(int k=0; k<bdrf_antennas[reflexion_number][j].size(); k++) {
-                                const real_number E_phi_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].DirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                                const real_number E_theta_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].DirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                                const real_number E_phi_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].GetDirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
+                                const real_number E_theta_at_measuring_distance = bdrf_antennas[reflexion_number][j][k].GetDirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
                                 const real_number measuring_dist_squared = bdrf_antennas[reflexion_number][j][k].mRadiationPattern.mMeasuringDistance * bdrf_antennas[reflexion_number][j][k].mRadiationPattern.mMeasuringDistance;
                                 const real_number power_density_times_impedance = (E_phi_at_measuring_distance*E_phi_at_measuring_distance + E_theta_at_measuring_distance*E_theta_at_measuring_distance) * measuring_dist_squared / distance_squared;
                                 triangle->mIntensity += representation_factor * std::sqrt(power_density_times_impedance);

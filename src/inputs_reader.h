@@ -336,43 +336,9 @@ public:
 
         for (auto& single_antenna_data : input_parameters["antennas_list"]) {
             Antenna a;
-            a.mName = single_antenna_data["name"].get<std::string>();
-
-            auto coords = single_antenna_data["coordinates"].get<std::vector<real_number>>();
-            a.mCoordinates[0] = coords[0];
-            a.mCoordinates[1] = coords[1];
-            a.mCoordinates[2] = coords[2];
-
-            auto vector = single_antenna_data["orientation"]["front"].get<std::vector<real_number>>();
-            Vec3 vector_pointing_front;
-            vector_pointing_front[0] = vector[0];
-            vector_pointing_front[1] = vector[1];
-            vector_pointing_front[2] = vector[2];
-
-            vector = single_antenna_data["orientation"]["up"].get<std::vector<real_number>>();
-            Vec3 vector_pointing_up;
-            vector_pointing_up[0] = vector[0];
-            vector_pointing_up[1] = vector[1];
-            vector_pointing_up[2] = vector[2];
-
-            a.InitializeOrientation(vector_pointing_front, vector_pointing_up);
-
-            const std::string radiation_pattern_file_name = single_antenna_data["radiation_pattern_file_name"].get<std::string>();
-            std::string file_name_to_be_used_here = radiation_pattern_file_name;
-
-            if (!std::filesystem::exists(radiation_pattern_file_name)) {
-                const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
-                if (!std::filesystem::exists(file_name_with_current_path)) {
-                    std::cout << "Error: files \""<<radiation_pattern_file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
-                    return 1;
-                }
-                else{
-                file_name_to_be_used_here = file_name_with_current_path;
-                }
+            if(a.InitializeFromParameters(single_antenna_data)){
+                return 1;
             }
-
-            a.LoadRadiationPatternFromFile(file_name_to_be_used_here);
-
             antennas.push_back(a);
         }
         return 0;

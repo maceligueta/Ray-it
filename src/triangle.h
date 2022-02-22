@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "box.h"
+#include "jones.h"
 
 class Mesh;
 
@@ -10,12 +11,14 @@ class Triangle {
 public:
     unsigned int mId;
     Vec3 p0, p1, p2;
-    Vec3 mFirstSide, mSecondSide, mNormal;
+    Vec3 mFirstSide, mSecondSide;
+    Vec3 mLocalAxis1, mLocalAxis2, mNormal;
     real_number invDenom, uu, uv, vv;
     Box mBoundingBox;
     unsigned int mNodeIndices[3];
     Vec3 mCenter;
     real_number mIntensity = 0.0;
+    VecC3 mElectricField;
 
     Triangle(Mesh &mesh){}
 
@@ -27,8 +30,11 @@ public:
         uv = Vec3::DotProduct(mFirstSide , mSecondSide);
         vv = Vec3::DotProduct(mSecondSide, mSecondSide);
         invDenom = real_number(1.0) / (uv*uv - uu*vv);
-        mNormal = Vec3::normalize(Vec3::CrossProduct(mFirstSide, mSecondSide));
+        mNormal = Vec3::Normalize(Vec3::CrossProduct(mFirstSide, mSecondSide));
+        mLocalAxis1 = Vec3::Normalize(mFirstSide);
+        mLocalAxis2 = Vec3::Normalize(Vec3::CrossProduct(mNormal, mFirstSide));
         mCenter = ComputeCenter();
+        mElectricField = VecC3(0.0, 0.0, 0.0);
     }
 
     Vec3 ComputeCenter() {
@@ -57,6 +63,13 @@ public:
         return Box(Vec3(xmin, ymin, zmin), Vec3(xmax, ymax, zmax));
     }
     real_number ComputeArea();
+
+    void ProjectJonesVectorToTriangleAxesAndAdd(JonesVector& jones_vector){
+        OrientedJonesVector oriented_jones_vector(jones_vector);
+        mElectricField[0] += oriented_jones_vector.mOrientedVectorSum * mLocalAxis1;
+        mElectricField[1] += oriented_jones_vector.mOrientedVectorSum * mLocalAxis2;
+        mElectricField[2] += oriented_jones_vector.mOrientedVectorSum * mNormal;
+    }
 };
 
 #endif

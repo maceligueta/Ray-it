@@ -24,6 +24,7 @@ set(FILES_TO_BE_COMPILED
     src/mesh.cpp
     src/ray.cpp
     src/triangle.cpp
+    src/wave.cpp
     tests/test.cpp
     external_libraries/timer.cpp
 )

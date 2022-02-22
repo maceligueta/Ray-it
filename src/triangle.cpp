@@ -3,7 +3,7 @@
 #include "constants.h"
 
 real_number Triangle::ComputeArea(){
-    return Vec3::CrossProduct(mFirstSide, mSecondSide).length() * real_number(0.5);
+    return Vec3::CrossProduct(mFirstSide, mSecondSide).Length() * real_number(0.5);
 }
 
 bool Triangle::Intersect(Ray &ray) const{

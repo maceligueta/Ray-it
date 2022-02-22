@@ -15,7 +15,7 @@ real_number sgn(real_number x){
 }
 Ray::Ray(const Vec3& start_position, const Vec3& direction):u(0),v(0) {
     mStartPosition = start_position;
-    mDirection = Vec3::normalize(direction);
+    mDirection = Vec3::Normalize(direction);
     mInvDirection = Vec3(real_number(1.0)/direction.X(), real_number(1.0)/direction.Y(), real_number(1.0)/direction.Z());
     mSign[0] = (mInvDirection.X() < 0);
     mSign[1] = (mInvDirection.Y() < 0);

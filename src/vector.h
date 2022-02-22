@@ -4,90 +4,126 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <stdio.h>
+#include <complex>
 
 #include "constants.h"
 
-class Vec3{
+
+template <class T>
+class Vector3{
 public:
-    real_number mCoordinates[3] = {0.0, 0.0, 0.0};
-    Vec3(){}
-    Vec3(real_number x, real_number y, real_number z){
+    T mCoordinates[3] = {0.0, 0.0, 0.0};
+    Vector3(){}
+    Vector3(T x, T y, T z){
         mCoordinates[0] = x;
         mCoordinates[1] = y;
         mCoordinates[2] = z;
     }
-    inline real_number& X(){ return mCoordinates[0];}
-    const inline real_number& X() const { return mCoordinates[0];}
-    inline real_number& Y(){ return mCoordinates[1];}
-    const inline real_number& Y() const { return mCoordinates[1];}
-    inline real_number& Z(){ return mCoordinates[2];}
-    const inline real_number& Z() const { return mCoordinates[2];}
-    inline real_number length(void) const{
-        return std::sqrt(lengthSq());
+    inline T& X(){ return mCoordinates[0];}
+    const inline T& X() const { return mCoordinates[0];}
+    inline T& Y(){ return mCoordinates[1];}
+    const inline T& Y() const { return mCoordinates[1];}
+    inline T& Z(){ return mCoordinates[2];}
+    const inline T& Z() const { return mCoordinates[2];}
+    inline T Length(void) const{
+        return std::sqrt(LengthSq());
     };
-    inline real_number lengthSq(void) const {
+    inline T LengthSq(void) const {
         return X()*X() + Y()*Y() + Z()*Z();
     }
 
-    inline Vec3& normalize(){
-        real_number inv_length = real_number(1.0) / this->length();
+    inline Vector3& Normalize(){
+        T inv_length = T(1.0) / this->Length();
         mCoordinates[0] *= inv_length;
         mCoordinates[1] *= inv_length;
         mCoordinates[2] *= inv_length;
         return *this;
     };
 
-    static Vec3 normalize(const Vec3 &v) {
-        real_number inv_length = real_number(1.0) / v.length();
-        Vec3 result = Vec3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
+    static Vector3 Normalize(const Vector3 &v) {
+        T inv_length = T(1.0) / v.Length();
+        Vector3 result = Vector3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
         return result;
     };
 
-    static inline real_number DotProduct(const Vec3 &a, const Vec3 &b){
+    static T Norm(const Vector3 &v) {
+        return v.Length();
+    }
+
+    static inline T DotProduct(const Vector3 &a, const Vector3 &b){
         return    (a.X() * b.X()
                  + a.Y() * b.Y()
                  + a.Z() * b.Z());
 
     };
-    static inline Vec3 CrossProduct(const Vec3 &a, const Vec3 &b){
-        return Vec3(a.Y()*b.Z() - a.Z()*b.Y(),
+    static inline Vector3 CrossProduct(const Vector3 &a, const Vector3 &b){
+        return Vector3(a.Y()*b.Z() - a.Z()*b.Y(),
                      a.Z()*b.X() - a.X()*b.Z(),
                      a.X()*b.Y() - a.Y()*b.X());
     };
 
-    static inline real_number angle(const Vec3 &a, const Vec3 &b){
-        return acos(DotProduct(a,b) / (a.length() * b.length()));
+    static inline T Angle(const Vector3 &a, const Vector3 &b){
+        return acos(DotProduct(a,b) / (a.Length() * b.Length()));
     };
 
-    inline Vec3 operator+(const Vec3 &other) const{
-        return Vec3(X()+other.X(), Y()+other.Y(), Z()+other.Z());
+    inline Vector3 operator+(const Vector3 &other) const{
+        return Vector3(X()+other.X(), Y()+other.Y(), Z()+other.Z());
     };
-    inline Vec3 operator-(const Vec3 &other) const{
-        return Vec3(X()-other.X(), Y()-other.Y(), Z()-other.Z());
+    inline Vector3 operator-(const Vector3 &other) const{
+        return Vector3(X()-other.X(), Y()-other.Y(), Z()-other.Z());
     };
 
-    inline Vec3 operator+=(const Vec3 &other){
+    inline Vector3 operator+=(const Vector3 &other){
         X() += other.X(), Y()+= other.Y(), Z() += other.Z();
         return *this;
     };
 
-    inline Vec3 operator*(const Vec3 &other){
-        return Vec3(X()*other.X(), Y()*other.Y(), Z()*other.Z());
+    inline Vector3 operator*(const Vector3 &other){
+        return Vector3(X()*other.X(), Y()*other.Y(), Z()*other.Z());
     };
 
-    inline Vec3 operator*(const real_number scale) const{
-        return Vec3(X()*scale, Y()*scale, Z()*scale);
+    inline Vector3 operator*(const T scale) const{
+        return Vector3(X()*scale, Y()*scale, Z()*scale);
     };
 
-    inline real_number operator[](const int axis) const{
+    inline T operator[](const int axis) const{
         return mCoordinates[axis];
     }
-    inline real_number &operator[](const int axis){
+    inline T &operator[](const int axis){
         return mCoordinates[axis];
     }
-    friend std::ostream& operator<<(std::ostream& strm, const Vec3 &vec) {
+    friend std::ostream& operator<<(std::ostream& strm, const Vector3 &vec) {
         return strm << "[" << vec.X()<<"  "<< vec.Y() <<"  "<< vec.Z() << "]";
     }
 
 };
+
+typedef Vector3<real_number> Vec3;
+typedef Vector3<std::complex<real_number>> VecC3;
+
+template <class T>
+static inline Vector3<T> operator*(const real_number scale, const Vector3<T>& vector) {
+    return vector * scale;
+}
+
+static inline VecC3 operator*(const std::complex<real_number> complex_scale, const Vec3& vector) {
+    return VecC3(complex_scale * vector[0], complex_scale * vector[1], complex_scale * vector[2]);
+}
+
+static inline std::complex<real_number> operator*(const VecC3& complex_vector, const Vec3 vector) {
+    return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
+}
+
+static inline std::complex<real_number> operator*(const Vec3 vector, const VecC3& complex_vector) {
+    return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
+}
+
+inline std::complex<real_number> DotProduct(const VecC3& complex_vector, const Vec3 vector) {
+    return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
+}
+
+inline std::complex<real_number> DotProduct(const Vec3 vector, const VecC3& complex_vector) {
+    return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
+}
+
 #endif /* defined(__Ray_it__Vec3f__) */

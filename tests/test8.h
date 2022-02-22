@@ -34,9 +34,9 @@ class Test8: public Test {
         if(!CheckIfValuesAreEqual(p, real_number(-9.12))) return 1;
         p = pattern.DirectionalGainValue(55.0, -70.0);
         if(!CheckIfValuesAreEqual(p, real_number(-3.04))) return 1;
-        p = pattern.DirectionalRMSThetaPolarizationElectricFieldValue(55.0, -70.0);
+        p = pattern.GetDirectionalRMSThetaPolarizationElectricFieldValue(55.0, -70.0);
         if(!CheckIfValuesAreEqual(p, real_number(SQRT_OF_2_OVER_2 * 1.53094E+01))) return 1;
-        p = pattern.DirectionalRMSPhiPolarizationElectricFieldValue(55.0, -70.0);
+        p = pattern.GetDirectionalRMSPhiPolarizationElectricFieldValue(55.0, -70.0);
         if(!CheckIfValuesAreEqual(p, real_number(SQRT_OF_2_OVER_2 * 3.13426E+01))) return 1;
 
         return 0;

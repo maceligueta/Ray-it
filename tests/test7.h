@@ -2,6 +2,7 @@
 #define __Ray_ittest7
 
 #include "test.h"
+#include "../src/jones.h"
 #include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
@@ -82,6 +83,42 @@ class Test7: public Test {
         if(!CheckIfValuesAreEqual(p, real_number(-34.888888888888893))) return 1;
         p = pattern.DirectionalGainValue(-173.0, 160.0);
         if(!CheckIfValuesAreEqual(p, real_number(-48.444444444444443))) return 1;
+
+        JonesVector jones_vector = pattern.GetDirectionalJonesVector(Vec3(1.0, 0.0, 0.0));
+        if(!CheckIfValuesAreEqual(jones_vector.mX[0], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[1], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[2], real_number(1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[0], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[1], real_number(-1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[2], real_number(0.0))) return 1;
+
+        jones_vector = pattern.GetDirectionalJonesVector(Vec3(0.0, 0.0, 1.0));
+        if(!CheckIfValuesAreEqual(jones_vector.mX[0], real_number(-1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[1], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[2], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[0], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[1], real_number(-1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[2], real_number(0.0))) return 1;
+
+        jones_vector = pattern.GetDirectionalJonesVector(Vec3(0.0, -1.0, 0.0));
+        if(!CheckIfValuesAreEqual(jones_vector.mX[0], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[1], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[2], real_number(1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[0], real_number(-1.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[1], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[2], real_number(0.0))) return 1;
+
+        Vec3 dir(1.0, 1.0, 1.0);
+        jones_vector = pattern.GetDirectionalJonesVector(dir);
+        if(!CheckIfValuesAreEqual(jones_vector.mX[0], real_number(-0.40824829046386302))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[1], real_number(-0.40824829046386302))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mX[2], real_number(0.81649658092772603))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[0], real_number(0.70710678118654757))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[1], real_number(-0.70710678118654757))) return 1;
+        if(!CheckIfValuesAreEqual(jones_vector.mY[2], real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(Vec3::DotProduct(dir, jones_vector.mX), real_number(0.0))) return 1;
+        if(!CheckIfValuesAreEqual(Vec3::DotProduct(dir, jones_vector.mY), real_number(0.0))) return 1;
+
 
         Mesh mesh;
         InputsReader reader;

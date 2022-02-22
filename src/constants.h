@@ -2,6 +2,7 @@
 #define __Ray_it_constants__
 
 #include <math.h>
+#include <string>
 
 static unsigned int RAY_IT_ECHO_LEVEL = 1;
 static std::string CURRENT_WORKING_DIR = "";
@@ -22,7 +23,8 @@ typedef double real_number;
 #define SQRT_OF_2_OVER_2 0.5*M_SQRT2
 #endif
 
-
+static const real_number SPEED_OF_LIGHT = 299792458;
+static const real_number INVERSE_OF_SPEED_OF_LIGHT = 1.0 / SPEED_OF_LIGHT;
 
 enum TypeOfResultsPrint {RESULTS_ON_NODES, RESULTS_ON_ELEMENTS};
 
