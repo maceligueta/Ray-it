@@ -1,6 +1,7 @@
 #ifndef __Ray_it_constants__
 #define __Ray_it_constants__
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <string>
 
@@ -25,6 +26,10 @@ typedef double real_number;
 
 static const real_number SPEED_OF_LIGHT = 299792458;
 static const real_number INVERSE_OF_SPEED_OF_LIGHT = 1.0 / SPEED_OF_LIGHT;
+static const real_number IMPEDANCE_OF_FREE_SPACE = 376.730313668;
+static const real_number INVERSE_OF_IMPEDANCE_OF_FREE_SPACE = 1.0 / IMPEDANCE_OF_FREE_SPACE;
+static const real_number DEG_TO_RAD_FACTOR = M_PI / 180.0;
+static const real_number RAD_TO_DEG_FACTOR = 180.0 * M_1_PI;
 
 enum TypeOfResultsPrint {RESULTS_ON_NODES, RESULTS_ON_ELEMENTS};
 

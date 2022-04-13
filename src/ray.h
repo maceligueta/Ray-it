@@ -11,7 +11,6 @@ class Ray {
 
 public:
 	static size_t mCounter;
-	size_t mId;
     bool mTriangleFound = false;
 
     Vec3 mStartPosition;

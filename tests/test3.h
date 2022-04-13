@@ -2,7 +2,6 @@
 #define __Ray_ittest3
 
 #include "test.h"
-#include "../src/ray-it.h"
 
 class Test3: public Test {
 
@@ -12,7 +11,7 @@ class Test3: public Test {
         mNumber = 3;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 

@@ -3,7 +3,6 @@
 
 #include "test.h"
 #include "../src/jones.h"
-#include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -24,38 +23,38 @@ class Test7: public Test {
             pattern.mRadiationMap[i].resize(int(180.0 / pattern.mSeparationBetweenThetaValues) + 1);
         }
 
-        pattern.mRadiationMap[0][0].mGain = -50.0; //phi = -180 theta = 0.0
-        pattern.mRadiationMap[0][1].mGain = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[0][2].mGain = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[0][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[1][0].mGain = -50.0;  //phi = -120  theta = 0.0
-        pattern.mRadiationMap[1][1].mGain = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[1][2].mGain = -10.0; //           theta = 120.0
-        pattern.mRadiationMap[1][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[2][0].mGain = -50.0;  //phi = -60  theta = 0.0
-        pattern.mRadiationMap[2][1].mGain = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[2][2].mGain = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[2][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[3][0].mGain = -50.0;  //phi = 0  theta = 0.0
-        pattern.mRadiationMap[3][1].mGain = 0.0; //           theta = 60.0
-        pattern.mRadiationMap[3][2].mGain = 0.0; //           theta = 120.0
-        pattern.mRadiationMap[3][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[4][0].mGain = -50.0;  //phi = 60  theta = 0.0
-        pattern.mRadiationMap[4][1].mGain = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[4][2].mGain = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[4][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[5][0].mGain = -50.0;  //phi = 120  theta = 0.0
-        pattern.mRadiationMap[5][1].mGain = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][2].mGain = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][3].mGain = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[6][0].mGain = -50.0;  //phi = 180  theta = 0.0
-        pattern.mRadiationMap[6][1].mGain = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[6][2].mGain = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[6][3].mGain = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[0][0][Gain] = -50.0; //phi = -180 theta = 0.0
+        pattern.mRadiationMap[0][1][Gain] = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[0][2][Gain] = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[0][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[1][0][Gain] = -50.0;  //phi = -120  theta = 0.0
+        pattern.mRadiationMap[1][1][Gain] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[1][2][Gain] = -10.0; //           theta = 120.0
+        pattern.mRadiationMap[1][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[2][0][Gain] = -50.0;  //phi = -60  theta = 0.0
+        pattern.mRadiationMap[2][1][Gain] = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[2][2][Gain] = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[2][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[3][0][Gain] = -50.0;  //phi = 0  theta = 0.0
+        pattern.mRadiationMap[3][1][Gain] = 0.0; //           theta = 60.0
+        pattern.mRadiationMap[3][2][Gain] = 0.0; //           theta = 120.0
+        pattern.mRadiationMap[3][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[4][0][Gain] = -50.0;  //phi = 60  theta = 0.0
+        pattern.mRadiationMap[4][1][Gain] = -2.0; //           theta = 60.0
+        pattern.mRadiationMap[4][2][Gain] = -2.0; //           theta = 120.0
+        pattern.mRadiationMap[4][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[5][0][Gain] = -50.0;  //phi = 120  theta = 0.0
+        pattern.mRadiationMap[5][1][Gain] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][2][Gain] = -10.0; //           theta = 60.0
+        pattern.mRadiationMap[5][3][Gain] = -50.0; //           theta = 180.0
+        pattern.mRadiationMap[6][0][Gain] = -50.0;  //phi = 180  theta = 0.0
+        pattern.mRadiationMap[6][1][Gain] = -50.0; //           theta = 60.0
+        pattern.mRadiationMap[6][2][Gain] = -50.0; //           theta = 120.0
+        pattern.mRadiationMap[6][3][Gain] = -50.0; //           theta = 180.0
     }
 
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 
@@ -63,25 +62,25 @@ class Test7: public Test {
         FillRadiationPattern(pattern);
 
         real_number p;
-        p = pattern.DirectionalGainValue(0.0, 90.0);
+        p = pattern.GetDirectionalGainValue(0.0, 90.0);
         if(!CheckIfValuesAreEqual(p, 0.0)) return 1;
-        p = pattern.DirectionalGainValue(-110.0, 90.0);
+        p = pattern.GetDirectionalGainValue(-110.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-8.6666666666666661))) return 1;
-        p = pattern.DirectionalGainValue(-24.0, 90.0);
+        p = pattern.GetDirectionalGainValue(-24.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-0.8))) return 1;
-        p = pattern.DirectionalGainValue(35.0, 90.0);
+        p = pattern.GetDirectionalGainValue(35.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-1.16666675))) return 1;
-        p = pattern.DirectionalGainValue(89.0, 90.0);
+        p = pattern.GetDirectionalGainValue(89.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-5.8666666666666671))) return 1;
-        p = pattern.DirectionalGainValue(145.0, 90.0);
+        p = pattern.GetDirectionalGainValue(145.0, 90.0);
         if(!CheckIfValuesAreEqual(p, real_number(-26.666666666666664))) return 1;
-        p = pattern.DirectionalGainValue(0.0, 45.0);
+        p = pattern.GetDirectionalGainValue(0.0, 45.0);
         if(!CheckIfValuesAreEqual(p, -12.5)) return 1;
-        p = pattern.DirectionalGainValue(-40.0, 45.0);
+        p = pattern.GetDirectionalGainValue(-40.0, 45.0);
         if(!CheckIfValuesAreEqual(p, -13.5)) return 1;
-        p = pattern.DirectionalGainValue(80.0, 160.0);
+        p = pattern.GetDirectionalGainValue(80.0, 160.0);
         if(!CheckIfValuesAreEqual(p, real_number(-34.888888888888893))) return 1;
-        p = pattern.DirectionalGainValue(-173.0, 160.0);
+        p = pattern.GetDirectionalGainValue(-173.0, 160.0);
         if(!CheckIfValuesAreEqual(p, real_number(-48.444444444444443))) return 1;
 
         JonesVector jones_vector = pattern.GetDirectionalJonesVector(Vec3(1.0, 0.0, 0.0));
@@ -127,9 +126,9 @@ class Test7: public Test {
         real_number base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
-            const real_number p_dB = pattern.DirectionalGainValue(SphericalCoordinates(dir)); // in dB
-            real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1));
-            mesh.mNodes[i] = dir * power;
+            const real_number p_dB = pattern.GetDirectionalGainValue(SphericalCoordinates(dir)); // in dB
+            real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1)); //TODO: improve this (power makes no sense here, should be 'power density')
+            mesh.mNodes[i] = Node(mesh.mNodes[i].mId, dir * power);
         }
 
         OutputsWriter writer;

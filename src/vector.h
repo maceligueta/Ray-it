@@ -40,14 +40,27 @@ public:
         return *this;
     };
 
-    static Vector3 Normalize(const Vector3 &v) {
+    Vector3 Normalize() const {
+        T inv_length = T(1.0) / this->Length();
+        return Vector3(mCoordinates[0] * inv_length, mCoordinates[1] * inv_length, mCoordinates[2] * inv_length);
+    }
+
+    static inline Vector3 Normalize(const Vector3 &v) {
         T inv_length = T(1.0) / v.Length();
         Vector3 result = Vector3(v.X() * inv_length, v.Y() * inv_length, v.Z() * inv_length);
         return result;
     };
 
-    static T Norm(const Vector3 &v) {
+    static inline T Norm(const Vector3 &v) {
         return v.Length();
+    }
+
+    inline T Norm() const {
+        return this->Length();
+    }
+
+    inline T Norm2() const {
+        return this->LengthSq();
     }
 
     static inline T DotProduct(const Vector3 &a, const Vector3 &b){
@@ -126,4 +139,4 @@ inline std::complex<real_number> DotProduct(const Vec3 vector, const VecC3& comp
     return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
 }
 
-#endif /* defined(__Ray_it__Vec3f__) */
+#endif

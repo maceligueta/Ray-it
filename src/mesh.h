@@ -26,4 +26,4 @@ public:
     bool Intersect(Ray &ray) const;
 
 };
-#endif /* defined(__Ray_it__Mesh__) */
+#endif

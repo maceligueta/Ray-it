@@ -161,6 +161,7 @@ public:
 
         int actual_rows_read = 0;
         int actual_cols_read = 0;
+        int counter = 0;
         for (int i=0; i<nrows; i++){
             getline(asc_file, line); line_count++;
             line_stream = std::stringstream(line);
@@ -171,7 +172,8 @@ public:
                 real_number y = yllcorner + (nrows - i - 1) * cellsize;
                 real_number z = std::stod(token);
                 Vec3 node(x, y, z);
-                mesh.mNodes.push_back(node);
+                mesh.mNodes.push_back(Node(counter, node));
+                counter++;
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -198,7 +200,6 @@ public:
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
-        int counter = 0;
         std::vector<std::vector<Triangle*>> triangles_by_threads;
         triangles_by_threads.resize(omp_get_max_threads());
         for (int i=0; i<omp_get_max_threads(); i++){
@@ -207,31 +208,16 @@ public:
         #pragma omp parallel for
         for (int i=0; i<actual_rows_read-1; i++){
             for(int j=0; j<actual_cols_read-1; j++){
-                Triangle* t = new Triangle(mesh);
-                t->mNodeIndices[0] = j + i * actual_cols_read;
-                t->mNodeIndices[1] = j + (i+1) * actual_cols_read;
-                t->mNodeIndices[2] = (j+1) + i * actual_cols_read;
-                t->p0 = mesh.mNodes[t->mNodeIndices[0]];
-                t->p1 = mesh.mNodes[t->mNodeIndices[1]];
-                t->p2 = mesh.mNodes[t->mNodeIndices[2]];
-                t->SetEdgesAndPrecomputedValues();
-                t->mId = counter;
-                counter++;
+                Triangle* t = new Triangle(mesh.mNodes[j + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
                 triangles_by_threads[omp_get_thread_num()].push_back(t);
-                //mesh.mTriangles.push_back(t);
 
-                Triangle* t2 = new Triangle(mesh);
-                t2->mNodeIndices[0] = (j+1) + i * actual_cols_read;
-                t2->mNodeIndices[1] = j + (i+1) * actual_cols_read;
-                t2->mNodeIndices[2] = (j+1) + (i+1) * actual_cols_read;
-                t2->p0 = mesh.mNodes[t2->mNodeIndices[0]];
-                t2->p1 = mesh.mNodes[t2->mNodeIndices[1]];
-                t2->p2 = mesh.mNodes[t2->mNodeIndices[2]];
-                t2->SetEdgesAndPrecomputedValues();
-                t2->mId = counter;
-                counter++;
+                Triangle* t2 = new Triangle(mesh.mNodes[(j+1) + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+
                 triangles_by_threads[omp_get_thread_num()].push_back(t2);
-                //mesh.mTriangles.push_back(t2);
             }
         }
 
@@ -285,7 +271,7 @@ public:
 
             for(int i=0; i<stl_mesh.num_vrts(); i++){
                 Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
-                mesh.mNodes.push_back(node);
+                mesh.mNodes.push_back(Node(i, node));
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -309,15 +295,9 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle(mesh);
-                t->mNodeIndices[0] = stl_mesh.tri_corner_ind(i, 0);
-                t->mNodeIndices[1] = stl_mesh.tri_corner_ind(i, 1);
-                t->mNodeIndices[2] = stl_mesh.tri_corner_ind(i, 2);
-                t->p0 = mesh.mNodes[t->mNodeIndices[0]];
-                t->p1 = mesh.mNodes[t->mNodeIndices[1]];
-                t->p2 = mesh.mNodes[t->mNodeIndices[2]];
-                t->SetEdgesAndPrecomputedValues();
-                t->mId = i;
+                Triangle* t = new Triangle(mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
 
                 mesh.mTriangles.push_back(t);
             }
@@ -345,4 +325,4 @@ public:
     }
 
 };
-#endif /* defined(__Ray_it__InputsReader__) */
+#endif

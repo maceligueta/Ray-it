@@ -1,5 +1,5 @@
-#ifndef __Ray_itPointsOnUnitSphere
-#define __Ray_itPointsOnUnitSphere
+//#ifndef __Ray_itPointsOnUnitSphere
+//#define __Ray_itPointsOnUnitSphere
 
 #include <vector>
 #include "vector.h"
@@ -1023,4 +1023,4 @@ POINT_COORDINATES_ON_SPHERE[1012][0] =  4.7977178734139751e-02; POINT_COORDINATE
 POINT_COORDINATES_ON_SPHERE[1013][0] = -2.0273871363016158e-02; POINT_COORDINATES_ON_SPHERE[1013][1] =  5.0480259342294328e-03; POINT_COORDINATES_ON_SPHERE[1013][2] = -9.9978171996397458e-01;
 
 
-#endif /* defined(__Ray_itPointsOnUnitSphere) */
+//#endif

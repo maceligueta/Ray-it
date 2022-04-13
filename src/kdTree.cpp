@@ -18,12 +18,12 @@ void KDTreeNode::Traverse(Ray &ray, real_number t_min, real_number t_max) const 
             std::cout<<" "<<triangle->mId;
             triangle->Intersect(ray);
         }
-        std::cout<<std::endl;
+        std::cout<<"\n";
     }*/
 
     if (mLeaf) {
         for (auto triangle: mTriangles) {
-            //std::cout<<"Trying intersection with triangle: "<<triangle->mId<<std::endl;
+            //std::cout<<"Trying intersection with triangle: "<<triangle->mId<<"\n";
             triangle->Intersect(ray);
         }
     }
@@ -249,7 +249,7 @@ void KDTreeNode::DistributeTriangles(const std::vector<Triangle*>& T, const Spli
             else if(pside == RIGHT)
                 TR.push_back(t);
             else
-                std::cout << "ERROR WHILE SORTING TRIANGLES" << std::endl;
+                std::cout << "ERROR WHILE SORTING TRIANGLES \n";
         } else {
             if(tbox.mMin[p.mAxis] < p.mPos)
                 TL.push_back(t);
@@ -276,7 +276,7 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
         leafnode->mTriangles = triangles;
         leafnode->mBounds = V;
         leafnode->mLeaf = true;
-        //std::cout << "Leaf node. Depth: " << depth << ". Number of triangles: "<< triangles.size() << std::endl;
+        //std::cout << "Leaf node. Depth: " << depth << ". Number of triangles: "<< triangles.size() << "\n";
         return leafnode;
     }
 
@@ -301,19 +301,19 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
     innerNode->mLeft = RecursiveTreeNodeBuild(TL, VL, depth+1, p);
     innerNode->mRight = RecursiveTreeNodeBuild(TR, VR, depth+1, p);
 
-    if(RAY_IT_ECHO_LEVEL > 1) {
-        std::cout<<"Depth "<<depth<<" Splitting axis: "<<p.mAxis<<"  split pos: "<<p.mPos<<std::endl;
+    /*if(RAY_IT_ECHO_LEVEL > 1) {
+        std::cout<<"Depth "<<depth<<" Splitting axis: "<<p.mAxis<<"  split pos: "<<p.mPos<<"\n";
         std::cout<<"Triangles Left:";
         for(Triangle* tri : TL){
             std::cout<<" "<<tri->mId;
         }
-        std::cout<<" "<<std::endl;
+        std::cout<<" \n";
         std::cout<<"Triangles Right:";
         for(Triangle* tri : TR){
             std::cout<<" "<<tri->mId;
         }
-        std::cout<<" "<<std::endl;
-    }
+        std::cout<<" \n";
+    }*/
     return innerNode;
 }
 

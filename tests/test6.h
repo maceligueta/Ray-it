@@ -2,7 +2,6 @@
 #define __Ray_ittest6
 
 #include "test.h"
-#include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -15,7 +14,7 @@ class Test6: public Test {
         mNumber = 6;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         RAY_IT_ECHO_LEVEL = 0;
 

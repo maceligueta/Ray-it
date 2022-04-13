@@ -20,12 +20,7 @@
 #include "../tests/test12.h"
 #include "../tests/test13.h"
 
-int RunTests() {
-
-    int number_of_errors = 0;
-
-    std::vector<std::shared_ptr<Test>> list_of_tests;
-
+void FillListOfTests(std::vector<std::shared_ptr<Test>>& list_of_tests) {
     list_of_tests.push_back(std::make_shared<Test1>());
     list_of_tests.push_back(std::make_shared<Test2>());
     list_of_tests.push_back(std::make_shared<Test3>());
@@ -39,21 +34,63 @@ int RunTests() {
     list_of_tests.push_back(std::make_shared<Test11>());
     list_of_tests.push_back(std::make_shared<Test12>());
     list_of_tests.push_back(std::make_shared<Test13>());
+}
+
+int RunAllTests() {
+
+    int number_of_errors = 0;
+
+    std::vector<std::shared_ptr<Test>> list_of_tests;
+
+    FillListOfTests(list_of_tests);
 
     for(auto test:list_of_tests){
         try{
             if(!test->Run()) {
-                std::cout<<"  Test "<<test->mNumber<<" OK"<<std::endl;
+                std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" OK"<<std::endl;
             } else {
-                std::cout<<"  Test "<<test->mNumber<<" Failed!"<<std::endl;
+                std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" Failed!"<<std::endl;
                 number_of_errors++;
             }
         } catch (std::exception& e) {
-            std::cout<<"  Test "<<test->mNumber<<" Failed!   "<<e.what()<<std::endl;
+            std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" Failed!   "<<e.what()<<std::endl;
         }
     }
 
     return number_of_errors;
 }
 
+
+int RunTest(const int i) {
+    int number_of_errors = 0;
+
+    std::vector<std::shared_ptr<Test>> list_of_tests;
+
+    FillListOfTests(list_of_tests);
+
+    bool test_has_been_run = false;
+
+    for(auto test:list_of_tests){
+        if(test->mNumber == i) {
+            test_has_been_run = true;
+            try{
+                if(!test->Run()) {
+                    std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" OK"<<std::endl;
+                } else {
+                    std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" Failed!"<<std::endl;
+                    number_of_errors++;
+                }
+            } catch (std::exception& e) {
+                std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<test->mNumber<<" Failed!   "<<e.what()<<std::endl;
+            }
+        }
+    }
+
+    if( ! test_has_been_run) {
+        std::cout<<"  Test "<<std::setw(3)<<std::setfill('0')<<i<<" could not be found!   "<<std::endl;
+        return 1;
+    }
+
+    return number_of_errors;
+}
 #endif

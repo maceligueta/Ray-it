@@ -4,27 +4,31 @@
 #include "vector.h"
 #include "box.h"
 #include "jones.h"
+#include "node.h"
 
 class Mesh;
 
 class Triangle {
 public:
-    unsigned int mId;
-    Vec3 p0, p1, p2;
+    unsigned int mNodeIndices[3];
+    Vec3 mP0, mP1, mP2;
     Vec3 mFirstSide, mSecondSide;
     Vec3 mLocalAxis1, mLocalAxis2, mNormal;
     real_number invDenom, uu, uv, vv;
     Box mBoundingBox;
-    unsigned int mNodeIndices[3];
     Vec3 mCenter;
     real_number mIntensity = 0.0;
     VecC3 mElectricField;
 
-    Triangle(Mesh &mesh){}
-
-    void SetEdgesAndPrecomputedValues(){
-        mFirstSide = p1 - p0;
-        mSecondSide = p2 - p0;
+    Triangle(const Node& n0, const Node& n1, const Node& n2){
+        mNodeIndices[0] = n0.mId;
+        mNodeIndices[1] = n1.mId;
+        mNodeIndices[2] = n2.mId;
+        mP0 = n0;
+        mP1 = n1;
+        mP2 = n2;
+        mFirstSide = mP1 - mP0;
+        mSecondSide = mP2 - mP0;
         mBoundingBox = ComputeBoundingBox();
         uu = Vec3::DotProduct(mFirstSide, mFirstSide);
         uv = Vec3::DotProduct(mFirstSide , mSecondSide);
@@ -38,38 +42,44 @@ public:
     }
 
     Vec3 ComputeCenter() {
-        return (p0 + p1 + p2) * ONE_THIRD;
+        return (mP0 + mP1 + mP2) * ONE_THIRD;
     }
 
     bool Intersect(Ray &ray) const;
 
     real_number leftExtreme(int axis){
-        return fmin(p0[axis], fmin(p1[axis], p2[axis]));
+        return fmin(mP0[axis], fmin(mP1[axis], mP2[axis]));
     }
     real_number rightExtreme(int axis){
-        return fmax(p0[axis], fmax(p1[axis], p2[axis]));
+        return fmax(mP0[axis], fmax(mP1[axis], mP2[axis]));
     }
 
     Box ComputeBoundingBox(){
-        real_number xmin = fmin(p0.X(), fmin(p1.X(), p2.X()));
-        real_number ymin = fmin(p0.Y(), fmin(p1.Y(), p2.Y()));
-        real_number zmin = fmin(p0.Z(), fmin(p1.Z(), p2.Z()));
+        real_number xmin = fmin(mP0.X(), fmin(mP1.X(), mP2.X()));
+        real_number ymin = fmin(mP0.Y(), fmin(mP1.Y(), mP2.Y()));
+        real_number zmin = fmin(mP0.Z(), fmin(mP1.Z(), mP2.Z()));
 
-        real_number xmax = fmax(p0.X(), fmax(p1.X(), p2.X()));
-        real_number ymax = fmax(p0.Y(), fmax(p1.Y(), p2.Y()));
-        real_number zmax = fmax(p0.Z(), fmax(p1.Z(), p2.Z()));
+        real_number xmax = fmax(mP0.X(), fmax(mP1.X(), mP2.X()));
+        real_number ymax = fmax(mP0.Y(), fmax(mP1.Y(), mP2.Y()));
+        real_number zmax = fmax(mP0.Z(), fmax(mP1.Z(), mP2.Z()));
 
 
         return Box(Vec3(xmin, ymin, zmin), Vec3(xmax, ymax, zmax));
     }
-    real_number ComputeArea();
+    real_number ComputeArea() const;
 
-    void ProjectJonesVectorToTriangleAxesAndAdd(JonesVector& jones_vector){
+    void ProjectJonesVectorToTriangleAxesAndAdd(JonesVector& jones_vector) {
         OrientedJonesVector oriented_jones_vector(jones_vector);
-        mElectricField[0] += oriented_jones_vector.mOrientedVectorSum * mLocalAxis1;
-        mElectricField[1] += oriented_jones_vector.mOrientedVectorSum * mLocalAxis2;
-        mElectricField[2] += oriented_jones_vector.mOrientedVectorSum * mNormal;
+        mElectricField[0] += oriented_jones_vector * mLocalAxis1;
+        mElectricField[1] += oriented_jones_vector * mLocalAxis2;
+        mElectricField[2] += oriented_jones_vector * mNormal;
     }
+
+    real_number ComputeRMSElectricFieldIntensityFromLocalAxesComponents() const {
+        return SQRT_OF_2_OVER_2 * std::sqrt(abs(mElectricField[0])*abs(mElectricField[0]) + abs(mElectricField[1])*abs(mElectricField[1]) + abs(mElectricField[2])*abs(mElectricField[2]));
+    }
+
+
 };
 
 #endif

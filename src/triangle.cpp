@@ -2,7 +2,7 @@
 #include "vector.h"
 #include "constants.h"
 
-real_number Triangle::ComputeArea(){
+real_number Triangle::ComputeArea() const {
     return Vec3::CrossProduct(mFirstSide, mSecondSide).Length() * real_number(0.5);
 }
 
@@ -19,7 +19,7 @@ bool Triangle::Intersect(Ray &ray) const{
 
     const real_number invDet = real_number(1.0) / det;
 
-    Vec3 tvec = ray.mStartPosition - p0;
+    Vec3 tvec = ray.mStartPosition - mP0;
     const real_number u = Vec3::DotProduct(tvec, pvec) * invDet;
     const real_number tolerance = EPSILON;
     if (u < 0 - tolerance || u > 1.0 + tolerance) return false;
@@ -41,7 +41,7 @@ bool Triangle::Intersect(Ray &ray) const{
 
 /*
     // First check for plane intersection
-    const Vec3 w0 = p0 - ray.mStartPosition;
+    const Vec3 w0 = mP0 - ray.mStartPosition;
     const real_number r1 = Vec3::DotProduct(mNormal, w0);
     const real_number r2 = Vec3::DotProduct(mNormal, ray.mDirection);
 
@@ -58,7 +58,7 @@ bool Triangle::Intersect(Ray &ray) const{
 
         // Plane intersection confirmed. Check if we are inside the triangle:
         const Vec3 possible_intersection_point = ray.mStartPosition + ray.mDirection * r;
-        const Vec3 w = possible_intersection_point - p0;
+        const Vec3 w = possible_intersection_point - mP0;
         const real_number uw = Vec3::DotProduct(mFirstSide, w);
         const real_number vw = Vec3::DotProduct(mSecondSide, w);
         const real_number s = (uv * vw - vv*uw) * invDenom;

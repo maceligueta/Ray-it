@@ -62,25 +62,11 @@ public:
             Vbuffer += "\n";
         }
 
-        /*for(size_t i=0; i<num_tris; i++) {
-            X0buffer += std::to_string(mesh.mTriangles[i]->p0[0]) + "  ";
-            Y0buffer += std::to_string(mesh.mTriangles[i]->p0[1]) + "  ";
-            Z0buffer += std::to_string(mesh.mTriangles[i]->p0[2]) + "  ";
-            X1buffer += std::to_string(mesh.mTriangles[i]->p1[0]) + "  ";
-            Y1buffer += std::to_string(mesh.mTriangles[i]->p1[1]) + "  ";
-            Z1buffer += std::to_string(mesh.mTriangles[i]->p1[2]) + "  ";
-            X2buffer += std::to_string(mesh.mTriangles[i]->p2[0]) + "  ";
-            Y2buffer += std::to_string(mesh.mTriangles[i]->p2[1]) + "  ";
-            Z2buffer += std::to_string(mesh.mTriangles[i]->p2[2]) + "  ";
-            Vbuffer  += std::to_string(mesh.mTriangles[i]->mIntensity) + "  ";
-        }*/
-
         Xfo<<X0buffer<<"\n"<<X1buffer<<"\n"<<X2buffer<<"\n";
         Yfo<<Y0buffer<<"\n"<<Y1buffer<<"\n"<<Y2buffer<<"\n";
         Zfo<<Z0buffer<<"\n"<<Z1buffer<<"\n"<<Z2buffer<<"\n";
-        //Vfo<<Vbuffer <<"\n"<<Vbuffer <<"\n"<<Vbuffer<<"\n";
         Vfo<<Vbuffer;
     }
 
 };
-#endif /* defined(__Ray_it__OutputsWriter__) */
+#endif

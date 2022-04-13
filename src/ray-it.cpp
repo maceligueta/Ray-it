@@ -18,10 +18,24 @@ using namespace nlohmann;
 
 int main(int argc, char *argv[]) {
 
-    //if(argc > 3 || argc < 2 || (argc == 2 && strcmp(argv[1], "tests") != 0) || (argc == 3 && strcmp(argv[1], "tests") == 0)) {
+    int test_number = 0;
+
     if(argc!=2){
-        std::cout<<"Error: wrong number of arguments. Type the argument 'tests' to run the tests, or type the paramters file informing about the input data (antennas and terrain) and settings."<<std::endl;
-        return 1;
+        if(argc == 3) {
+            try {
+                test_number = std::stoi(argv[2]);
+            } catch(std::invalid_argument const& ex) {
+                std::cout << "Error trying to extract the number of test from third argument ("<< ex.what() << ")\n";
+                return 1;
+            }
+            if ( test_number == 0) {
+                std::cout << "Error trying to extract the number of test from third argument \n";
+                return 1;
+            }
+        } else {
+            std::cout<<"Error: wrong number of arguments. Type the argument 'tests' to run the tests, or type the paramters file informing about the input data (antennas and terrain) and settings."<<std::endl;
+            return 1;
+        }
     }
 
     if(RAY_IT_ECHO_LEVEL > 0) {
@@ -50,7 +64,12 @@ int main(int argc, char *argv[]) {
     std::string parameters_filename;
 
     if(strcmp(argv[1], "tests") == 0) {
-        if (RunTests()) return 1;
+        if(test_number == 0) {
+            if (RunAllTests()) return 1;
+        }
+        else {
+            RunTest(test_number);
+        }
     } else {
         parameters_filename = argv[1];
 
