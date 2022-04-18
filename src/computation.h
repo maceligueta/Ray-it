@@ -31,11 +31,10 @@ public:
 
         std::vector<Antenna> antennas;
 
-        InputsReader reader;
-        if(reader.ReadAntennas(antennas, parameters)) return 1;
+        if(ReadAntennas(antennas, parameters)) return 1;
 
         Mesh mesh;
-        if(reader.ReadTerrainMesh(mesh, parameters["terrain_input_settings"])) return 1;
+        if(ReadTerrainMesh(mesh, parameters["terrain_input_settings"])) return 1;
 
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Building KD-tree... " << std::endl;
         KDTreeNode* root= new KDTreeNode();
@@ -55,15 +54,27 @@ public:
         return 0;
     }
 
+    virtual bool ReadAntennas(std::vector<Antenna>& antennas, const json& parameters) {
+        InputsReader reader;
+        if(reader.ReadAntennas(antennas, parameters)) return 1;
+        else return 0;
+    }
+
+    virtual bool ReadTerrainMesh(Mesh& mesh, const json& parameters) {
+        InputsReader reader;
+        if(reader.ReadTerrainMesh(mesh, parameters)) return 1;
+        else return 0;
+    }
+
     bool RandomBoolAccordingToProbability(std::uniform_real_distribution<>& uniform_distribution_zero_to_one, const real_number prob) {  // probability between 0.0 and 1.0
         return uniform_distribution_zero_to_one(mRandomEngine) < prob;
     }
 
-    bool ComputeRays(const std::vector<Antenna>& antennas, const json& computation_settings, Mesh& mesh){
+    virtual bool ComputeRays(const std::vector<Antenna>& antennas, const json& computation_settings, Mesh& mesh){
         const int number_of_reflexions = computation_settings["number_of_reflexions"].get<int>();
-        const real_number portion_of_elements_contributing_to_reflexion =  computation_settings["portion_of_elements_contributing_to_reflexion"].get<double>();
-        const real_number fresnel_reflexion_coefficient =  computation_settings["Fresnel_reflexion_coefficient"].get<double>();
-        const real_number minimum_intensity_to_be_reflected = computation_settings["minimum_intensity_to_be_reflected"].get<double>();
+        const real_number portion_of_elements_contributing_to_reflexion = real_number( computation_settings["portion_of_elements_contributing_to_reflexion"].get<double>());
+        const real_number fresnel_reflexion_coefficient =  real_number(computation_settings["Fresnel_reflexion_coefficient"].get<double>());
+        const real_number minimum_intensity_to_be_reflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<double>());
 
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
 
@@ -142,7 +153,7 @@ public:
         if(number_of_reflexions){
             std::uniform_real_distribution<> uniform_distribution_zero_to_one(0.0, 1.0);
 
-            const real_number representation_factor = 1.0 / portion_of_elements_contributing_to_reflexion;
+            const real_number representation_factor = real_number(1.0) / portion_of_elements_contributing_to_reflexion;
 
             for(int reflexion_number=0; reflexion_number<number_of_reflexions; reflexion_number++) {
                 if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computing reflexion "<< reflexion_number + 1 << " ... "<<std::endl;
