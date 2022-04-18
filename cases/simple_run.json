@@ -3,7 +3,7 @@
     "terrain_input_settings":{
         "type": "asc",
         "file_name": "111531.asc",
-        "keep_one_node_out_of": 20
+        "keep_one_node_out_of": 100
     },
     "antennas_list":[{
         "name": "Corner antenna",
