@@ -39,7 +39,6 @@ int main(int argc, char *argv[]) {
     }
 
     if(RAY_IT_ECHO_LEVEL > 0) {
-        std::cout << std::to_string(__cplusplus) << std::endl;
         std::cout << "Ray-it starting. Using ";
         #ifdef RAY_IT_USE_FLOATS
         #pragma message("---- Compiling with single precision ----")
