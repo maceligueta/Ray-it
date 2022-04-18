@@ -20,10 +20,10 @@ class BRDFDiffuseRadiationPattern: public RadiationPattern {
             for (size_t j=0; j<mRadiationMap[i].size(); j++) {
                 const SphericalCoordinates sc = GetSphericalCoordinatesFromIndices(i, j);
                 if(sc.mPhi < -90 || sc.mPhi > 90) {
-                    mRadiationMap[i][j][Gain] = -1e100;
+                    mRadiationMap[i][j][Gain] = real_number(-1e100);
                 }
                 else {
-                    mRadiationMap[i][j][Gain] = 3.0274657687865787;
+                    mRadiationMap[i][j][Gain] = real_number(3.0274657687865787);
                 }
             }
         }

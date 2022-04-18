@@ -41,10 +41,10 @@ class Test10: public Test7 {
         if(!CheckIfValuesAreEqual(p, 1.0)) return 1;
 
         p = a1.GetDirectionalPowerValue(Vec3(1.0, 1.0, 1.0));
-        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(0.26574300029755171))) return 1;
 
         p = a2.GetDirectionalPowerValue(Vec3(-1.0, 1.0, -1.0));
-        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
+        if(!CheckIfValuesAreEqual(p, real_number(0.26574300029755171))) return 1;
 
 
         return 0;

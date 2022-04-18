@@ -130,21 +130,21 @@ public:
         line_stream >> token;
         if(token != "XLLCORNER") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number xllcorner = std::stod(token);
+        const real_number xllcorner = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
         line_stream >> token;
         if(token != "YLLCORNER") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number yllcorner = std::stod(token);
+        const real_number yllcorner = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
         line_stream >> token;
         if(token != "CELLSIZE") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number cellsize = std::stod(token);
+        const real_number cellsize = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
@@ -170,7 +170,7 @@ public:
                 line_stream >> token;
                 real_number x = xllcorner + j * cellsize;
                 real_number y = yllcorner + (nrows - i - 1) * cellsize;
-                real_number z = std::stod(token);
+                real_number z = real_number(std::stod(token));
                 Vec3 node(x, y, z);
                 mesh.mNodes.push_back(Node(counter, node));
                 counter++;

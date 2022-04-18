@@ -22,7 +22,7 @@ class JonesVector {
         mY = diry;
     }
 
-    inline void PropagateDistance(const real_number distance) {
+    inline void PropagateDistance(const real_number& distance) {
         mWaves[0].PropagateDistance(distance);
         mWaves[1].PropagateDistance(distance);
     }
@@ -32,7 +32,7 @@ class JonesVector {
     }
 
     inline real_number ComputePowerDensity() {
-        return (mWaves[0].mAmplitude*mWaves[0].mAmplitude + mWaves[1].mAmplitude*mWaves[1].mAmplitude) / 377.0;
+        return (mWaves[0].mAmplitude*mWaves[0].mAmplitude + mWaves[1].mAmplitude*mWaves[1].mAmplitude) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
     }
 
     inline real_number ComputeRMSPowerDensity() {
@@ -113,7 +113,7 @@ class OrientedJonesVector {
         const real_number mod = std::abs(mOrientedVectorSum[0]) * std::abs(mOrientedVectorSum[0]) +
                                 std::abs(mOrientedVectorSum[1]) * std::abs(mOrientedVectorSum[1]) +
                                 std::abs(mOrientedVectorSum[2]) * std::abs(mOrientedVectorSum[2]);
-        return mod / 377.0;
+        return mod * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
     }
 
     inline std::complex<real_number> operator*(const Vec3& vector) const {

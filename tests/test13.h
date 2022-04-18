@@ -46,10 +46,9 @@ class Test13: public Test {
         Vec3 unitary_vec_origin_to_triangle_center = vec_origin_to_triangle_center.Normalize();
         Ray ray(origin, vec_origin_to_triangle_center);
 
-        Vec3 horizontal_normal_to_ray = Vec3(-1.0* vec_origin_to_triangle_center[1]/vec_origin_to_triangle_center[0], 1.0, 0.0);
+        Vec3 horizontal_normal_to_ray = Vec3(real_number(-1.0)* vec_origin_to_triangle_center[1]/vec_origin_to_triangle_center[0], 1.0, 0.0);
         Vec3 phi_dir = -1.0 * horizontal_normal_to_ray.Normalize();
         Vec3 theta_dir = Vec3::CrossProduct(unitary_vec_origin_to_triangle_center, horizontal_normal_to_ray);
-
 
         // Propagation of one ray:
         const real_number E_vertical = 10.0;
@@ -60,19 +59,22 @@ class Test13: public Test {
                                                         Wave(3.0e7, E_horizontal, 0.0, 1.0),
                                                         theta_dir,
                                                         phi_dir);
-        const real_number power_density_at_origin = (E_vertical*E_vertical + E_horizontal*E_horizontal) / 377.0;
-        const real_number power_density_at_destination = power_density_at_origin * 1.0 / (std::pow(vec_origin_to_triangle_center.Norm(), 2));
+        const real_number power_density_at_origin = (E_vertical*E_vertical + E_horizontal*E_horizontal) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
+        const real_number jones_power_density_at_origin = jones_vector_at_origin.ComputePowerDensity();
+        if(!CheckIfValuesAreEqual(power_density_at_origin, jones_power_density_at_origin)) return 1;
+
+        const real_number power_density_at_destination = power_density_at_origin * real_number(1.0) / (std::pow(vec_origin_to_triangle_center.Norm(), 2));
 
         JonesVector jones_vector_at_destination = jones_vector_at_origin;
-        jones_vector_at_destination.PropagateDistance(vec_origin_to_triangle_center.Norm() - 1.0);
+        jones_vector_at_destination.PropagateDistance(vec_origin_to_triangle_center.Norm() - real_number(1.0));
 
         const real_number jones_power_density = jones_vector_at_destination.ComputePowerDensity();
         if(!CheckIfValuesAreEqual(power_density_at_destination, jones_power_density)) return 1;
 
         const real_number jones_intensity = jones_vector_at_destination.ComputeElectricFieldIntensity();
-        if(!CheckIfValuesAreEqual(jones_intensity*jones_intensity/377.0, power_density_at_destination)) return 1;
+        if(!CheckIfValuesAreEqual(jones_intensity*jones_intensity* INVERSE_OF_IMPEDANCE_OF_FREE_SPACE, power_density_at_destination)) return 1;
 
-        const real_number total_power_received_by_triangle = jones_intensity*jones_intensity / 377.0 * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
+        const real_number total_power_received_by_triangle = jones_intensity*jones_intensity * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
 
         //propagation of another ray:
 
@@ -138,7 +140,7 @@ class Test13: public Test {
 
 
         JonesVector second_jones_vector_at_destination = second_jones_vector;
-        second_jones_vector_at_destination.PropagateDistance(vec_triangle1_center_to_triangle2_center.Norm() - 1.0);
+        second_jones_vector_at_destination.PropagateDistance(vec_triangle1_center_to_triangle2_center.Norm() - real_number(1.0));
 
 
         return 0;

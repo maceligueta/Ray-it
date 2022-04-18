@@ -136,7 +136,7 @@ class Antenna {
 
     inline real_number GetDirectionalPowerValue(const Vec3& global_direction) const {
         const Vec3 local_dir = ConvertGlobalDirIntoLocalDir(global_direction);
-        const real_number power_out = mRadiationPattern.mTotalPower * std::pow(10.0, 0.1* mRadiationPattern.GetDirectionalGainValue(local_dir));
+        const real_number power_out = mRadiationPattern.mTotalPower * real_number(std::pow(10.0, 0.1* mRadiationPattern.GetDirectionalGainValue(local_dir)));
         return power_out;
     }
 

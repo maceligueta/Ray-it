@@ -46,9 +46,9 @@ class SphericalCoordinates {
     }
 
     SphericalCoordinates(const Vec3& cartesian_direction) {
-        const real_number& x = (double)cartesian_direction[0];
-        const real_number& y = (double)cartesian_direction[1];
-        const real_number& z = (double)cartesian_direction[2];
+        const double& x = (double)cartesian_direction[0];
+        const double& y = (double)cartesian_direction[1];
+        const double& z = (double)cartesian_direction[2];
         const real_number phi = real_number(std::atan2(y, x) * RAD_TO_DEG_FACTOR);
         const real_number theta = real_number(std::atan2(std::sqrt(x*x + y*y), z) * RAD_TO_DEG_FACTOR);
         new (this) SphericalCoordinates(phi, theta);
@@ -93,7 +93,7 @@ class RadiationPattern {
     }
 
     inline SphericalCoordinates GetSphericalCoordinatesFromIndices(const size_t i, const size_t j) {
-        return SphericalCoordinates(-180.0 + i * mSeparationBetweenPhiValues, j * mSeparationBetweenThetaValues);
+        return SphericalCoordinates(real_number(-180.0) + i * mSeparationBetweenPhiValues, j * mSeparationBetweenThetaValues);
     }
 
     inline real_number GetDirectionalGainValue(const Vec3& cartesian_direction) const {
@@ -111,10 +111,10 @@ class RadiationPattern {
             std::cout<<"WARNING: Spherical coordinates out of range when trying to get directional value in radiation pattern! \n";
         }
         #endif
-        const real_number inv_sep_between_phi_vals = 1.0 / mSeparationBetweenPhiValues;
-        const real_number inv_sep_between_theta_vals = 1.0 / mSeparationBetweenThetaValues;
+        const real_number inv_sep_between_phi_vals = real_number(1.0) / mSeparationBetweenPhiValues;
+        const real_number inv_sep_between_theta_vals = real_number(1.0) / mSeparationBetweenThetaValues;
         int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) * inv_sep_between_phi_vals);
-        if(std::abs(spherical_coordinates.mPhi - 180.0) < EPSILON) floor_phi_index--;
+        if(std::abs((spherical_coordinates.mPhi + real_number(180.0)) - 360.0) < EPSILON) floor_phi_index--;
         int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta * inv_sep_between_theta_vals);
         if(std::abs(spherical_coordinates.mTheta - 180.0) < EPSILON) floor_theta_index--;
 
@@ -292,7 +292,7 @@ class RadiationPattern {
         }
 
         mTotalPower = power;
-        mFrequency = frequency_in_MHz * 1.0e6;
+        mFrequency = frequency_in_MHz * real_number(1.0e6);
         mSeparationBetweenThetaValues = list_of_thetas[1] - list_of_thetas[0];
         mSeparationBetweenPhiValues = mSeparationBetweenThetaValues;
 
@@ -347,7 +347,7 @@ class RadiationPattern {
         const real_number gain = GetDirectionalGainValue(any_orientation);
         const real_number E_rms_phi = GetDirectionalRMSPhiPolarizationElectricFieldValue(any_orientation);
         const real_number E_rms_theta = GetDirectionalRMSThetaPolarizationElectricFieldValue(any_orientation);
-        mMeasuringDistance = sqrt(mTotalPower * 120.0 * std::pow(10.0, gain * 0.1)/(4.0 * (E_rms_theta*E_rms_theta + E_rms_phi*E_rms_phi)));
+        mMeasuringDistance = real_number( std::sqrt(mTotalPower * 120.0 * std::pow(10.0, gain * 0.1)/(4.0 * (E_rms_theta*E_rms_theta + E_rms_phi*E_rms_phi))));
 
         #ifdef RAY_IT_DEBUG
         for (size_t i=0; i<mRadiationMap.size(); ++i) {
@@ -363,11 +363,11 @@ class RadiationPattern {
     void FillReflectedPatternInfoFromIncidentRay(const Vec3& local_incident_dir, const OrientedJonesVector& local_oriented_jones_vector, const Vec3& local_triangle_normal) {
         const real_number n2 = 5.0; // TODO: refractive index of the material
 
-        const real_number isotropic_power_density = mTotalPower / (4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
-        const real_number wave_number = 2.0 * M_PI * mFrequency * INVERSE_OF_SPEED_OF_LIGHT;
+        const real_number isotropic_power_density = mTotalPower / real_number(4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
+        const real_number wave_number = real_number(2.0 * M_PI * mFrequency * INVERSE_OF_SPEED_OF_LIGHT);
 
         for(size_t i=0; i<mRadiationMap.size(); i++){
-            const real_number theta = (-180.0 + i * mSeparationBetweenPhiValues);
+            const real_number theta = (real_number(-180.0) + i * mSeparationBetweenPhiValues);
             const real_number theta_rads = theta * DEG_TO_RAD_FACTOR;
             for(size_t j=0; j<mRadiationMap[i].size(); j++){
                 const real_number phi = j * mSeparationBetweenThetaValues;
@@ -386,7 +386,7 @@ class RadiationPattern {
 
                 const Vec3 this_subreflexion_normal_to_surface = GeometricOperations::ComputeNormalFromIncidentAndReflected(local_incident_dir, sub_reflected_dir);
                 const real_number incidence_angle_in_rads = Vec3::DotProduct(local_incident_dir, this_subreflexion_normal_to_surface);
-                const real_number aux = std::sqrt(1.0-std::pow(sin(incidence_angle_in_rads)/n2, 2));
+                const real_number aux = real_number(std::sqrt(1.0-std::pow(sin(incidence_angle_in_rads)/n2, 2)));
                 const real_number fresnel_r_s = ( cos(incidence_angle_in_rads) - n2 * aux ) / ( cos(incidence_angle_in_rads) + n2 * aux);
                 const real_number fresnel_r_p = (aux - n2 * cos(incidence_angle_in_rads)) / (aux + n2 * cos(incidence_angle_in_rads));
 
@@ -417,8 +417,8 @@ class RadiationPattern {
                 } else {
                     correction_factor = 0.0;
                 }
-                const real_number phase_phi_at_distance_one_meter = std::arg(E_phi) + wave_number * 1.0;
-                const real_number phase_theta_at_distance_one_meter = std::arg(E_theta) + wave_number * 1.0;
+                const real_number phase_phi_at_distance_one_meter = real_number(std::arg(E_phi) + wave_number * 1.0);
+                const real_number phase_theta_at_distance_one_meter = real_number(std::arg(E_theta) + wave_number * 1.0);
 
                 //PROJECT REFLECTED JONES TO THETA PHI UNITARY TANGENT VECTORS
                 mRadiationMap[i][j][EPhi] = E_phi * correction_factor;
@@ -429,17 +429,17 @@ class RadiationPattern {
         }
     }
 
-    double IntegratePatternSurfaceTotalPowerBasedOnGain() {
+    real_number IntegratePatternSurfaceTotalPowerBasedOnGain() {
         #include "points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();
-        const double weight_of_each_point = 4.0 * M_PI / num_points;
-        const double isotropic_power_density = mTotalPower / (4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
-        double integral = 0.0;
+        const real_number weight_of_each_point = real_number(4.0 * M_PI / num_points);
+        const real_number isotropic_power_density = mTotalPower / real_number(4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
+        real_number integral = 0.0;
         for(int i=0; i<num_points; i++){
             Vec3 dir = Vec3(p[i][0], p[i][1], p[i][2]);
-            const double gain = GetDirectionalGainValue(dir);
-            const double power_density = isotropic_power_density * std::pow(real_number(10.0), gain * real_number(0.1));
+            const real_number gain = GetDirectionalGainValue(dir);
+            const real_number power_density = isotropic_power_density * std::pow(real_number(10.0), gain * real_number(0.1));
             integral += power_density;
         }
         integral *= weight_of_each_point;
@@ -447,18 +447,18 @@ class RadiationPattern {
         return integral;
     }
 
-    double IntegratePatternSurfaceTotalPowerBasedOnElectricField() {
+    real_number IntegratePatternSurfaceTotalPowerBasedOnElectricField() {
         #include "points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();
-        const double weight_of_each_point = 4.0 * M_PI / num_points;
-        double integral = 0.0;
+        const real_number weight_of_each_point = real_number(4.0 * M_PI / num_points);
+        real_number integral = 0.0;
         for(int i=0; i<num_points; i++){
             Vec3 dir = Vec3(p[i][0], p[i][1], p[i][2]);
             const auto sp = SphericalCoordinates(dir);
-            const double E_phi = GetDirectionalPhiPolarizationElectricFieldValue(sp);
-            const double E_theta = GetDirectionalThetaPolarizationElectricFieldValue(sp);
-            const double power_density = (E_phi*E_phi +  E_theta*E_theta) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
+            const real_number E_phi = GetDirectionalPhiPolarizationElectricFieldValue(sp);
+            const real_number E_theta = GetDirectionalThetaPolarizationElectricFieldValue(sp);
+            const real_number power_density = (E_phi*E_phi +  E_theta*E_theta) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
             integral += power_density;
         }
         integral *= weight_of_each_point;
@@ -474,7 +474,7 @@ class RadiationPattern {
         integral = IntegratePatternSurfaceTotalPowerBasedOnGain();
 
         real_number correction_factor = mTotalPower / integral;
-        real_number aux_log_correction_factor = 10.0 * log10(correction_factor);
+        real_number aux_log_correction_factor = real_number(10.0 * log10(correction_factor));
 
         //scaling the pattern to make it consistent with the total power emitted
         for(size_t i=0; i<mRadiationMap.size(); i++){
@@ -486,15 +486,15 @@ class RadiationPattern {
 
     void SetGainValuesAccordingToElectricFieldValues() {
         const real_number total_power = IntegratePatternSurfaceTotalPowerBasedOnElectricField();
-        const real_number isotropic_power_density = total_power / (4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
-        const real_number inverse_isotropic_power_density = 1.0 / isotropic_power_density;
+        const real_number isotropic_power_density = total_power / real_number(4.0 * M_PI * mMeasuringDistance * mMeasuringDistance);
+        const real_number inverse_isotropic_power_density = real_number(1.0 / isotropic_power_density);
 
         for(size_t i=0; i<mRadiationMap.size(); i++){
             for(size_t j=0; j<mRadiationMap[i].size(); j++){
                 const real_number E_phi = mRadiationMap[i][j][EPhi];
                 const real_number E_theta = mRadiationMap[i][j][ETheta];
                 const real_number power_density_for_this_direction = (E_phi*E_phi + E_theta*E_theta) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
-                mRadiationMap[i][j][Gain] = 10.0 * log10(power_density_for_this_direction * inverse_isotropic_power_density);
+                mRadiationMap[i][j][Gain] = real_number( 10.0 * log10(power_density_for_this_direction * inverse_isotropic_power_density) );
             }
         }
     }

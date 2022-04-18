@@ -123,6 +123,7 @@ class Test7: public Test {
         InputsReader reader;
         if(reader.ReadTerrainSTLMesh(mesh, "cases/sphere.stl")) return 1;
 
+        // Making pseudo-shape of radiation pattern, by deforming the sphere
         real_number base_power = 1.0;
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
