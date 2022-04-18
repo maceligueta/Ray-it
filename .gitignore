@@ -28,3 +28,5 @@ cases/square_with_smaller_square_before_fine_test.stl.post.msh
 cases/square_with_smaller_square_before_fine_test.stl.post.res
 Ray-it_Debug
 Ray-it_Release
+Ray-it_RelWithDebInfo.exe
+Ray-it_RelWithDebInfo
