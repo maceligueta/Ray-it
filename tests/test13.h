@@ -16,8 +16,6 @@ class Test13: public Test {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber <<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         /*json single_antenna_data = json::parse(R"({
             "name": "Test13 antenna",
             "coordinates":[0.0, 0.0, 0.0],
@@ -114,7 +112,7 @@ class Test13: public Test {
         antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(total_power_received_by_triangle, frequency); // Here we are reflecting all the power received (not realistic)
 
         Antenna brdf1 = Antenna(antenna_vars);
-        brdf1.FillReflectedPatternInfoFromIncidentRay(unitary_vec_origin_to_triangle_center, OrientedJonesVector(jones_vector_at_destination), triangle);
+        brdf1.FillReflectedPatternInfoFromIncidentRay(unitary_vec_origin_to_triangle_center, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
 
         added_up_brdf += brdf1;
 

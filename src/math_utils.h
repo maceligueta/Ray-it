@@ -2,7 +2,7 @@
 #define __Ray_it__Math_Utils__
 #include "constants.h"
 
-inline real_number atan_approximation(const real_number& x) {
+static inline real_number atan_approximation(const real_number& x) {
     const real_number a1  = real_number( 0.99997726);
     const real_number a3  = real_number(-0.33262347);
     const real_number a5  = real_number( 0.19354346);
@@ -15,7 +15,7 @@ inline real_number atan_approximation(const real_number& x) {
         x * (a1 + x_sq * (a3 + x_sq * (a5 + x_sq * (a7 + x_sq * (a9 + x_sq * a11)))));
 }
 
-real_number atan2_custom(const real_number y, const real_number x) {
+static real_number atan2_custom(const real_number y, const real_number x) {
         if(std::abs(x)<EPSILON && std::abs(y)<EPSILON) return 0.0;
 
         bool swap = fabs(x) < fabs(y);

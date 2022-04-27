@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <vector>
 #include <sstream>
+#include "omp.h"
 #include "mesh.h"
 #include "antenna.h"
 #include "../external_libraries/stl_reader.h"
 #include "../external_libraries/json.hpp"
 
 using namespace nlohmann;
+extern unsigned int RAY_IT_ECHO_LEVEL;
 
 class InputsReader {
 public:

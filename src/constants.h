@@ -3,10 +3,6 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <string>
-
-static unsigned int RAY_IT_ECHO_LEVEL = 1;
-static std::string CURRENT_WORKING_DIR = "";
 
 #ifdef RAY_IT_USE_FLOATS
 //#pragma message("Compiling Ray-it with float (simple precision)")

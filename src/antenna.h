@@ -5,9 +5,12 @@
 #include "radiation_pattern.h"
 #include "vector.h"
 #include <math.h>
+#include <filesystem>
 #include "../external_libraries/json.hpp"
+#include "triangle.h"
 
 using namespace nlohmann;
+extern std::string CURRENT_WORKING_DIR;
 
 struct AntennaVariables {
     Vec3 mCoordinates;
@@ -167,10 +170,10 @@ class Antenna {
         return 0;
     }
 
-    inline void FillReflectedPatternInfoFromIncidentRay(const Vec3& incident_dir, const OrientedJonesVector& oriented_jones_vector, const Triangle& triangle) {
+    inline void FillReflectedPatternInfoFromIncidentRay(const Vec3& incident_dir, const OrientedJonesVector& oriented_jones_vector, const Vec3& normal_to_surface) {
         const Vec3 local_incident_dir = ConvertGlobalDirIntoLocalDir(incident_dir);
         const OrientedJonesVector local_oriented_jones_vector = ConvertGlobalDirIntoLocalDir(oriented_jones_vector);
-        const Vec3 local_triangle_normal = ConvertGlobalDirIntoLocalDir(triangle.mNormal);
+        const Vec3 local_triangle_normal = ConvertGlobalDirIntoLocalDir(normal_to_surface);
         mRadiationPattern.FillReflectedPatternInfoFromIncidentRay(local_incident_dir, local_oriented_jones_vector, local_triangle_normal);
     }
 

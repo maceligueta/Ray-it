@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <vector>
-#include <filesystem>
 #include <omp.h>
 
 #include "constants.h"
@@ -15,6 +14,7 @@
 #include "../external_libraries/json.hpp"
 
 using namespace nlohmann;
+extern unsigned int RAY_IT_ECHO_LEVEL;
 
 int main(int argc, char *argv[]) {
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     }
 
     if(RAY_IT_ECHO_LEVEL > 0) {
-        std::cout << "Ray-it starting. Using ";
+        std::cout << "\n -- Ray-it starting --\nUsing ";
         #ifdef RAY_IT_USE_FLOATS
         #pragma message("---- Compiling with single precision ----")
         std::cout << "single precision ('float' variables). ";
@@ -47,13 +47,15 @@ int main(int argc, char *argv[]) {
         #pragma message("---- Compiling with double precision ----")
         std::cout << "double precision ('double' variables). ";
         #endif
-        std::cout<<std::endl<<std::endl;
+        std::cout<<std::endl;
 
         #ifdef RAY_IT_DEBUG
                     #pragma message("---- Compiling in Debug mode ----")
         #else
             #pragma message("---- Compiling in Release mode ----")
         #endif
+
+        std::cout<<"Number of processors: "<<omp_get_max_threads()<<std::endl;
     }
 
     Timer total_timer;

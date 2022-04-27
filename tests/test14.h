@@ -11,9 +11,9 @@
 #include <sstream>
 
 class ComputationForTest14: public Computation {
-    bool ReadAntennas(std::vector<Antenna>& antennas, const json& parameters) override {
-        if( ! Computation::ReadAntennas(antennas, parameters) ) {
-            for(auto& ant:antennas){
+    bool ReadAntennas(const json& parameters) override {
+        if( ! Computation::ReadAntennas(parameters) ) {
+            for(auto& ant:mAntennas){
                 auto& rm = ant.mRadiationPattern;
                 rm.mFrequency = 1.0e6; // 1 MHz
                 rm.mMeasuringDistance = 2.0;
@@ -44,8 +44,6 @@ class Test14: public Test {
     }
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
-
-        RAY_IT_ECHO_LEVEL = 0;
 
         json parameters;
 

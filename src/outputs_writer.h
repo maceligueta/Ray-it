@@ -12,13 +12,14 @@ public:
     OutputsWriter(){};
 
     void PrintResultsInGidFormat(const Mesh& mesh, const std::vector<Antenna>& antennas, const std::string& file_name, const TypeOfResultsPrint& print_type) {
-        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Printing results in GiD Post-process format... ";
+        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nPrinting results in GiD Post-process format... ";
         GidOutput gid_printer;
         gid_printer.PrintResults(mesh, antennas, file_name, print_type);
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "  done!"<<std::endl;
     }
 
     void PrintResultsInMatlabFormat(const Mesh& mesh, const std::vector<Antenna>& antennas, const TypeOfResultsPrint& print_type) {
+        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nPrinting results for Matlab... ";
         std::ofstream Xfo(CURRENT_WORKING_DIR + "/" + "X.mat");
         std::ofstream Yfo(CURRENT_WORKING_DIR + "/" + "Y.mat");
         std::ofstream Zfo(CURRENT_WORKING_DIR + "/" + "Z.mat");
@@ -66,6 +67,8 @@ public:
         Yfo<<Y0buffer<<"\n"<<Y1buffer<<"\n"<<Y2buffer<<"\n";
         Zfo<<Z0buffer<<"\n"<<Z1buffer<<"\n"<<Z2buffer<<"\n";
         Vfo<<Vbuffer;
+
+        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "  done!"<<std::endl;
     }
 
 };

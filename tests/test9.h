@@ -20,8 +20,6 @@ class Test9: public Test {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         json parameters;
 
         std::string parameters_filename  = "cases/simple_run.json";

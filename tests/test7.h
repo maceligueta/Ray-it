@@ -56,8 +56,6 @@ class Test7: public Test {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         RadiationPattern pattern;
         FillRadiationPattern(pattern);
 

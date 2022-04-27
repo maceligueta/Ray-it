@@ -17,7 +17,10 @@
     }],
     "computation_settings":{
         "number_of_reflexions": 0,
-        "portion_of_elements_contributing_to_reflexion": 0.5,
+        "montecarlo_settings":{
+            "type_of_decimation" : "portion_of_elements",
+            "portion_of_elements_contributing_to_reflexion": 0.5
+        },
         "Fresnel_reflexion_coefficient": 0.3,
         "minimum_intensity_to_be_reflected": 1.0e-8
     },

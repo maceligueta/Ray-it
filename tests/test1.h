@@ -14,8 +14,6 @@ class Test1: public Test {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         Mesh mesh;
         InputsReader reader;
         reader.ReadTerrainSTLMesh(mesh, "cases/square_test.stl");

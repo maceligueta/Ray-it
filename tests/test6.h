@@ -16,8 +16,6 @@ class Test6: public Test {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 0.0, 0.0), SphericalCoordinates(0.0, 90.0), EPSILON)) return 1;
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 1.0, 1.0), SphericalCoordinates(45.0, real_number(54.735610317245346)), EPSILON)) return 1;
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(-1.0, 1.0, 1.0), SphericalCoordinates(135.0, real_number(54.735610317245346)), EPSILON)) return 1;

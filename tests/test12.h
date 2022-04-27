@@ -19,8 +19,6 @@ class Test12: public Test7 {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RAY_IT_ECHO_LEVEL = 0;
-
         RadiationPattern pattern;
         Test7::FillRadiationPattern(pattern);
         pattern.mTotalPower = 10.0;

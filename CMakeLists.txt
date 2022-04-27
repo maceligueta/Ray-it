@@ -25,6 +25,9 @@ set(FILES_TO_BE_COMPILED
     src/ray.cpp
     src/triangle.cpp
     src/wave.cpp
+    src/tests_manager.cpp
+    src/computation.cpp
+    src/constants.cpp
     tests/test.cpp
     external_libraries/timer.cpp
 )
