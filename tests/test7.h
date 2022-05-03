@@ -126,7 +126,7 @@ class Test7: public Test {
         for (size_t i=0; i<mesh.mNodes.size(); i++) {
             Vec3 dir(mesh.mNodes[i]);
             const real_number p_dB = pattern.GetDirectionalGainValue(SphericalCoordinates(dir)); // in dB
-            real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1)); //TODO: improve this (power makes no sense here, should be 'power density')
+            real_number power = base_power * std::pow(real_number(10.0), p_dB*real_number(0.1)); //Dumb value. Power makes no sense here, should be 'power density'
             mesh.mNodes[i] = Node(mesh.mNodes[i].mId, dir * power);
         }
 

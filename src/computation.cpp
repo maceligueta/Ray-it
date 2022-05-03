@@ -35,6 +35,7 @@ void Computation::InitializeAllReflexionBrdfs() {
     mBrdfAntennas.resize(mNumberOfReflexions);
     for(int reflexion_number=0; reflexion_number<mNumberOfReflexions; reflexion_number++) {
         mBrdfAntennas[reflexion_number].resize(mMesh.mTriangles.size());
+        //TODO: parallelize this?
         for(size_t i=0; i<mMesh.mTriangles.size(); i++){
             const Triangle& triangle = *mMesh.mTriangles[i];
             AntennaVariables empty_antenna_vars = AntennaVariables();
@@ -42,7 +43,7 @@ void Computation::InitializeAllReflexionBrdfs() {
             empty_antenna_vars.mName = "";
             empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
             empty_antenna_vars.mVectorPointingUp = (triangle.mP0 - triangle.mCenter).Normalize();
-            empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, mAntennas[0].mRadiationPattern.mFrequency);
+            empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, mAntennas[0].mRadiationPattern.mFrequency, 10.0);
             Antenna empty_brdf = Antenna(empty_antenna_vars);
             mBrdfAntennas[reflexion_number][i] = empty_brdf;
         }
@@ -124,25 +125,7 @@ void Computation::ComputeDirectIncidence() {
                     }
                     #endif
                     const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
-
-                    // Build a BRDF at the reflection point (triangle center)
-                    Vec3 reflection_dir = GeometricOperations::ComputeReflectionDirection(ray.mDirection, triangle.mNormal);
-                    AntennaVariables antenna_vars = AntennaVariables();
-                    antenna_vars.mCoordinates = triangle.mCenter;
-                    antenna_vars.mName = "";
-                    antenna_vars.mVectorPointingFront = reflection_dir;
-
-                    if(Vec3::DotProduct(reflection_dir, triangle.mNormal) < 1.0-EPSILON) {
-                        antenna_vars.mVectorPointingUp = Vec3::CrossProduct(reflection_dir, Vec3::CrossProduct(triangle.mNormal, reflection_dir));
-                    }
-                    else {
-                        antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-                    }
-                    antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency);
-
-                    Antenna brdf = Antenna(antenna_vars);
-                    brdf.FillReflectedPatternInfoFromIncidentRay(ray.mDirection, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
-
+                    Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
                     mBrdfAntennas[0][i] += brdf;
                 }
             }
@@ -157,6 +140,28 @@ void Computation::ComputeDirectIncidence() {
         }
     }
     }
+}
+
+Antenna Computation::BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const Triangle& triangle, const JonesVector& jones_vector_at_destination, const real_number& power_of_ray_reflected_by_triangle) {
+
+    Vec3 reflection_dir = GeometricOperations::ComputeReflectionDirection(ray_direction, triangle.mNormal);
+    AntennaVariables antenna_vars = AntennaVariables();
+    antenna_vars.mCoordinates = triangle.mCenter;
+    antenna_vars.mName = "";
+    antenna_vars.mVectorPointingFront = reflection_dir;
+
+    if(Vec3::DotProduct(reflection_dir, triangle.mNormal) < 1.0-EPSILON) {
+        antenna_vars.mVectorPointingUp = Vec3::CrossProduct(reflection_dir, Vec3::CrossProduct(triangle.mNormal, reflection_dir));
+    }
+    else {
+        antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+    }
+    antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency, 10.0);
+
+    Antenna brdf = Antenna(antenna_vars);
+    brdf.FillReflectedPatternInfoFromIncidentRay(ray_direction, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
+
+    return brdf;
 }
 
 void Computation::ComputeEffectOfReflexions() {
@@ -216,24 +221,7 @@ void Computation::ComputeEffectOfReflexions() {
                             }
                             #endif
                             const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
-
-                            // Build a BRDF at the reflection point (triangle center)
-                            Vec3 reflection_dir = GeometricOperations::ComputeReflectionDirection(ray.mDirection, triangle.mNormal);
-                            AntennaVariables antenna_vars = AntennaVariables();
-                            antenna_vars.mCoordinates = triangle.mCenter;
-                            antenna_vars.mName = "";
-                            antenna_vars.mVectorPointingFront = reflection_dir;
-
-                            if(Vec3::DotProduct(reflection_dir, triangle.mNormal) < 1.0-EPSILON) {
-                                antenna_vars.mVectorPointingUp = Vec3::CrossProduct(reflection_dir, Vec3::CrossProduct(triangle.mNormal, reflection_dir));
-                            }
-                            else {
-                                antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-                            }
-                            antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency);
-
-                            Antenna brdf = Antenna(antenna_vars);
-                            brdf.FillReflectedPatternInfoFromIncidentRay(ray.mDirection, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
+                            Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
                             mBrdfAntennas[reflexion_number+1][i] += brdf;
                         }
                     }

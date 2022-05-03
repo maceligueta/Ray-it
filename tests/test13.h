@@ -82,7 +82,7 @@ class Test13: public Test {
         empty_antenna_vars.mName = "";
         empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
         empty_antenna_vars.mVectorPointingUp = (triangle.mP0 - triangle.mCenter).Normalize();
-        empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, frequency);
+        empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, frequency, 10.0);
         Antenna added_up_brdf = Antenna(empty_antenna_vars);
 
         //Compute main reflection direction
@@ -109,7 +109,7 @@ class Test13: public Test {
         else {
             antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
         }
-        antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(total_power_received_by_triangle, frequency); // Here we are reflecting all the power received (not realistic)
+        antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(total_power_received_by_triangle, frequency, 10.0); // Here we are reflecting all the power received (not realistic)
 
         Antenna brdf1 = Antenna(antenna_vars);
         brdf1.FillReflectedPatternInfoFromIncidentRay(unitary_vec_origin_to_triangle_center, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);

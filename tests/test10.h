@@ -24,12 +24,19 @@ class Test10: public Test7 {
         Test7::FillRadiationPattern(pattern);
         pattern.mTotalPower = 1.0;
 
-        Antenna a1, a2;
-        a1.mRadiationPattern= pattern;
-        a2.mRadiationPattern= pattern;
+        AntennaVariables antenna_vars_1 = AntennaVariables();
+        antenna_vars_1.mCoordinates = Vec3(0.0, 0.0, 0.0);
+        antenna_vars_1.mName = "";
+        antenna_vars_1.mVectorPointingFront = Vec3(1.0, 0.0, 0.0);
+        antenna_vars_1.mVectorPointingUp = Vec3(0.0, 0.0, 1.0);
+        antenna_vars_1.mRadiationPattern = pattern;
 
-        a1.InitializeOrientation(Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0));
-        a2.InitializeOrientation(Vec3(0.0, 1.0, 0.0), Vec3(-1.0, 0.0, 0.0));
+        AntennaVariables antenna_vars_2 = antenna_vars_1;
+        antenna_vars_2.mVectorPointingFront = Vec3(0.0, 1.0, 0.0);
+        antenna_vars_2.mVectorPointingUp = Vec3(-1.0, 0.0, 0.0);
+
+        Antenna a1(antenna_vars_1);
+        Antenna a2(antenna_vars_2);
 
         real_number p;
         p = a1.GetDirectionalPowerValue(Vec3(1.0, 0.0, 0.0));

@@ -6,14 +6,14 @@
 class BRDFDiffuseRadiationPattern: public RadiationPattern {
     public:
 
-    BRDFDiffuseRadiationPattern(const real_number total_power, const real_number frequency){
+    BRDFDiffuseRadiationPattern(const real_number total_power, const real_number frequency, const real_number angle_between_values){
 
         mTotalPower = total_power;
         mFrequency = frequency;
         mMeasuringDistance = 1.0;
 
-        mSeparationBetweenPhiValues = 10.0;
-        mSeparationBetweenThetaValues = 10.0;
+        mSeparationBetweenPhiValues = angle_between_values;
+        mSeparationBetweenThetaValues = angle_between_values;
         mRadiationMap.resize(int(360.0 / mSeparationBetweenPhiValues) + 1);
         for(size_t i=0;i<mRadiationMap.size(); i++) {
             mRadiationMap[i].resize(int(180.0 / mSeparationBetweenThetaValues) + 1);
@@ -27,9 +27,7 @@ class BRDFDiffuseRadiationPattern: public RadiationPattern {
                 }
             }
         }
-
         //ScaleDirectionalGainForConsistentIntegral();
-
     };
 
 };

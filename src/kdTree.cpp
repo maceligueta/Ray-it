@@ -289,31 +289,12 @@ KDTreeNode* KDTreeNode::RecursiveTreeNodeBuild(const std::vector<Triangle *>& tr
     // Inner node
     KDTreeNode * innerNode = new KDTreeNode();
 
-    ////TODO: remove
-    /* innerNode->mTriangles = triangles;
-    innerNode->mBounds = V;
-    innerNode->mLeaf = false; */
-    ////
-
     innerNode->mSplitPlane = p;
     innerNode->mBounds = V;
     innerNode->mLeaf = false;
     innerNode->mLeft = RecursiveTreeNodeBuild(TL, VL, depth+1, p);
     innerNode->mRight = RecursiveTreeNodeBuild(TR, VR, depth+1, p);
 
-    /*if(RAY_IT_ECHO_LEVEL > 1) {
-        std::cout<<"Depth "<<depth<<" Splitting axis: "<<p.mAxis<<"  split pos: "<<p.mPos<<"\n";
-        std::cout<<"Triangles Left:";
-        for(Triangle* tri : TL){
-            std::cout<<" "<<tri->mId;
-        }
-        std::cout<<" \n";
-        std::cout<<"Triangles Right:";
-        for(Triangle* tri : TR){
-            std::cout<<" "<<tri->mId;
-        }
-        std::cout<<" \n";
-    }*/
     return innerNode;
 }
 

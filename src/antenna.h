@@ -24,13 +24,6 @@ class Antenna {
 
     public:
 
-    //Antenna() = delete; //TODO: achieve this for robustness
-    Antenna(){};
-    Antenna(const AntennaVariables& antenna_vars){
-        InitializeFromVariables(antenna_vars);
-    }
-
-
     std::string mName;
     Vec3 mCoordinates;
     RadiationPattern mRadiationPattern;
@@ -38,69 +31,29 @@ class Antenna {
     Vec3 mVectorPointingUp;
     Vec3 mVectorPointingLeft;
 
-    bool InitializeFromParameters(const json& single_antenna_data) {
-        mName = single_antenna_data["name"].get<std::string>();
+    Antenna() {}
 
-        auto coords = single_antenna_data["coordinates"].get<std::vector<real_number>>();
-        mCoordinates[0] = coords[0];
-        mCoordinates[1] = coords[1];
-        mCoordinates[2] = coords[2];
-
-        auto vector = single_antenna_data["orientation"]["front"].get<std::vector<real_number>>();
-        Vec3 vector_pointing_front;
-        vector_pointing_front[0] = vector[0];
-        vector_pointing_front[1] = vector[1];
-        vector_pointing_front[2] = vector[2];
-
-        vector = single_antenna_data["orientation"]["up"].get<std::vector<real_number>>();
-        Vec3 vector_pointing_up;
-        vector_pointing_up[0] = vector[0];
-        vector_pointing_up[1] = vector[1];
-        vector_pointing_up[2] = vector[2];
-
-        InitializeOrientation(vector_pointing_front, vector_pointing_up);
-
-        const std::string radiation_pattern_file_name = single_antenna_data["radiation_pattern_file_name"].get<std::string>();
-        std::string file_name_to_be_used_here = radiation_pattern_file_name;
-
-        if (!std::filesystem::exists(radiation_pattern_file_name)) {
-            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
-            if (!std::filesystem::exists(file_name_with_current_path)) {
-                std::cout << "Error: files \""<<radiation_pattern_file_name<<"\" or \""<<file_name_with_current_path<<"\" not found! \n";
-                return 1;
-            }
-            else{
-            file_name_to_be_used_here = file_name_with_current_path;
-            }
-        }
-
-        LoadRadiationPatternFrom4NEC2File(file_name_to_be_used_here);
-
-        return 0;
+    Antenna(const Antenna& other) {
+        mName = other.mName;
+        mCoordinates = other.mCoordinates;
+        mRadiationPattern = other.mRadiationPattern;
+        mVectorPointingFront = other.mVectorPointingFront;
+        mVectorPointingLeft = other.mVectorPointingLeft;
+        mVectorPointingUp = other.mVectorPointingUp;
     }
 
-    bool InitializeFromVariables(const AntennaVariables& vars) {
-        mName = vars.mName;
-        mCoordinates = vars.mCoordinates;
-        const Vec3 vector_pointing_front = vars.mVectorPointingFront;
-        const Vec3 vector_pointing_up = vars.mVectorPointingUp;
-        InitializeOrientation(vector_pointing_front, vector_pointing_up);
-        mRadiationPattern = vars.mRadiationPattern;
+    Antenna(const AntennaVariables& antenna_vars){
+        InitializeFromVariables(antenna_vars);
+    }
 
-        return 0;
+    Antenna(const json& single_antenna_settings) {
+        InitializeFromParameters(single_antenna_settings);
     }
 
 
-    inline void InitializeOrientation(const Vec3& front_direction, const Vec3& up_direction) {
-        mVectorPointingFront = front_direction;
-        mVectorPointingUp = up_direction;
-
-        mVectorPointingFront.Normalize();
-        mVectorPointingUp.Normalize();
-
-        mVectorPointingLeft= Vec3::CrossProduct(mVectorPointingUp, mVectorPointingFront);
-        mVectorPointingLeft.Normalize();
-    }
+    bool InitializeFromParameters(const json& single_antenna_settings);
+    bool InitializeFromVariables(const AntennaVariables& vars);
+    inline void InitializeOrientation(const Vec3& front_direction, const Vec3& up_direction);
 
 
     inline Vec3 ConvertGlobalDirIntoLocalDir(const Vec3& global_direction) const {
@@ -177,29 +130,7 @@ class Antenna {
         mRadiationPattern.FillReflectedPatternInfoFromIncidentRay(local_incident_dir, local_oriented_jones_vector, local_triangle_normal);
     }
 
-    void AddContributionOfAnotherAntenna(const Antenna& other) {
-        mRadiationPattern.mTotalPower += other.mRadiationPattern.mTotalPower;
-        for(size_t i=0; i<mRadiationPattern.mRadiationMap.size(); i++) {
-            for(size_t j=0; j<mRadiationPattern.mRadiationMap[i].size(); j++) {
-
-                //obtain direction in local and global coordinates
-                const SphericalCoordinates sp = mRadiationPattern.GetSphericalCoordinatesFromIndices(i, j);
-                const Vec3 my_local_dir = sp.ConvertIntoCartesianCoordinates();
-                const Vec3 global_dir = ConvertLocalDirIntoGlobalDir(my_local_dir);
-                const JonesVector global_previous_jones_vector = GetDirectionalJonesVector(global_dir);
-                const JonesVector global_jones_vector_to_be_added = other.GetDirectionalJonesVector(global_dir);
-                const JonesVector to_remove = other.GetDirectionalJonesVector(Vec3(0.0, 0.0, 1.0));
-                const JonesVector to_remove2 = GetDirectionalJonesVector(Vec3(0.0, 0.0, 1.0));
-                const OrientedJonesVector sum = OrientedJonesVector(global_previous_jones_vector) + OrientedJonesVector(global_jones_vector_to_be_added);
-                const JonesVector new_jones_vector = sum.ConvertToJonesVector(global_previous_jones_vector.mX, global_previous_jones_vector.mY);
-                mRadiationPattern.mRadiationMap[i][j][ETheta] = new_jones_vector.mWaves[0].mAmplitude;
-                mRadiationPattern.mRadiationMap[i][j][EThetaPhase] = new_jones_vector.mWaves[0].mPhase;
-                mRadiationPattern.mRadiationMap[i][j][EPhi] = new_jones_vector.mWaves[1].mAmplitude;
-                mRadiationPattern.mRadiationMap[i][j][EPhiPhase] = new_jones_vector.mWaves[1].mPhase;
-            }
-        }
-        mRadiationPattern.SetGainValuesAccordingToElectricFieldValues();
-    }
+    void AddContributionOfAnotherAntenna(const Antenna& other);
 
     inline Antenna operator+=(const Antenna& other){
         this->AddContributionOfAnotherAntenna(other);

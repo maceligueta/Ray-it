@@ -28,6 +28,7 @@ set(FILES_TO_BE_COMPILED
     src/tests_manager.cpp
     src/computation.cpp
     src/constants.cpp
+    src/antenna.cpp
     tests/test.cpp
     external_libraries/timer.cpp
 )

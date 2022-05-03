@@ -317,10 +317,7 @@ public:
     bool ReadAntennas(std::vector<Antenna>& antennas, const json& input_parameters){
 
         for (auto& single_antenna_data : input_parameters["antennas_list"]) {
-            Antenna a;
-            if(a.InitializeFromParameters(single_antenna_data)){
-                return 1;
-            }
+            Antenna a = Antenna(single_antenna_data);
             antennas.push_back(a);
         }
         return 0;

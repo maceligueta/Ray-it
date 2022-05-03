@@ -105,7 +105,14 @@ class OrientedJonesVector {
         Wave w1(mFrequency, std::abs(projection_to_first_dir), std::arg(projection_to_first_dir), mReferenceDistance);
         std::complex<real_number> projection_to_second_dir = *this * second_dir;
         Wave w2(mFrequency, std::abs(projection_to_second_dir), std::arg(projection_to_second_dir), mReferenceDistance);
-        //TODO: check that the projection to a third axis is null???
+
+        #ifdef RAY_IT_DEBUG
+        Vec3 third_dir = Vec3::CrossProduct(first_dir, second_dir);
+        std::complex<real_number> projection_to_third_dir = *this * third_dir;
+        Wave w3(mFrequency, std::abs(projection_to_third_dir), std::arg(projection_to_third_dir), mReferenceDistance);
+        if(w3.mAmplitude > EPSILON) std::cout<<"WARNING: When converting an OrientedJonesVector into a JonesVector, a significant magnitude appeared in the direction of a third axis. A JonesVector should have information in just two axes. \n";
+        #endif
+
         return JonesVector(w1, w2, first_dir, second_dir);
     }
 
