@@ -29,6 +29,7 @@ set(FILES_TO_BE_COMPILED
     src/computation.cpp
     src/constants.cpp
     src/antenna.cpp
+    src/jones.cpp
     tests/test.cpp
     external_libraries/timer.cpp
 )
