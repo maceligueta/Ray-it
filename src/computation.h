@@ -9,72 +9,67 @@
 #include "constants.h"
 #include "inputs_reader.h"
 #include "outputs_writer.h"
+#include "wave.h"
+#include "jones.h"
 #include "mesh.h"
 #include "../external_libraries/json.hpp"
+#include <random>
+#include "geometric_operations.h"
+#include "radiation_patterns/custom_radiation_patterns.h"
+#include "../external_libraries/progressbar.hpp"
 
 using namespace nlohmann;
 
 class Computation {
+
 public:
 
     Computation(){}
 
-    bool Run(const json& parameters) {
+    Mesh mMesh;
+    std::vector<Antenna> mAntennas;
+    std::knuth_b mRandomEngine;
+    std::vector<int> mNumberOfActiveElements;
+    int mNumberOfReflexions;
+    std::vector<std::vector<Antenna>> mBrdfAntennas;
+    real_number mFresnelReflexionCoefficient;
+    real_number mMinimumIntensityToBeReflected;
+    real_number mPortionOfElementsContributingToReflexion;
+    std::vector<std::vector<bool>> mVectorsOfActiveElements;
 
-        std::vector<Antenna> antennas;
 
+    virtual bool Run(const json& parameters);
+
+    virtual bool ReadAntennas(const json& parameters) {
         InputsReader reader;
-        if(reader.ReadAntennas(antennas, parameters)) return 1;
-
-        Mesh mesh;
-        if(reader.ReadTerrainMesh(mesh, parameters["terrain_input_settings"])) return 1;
-
-        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Building KD-tree... " << std::endl;
-        KDTreeNode* root= new KDTreeNode();
-        mesh.mTree = *root->RecursiveTreeNodeBuild(mesh.mTriangles, Box(mesh.mBoundingBox[0], mesh.mBoundingBox[1]), 0, SplitPlane());
-        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Finished building KD-tree."<< std::endl;
-
-        if(ComputeRays(antennas, mesh)) return 1;
-
-        OutputsWriter writer;
-        const std::string output_file_name_with_current_path = CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
-        if(parameters["output_settings"]["print_for_gid"].get<bool>()) {
-            writer.PrintResultsInGidFormat(mesh, antennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
-        }
-        if(parameters["output_settings"]["print_for_matlab"].get<bool>()) {
-            writer.PrintResultsInMatlabFormat(mesh, antennas, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
-        }
-        return 0;
+        if(reader.ReadAntennas(mAntennas, parameters)) return 1;
+        else return 0;
     }
 
-    bool ComputeRays(const std::vector<Antenna>& antennas, Mesh& mesh){
-
-        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computation starts. Computing rays... "<<std::endl;
-
-        for(size_t antenna_index=0; antenna_index<antennas.size(); ++antenna_index) {
-            Vec3 origin = antennas[antenna_index].mCoordinates;
-            const real_number measuring_dist_squared = antennas[antenna_index].mMeasuringDistance * antennas[antenna_index].mMeasuringDistance;
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout<<"Antenna '"<<antennas[antenna_index].mName<<"' at position: "<<std::setprecision(15)<<origin<<std::endl;
-            #pragma omp parallel for schedule(dynamic, 500)
-            for(int i = 0; i<(int)mesh.mTriangles.size(); i++) {
-                Vec3 vec_origin_to_triangle_center = Vec3(mesh.mTriangles[i]->mCenter[0] - origin[0], mesh.mTriangles[i]->mCenter[1] - origin[1], mesh.mTriangles[i]->mCenter[2] - origin[2]);
-                Ray test_ray(origin, vec_origin_to_triangle_center);
-                test_ray.Intersect(mesh);
-                const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-                const real_number distance = sqrt(distance_squared);
-                if(std::abs(test_ray.t_max - distance) < 1.0) {
-                    const real_number E_phi_at_measuring_distance = antennas[antenna_index].DirectionalRMSPhiPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                    const real_number E_theta_at_measuring_distance = antennas[antenna_index].DirectionalRMSThetaPolarizationElectricFieldValue(vec_origin_to_triangle_center);
-                    mesh.mTriangles[i]->mIntensity = (E_phi_at_measuring_distance*E_phi_at_measuring_distance + E_theta_at_measuring_distance*E_theta_at_measuring_distance) * measuring_dist_squared / distance_squared;
-                    //test_ray.mPower = mesh.mTriangles[i]->mIntensity * mesh.mTriangles[i]->ComputeArea() * Vec3::DotProduct(test_ray.mDirection, mesh.mTriangles[i]->mNormal);
-                }
-            }
-        }
-
-        if(RAY_IT_ECHO_LEVEL > 0) std::cout << "Computation finished."<<std::endl;
-
-        return 0;
+    virtual bool ReadTerrainMesh(const json& parameters) {
+        InputsReader reader;
+        if(reader.ReadTerrainMesh(mMesh, parameters)) return 1;
+        else return 0;
     }
+
+    virtual bool RandomBoolAccordingToProbabilityFast(const double p){
+        return rand() < p * (RAND_MAX+1.0);
+    }
+
+    virtual void InitializeVectorsOfActiveElements();
+
+    virtual bool RandomBoolAccordingToProbability(std::uniform_real_distribution<>& uniform_distribution_zero_to_one, const real_number prob) {  // probability between 0.0 and 1.0
+        return uniform_distribution_zero_to_one(mRandomEngine) < prob;
+    }
+
+    virtual void InitializeAllReflexionBrdfs();
+    virtual bool InitializeComputationOfRays(const json& computation_settings);
+    virtual void ComputeDirectIncidence();
+    virtual bool ComputeRays(const json& computation_settings);
+    virtual bool BuildKdTree();
+    virtual bool PrintResults(const json& parameters);
+    virtual void ComputeEffectOfReflexions();
+    Antenna BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const Triangle& triangle, const JonesVector& jones_vector_at_destination, const real_number& power_of_ray_reflected_by_triangle);
 
 };
-#endif /* defined(__Ray_it__Computation__) */
+#endif

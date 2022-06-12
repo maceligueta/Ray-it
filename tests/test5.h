@@ -2,7 +2,6 @@
 #define __Ray_ittest5
 
 #include "test.h"
-#include "../src/ray-it.h"
 
 class Test5: public Test {
 
@@ -12,9 +11,7 @@ class Test5: public Test {
         mNumber = 5;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
-
-        RAY_IT_ECHO_LEVEL = 0;
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         Mesh mesh;
         InputsReader reader;

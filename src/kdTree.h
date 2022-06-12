@@ -55,6 +55,4 @@ public:
 };
 
 
-
-
-#endif /* defined(__Ray_it__kdTree__) */
+#endif

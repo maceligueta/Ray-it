@@ -2,7 +2,7 @@
 #define __Ray_ittest10
 
 #include "test.h"
-#include "../src/ray-it.h"
+#include "test7.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -10,78 +10,46 @@
 #include <string>
 #include <sstream>
 
-class Test10: public Test {
+class Test10: public Test7 {
 
     public:
 
-    Test10():Test(){
+    Test10():Test7(){
         mNumber = 10;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
-
-        RAY_IT_ECHO_LEVEL = 0;
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         RadiationPattern pattern;
+        Test7::FillRadiationPattern(pattern);
         pattern.mTotalPower = 1.0;
-        pattern.mSeparationBetweenPhiValues = 60.0;
-        pattern.mSeparationBetweenThetaValues = 60.0;
-        pattern.mRadiationMap.resize(int(360.0 / pattern.mSeparationBetweenPhiValues) + 1);
-        for(size_t i=0;i<pattern.mRadiationMap.size(); i++) {
-            pattern.mRadiationMap[i].resize(int(180.0 / pattern.mSeparationBetweenThetaValues) + 1);
-            for (size_t j=0; j<pattern.mRadiationMap[i].size(); j++){
-                pattern.mRadiationMap[i][j].resize(1);
-            }
-        }
 
-        pattern.mRadiationMap[0][0][0] = -50.0; //phi = -180 theta = 0.0
-        pattern.mRadiationMap[0][1][0] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[0][2][0] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[0][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[1][0][0] = -50.0;  //phi = -120  theta = 0.0
-        pattern.mRadiationMap[1][1][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[1][2][0] = -10.0; //           theta = 120.0
-        pattern.mRadiationMap[1][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[2][0][0] = -50.0;  //phi = -60  theta = 0.0
-        pattern.mRadiationMap[2][1][0] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[2][2][0] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[2][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[3][0][0] = -50.0;  //phi = 0  theta = 0.0
-        pattern.mRadiationMap[3][1][0] = 0.0; //           theta = 60.0
-        pattern.mRadiationMap[3][2][0] = 0.0; //           theta = 120.0
-        pattern.mRadiationMap[3][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[4][0][0] = -50.0;  //phi = 60  theta = 0.0
-        pattern.mRadiationMap[4][1][0] = -2.0; //           theta = 60.0
-        pattern.mRadiationMap[4][2][0] = -2.0; //           theta = 120.0
-        pattern.mRadiationMap[4][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[5][0][0] = -50.0;  //phi = 120  theta = 0.0
-        pattern.mRadiationMap[5][1][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][2][0] = -10.0; //           theta = 60.0
-        pattern.mRadiationMap[5][3][0] = -50.0; //           theta = 180.0
-        pattern.mRadiationMap[6][0][0] = -50.0;  //phi = 180  theta = 0.0
-        pattern.mRadiationMap[6][1][0] = -50.0; //           theta = 60.0
-        pattern.mRadiationMap[6][2][0] = -50.0; //           theta = 120.0
-        pattern.mRadiationMap[6][3][0] = -50.0; //           theta = 180.0
+        AntennaVariables antenna_vars_1 = AntennaVariables();
+        antenna_vars_1.mCoordinates = Vec3(0.0, 0.0, 0.0);
+        antenna_vars_1.mName = "";
+        antenna_vars_1.mVectorPointingFront = Vec3(1.0, 0.0, 0.0);
+        antenna_vars_1.mVectorPointingUp = Vec3(0.0, 0.0, 1.0);
+        antenna_vars_1.mRadiationPattern = pattern;
 
-        Antenna a1, a2;
-        a1.mRadiationPattern= pattern;
-        a2.mRadiationPattern= pattern;
+        AntennaVariables antenna_vars_2 = antenna_vars_1;
+        antenna_vars_2.mVectorPointingFront = Vec3(0.0, 1.0, 0.0);
+        antenna_vars_2.mVectorPointingUp = Vec3(-1.0, 0.0, 0.0);
 
-        a1.InitializeOrientation(Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0));
-        a2.InitializeOrientation(Vec3(0.0, 1.0, 0.0), Vec3(-1.0, 0.0, 0.0));
+        Antenna a1(antenna_vars_1);
+        Antenna a2(antenna_vars_2);
 
         real_number p;
-        p = a1.DirectionalPowerValue(Vec3(1.0, 0.0, 0.0));
+        p = a1.GetDirectionalPowerValue(Vec3(1.0, 0.0, 0.0));
         if(!CheckIfValuesAreEqual(p, 1.0)) return 1;
 
-        p = a2.DirectionalPowerValue(Vec3(0.0, 1.0, 0.0));
+        p = a2.GetDirectionalPowerValue(Vec3(0.0, 1.0, 0.0));
         if(!CheckIfValuesAreEqual(p, 1.0)) return 1;
 
-        p = a1.DirectionalPowerValue(Vec3(1.0, 1.0, 1.0));
-        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
+        p = a1.GetDirectionalPowerValue(Vec3(1.0, 1.0, 1.0));
+        if(!CheckIfValuesAreEqual(p, real_number(0.26574300029755171))) return 1;
 
-        p = a2.DirectionalPowerValue(Vec3(-1.0, 1.0, -1.0));
-        if(!CheckIfValuesAreEqual(p, 0.26574300029755171)) return 1;
+        p = a2.GetDirectionalPowerValue(Vec3(-1.0, 1.0, -1.0));
+        if(!CheckIfValuesAreEqual(p, real_number(0.26574300029755171))) return 1;
 
 
         return 0;
@@ -89,4 +57,4 @@ class Test10: public Test {
 
 };
 
-#endif /* defined(__Ray_ittest10) */
+#endif

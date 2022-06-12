@@ -30,4 +30,4 @@ struct Box {
     }
 };
 
-#endif /* defined(__Ray_it__box_triangle__) */
+#endif

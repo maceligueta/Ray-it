@@ -2,7 +2,6 @@
 #define __Ray_ittest11
 
 #include "test.h"
-#include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -18,9 +17,7 @@ class Test11: public Test {
         mNumber = 11;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
-
-        RAY_IT_ECHO_LEVEL = 0;
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         json parameters;
 
@@ -37,4 +34,4 @@ class Test11: public Test {
 
 };
 
-#endif /* defined(__Ray_ittest11) */
+#endif

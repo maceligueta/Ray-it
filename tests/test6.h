@@ -2,7 +2,6 @@
 #define __Ray_ittest6
 
 #include "test.h"
-#include "../src/ray-it.h"
 #include "../src/radiation_pattern.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -15,9 +14,7 @@ class Test6: public Test {
         mNumber = 6;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
-
-        RAY_IT_ECHO_LEVEL = 0;
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 0.0, 0.0), SphericalCoordinates(0.0, 90.0), EPSILON)) return 1;
         if(!CheckDirectionToSphericalCoordinatesWithTolerance(Vec3(1.0, 1.0, 1.0), SphericalCoordinates(45.0, real_number(54.735610317245346)), EPSILON)) return 1;

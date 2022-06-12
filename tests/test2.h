@@ -2,6 +2,7 @@
 #define __Ray_ittest2
 
 #include "test.h"
+#include "../src/outputs_writer.h"
 
 class Test2: public Test {
 
@@ -11,9 +12,7 @@ class Test2: public Test {
         mNumber = 2;
     }
     bool Run() override{
-        std::cout<<"Running test "<<mNumber<<"... ";
-        RAY_IT_ECHO_LEVEL = 0;
-
+        std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
         Mesh mesh;
         InputsReader reader;
         reader.ReadTerrainSTLMesh(mesh, "cases/square_test.stl");

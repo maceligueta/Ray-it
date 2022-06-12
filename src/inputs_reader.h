@@ -4,12 +4,14 @@
 #include <stdio.h>
 #include <vector>
 #include <sstream>
+#include "omp.h"
 #include "mesh.h"
 #include "antenna.h"
 #include "../external_libraries/stl_reader.h"
 #include "../external_libraries/json.hpp"
 
 using namespace nlohmann;
+extern unsigned int RAY_IT_ECHO_LEVEL;
 
 class InputsReader {
 public:
@@ -130,21 +132,21 @@ public:
         line_stream >> token;
         if(token != "XLLCORNER") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number xllcorner = std::stod(token);
+        const real_number xllcorner = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
         line_stream >> token;
         if(token != "YLLCORNER") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number yllcorner = std::stod(token);
+        const real_number yllcorner = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
         line_stream >> token;
         if(token != "CELLSIZE") { PrintError(file_name_to_be_used_here, line_count); return 1;}
         line_stream >> token;
-        const real_number cellsize = std::stod(token);
+        const real_number cellsize = real_number(std::stod(token));
 
         getline(asc_file, line); line_count++;
         line_stream = std::stringstream(line);
@@ -161,6 +163,7 @@ public:
 
         int actual_rows_read = 0;
         int actual_cols_read = 0;
+        int counter = 0;
         for (int i=0; i<nrows; i++){
             getline(asc_file, line); line_count++;
             line_stream = std::stringstream(line);
@@ -169,9 +172,10 @@ public:
                 line_stream >> token;
                 real_number x = xllcorner + j * cellsize;
                 real_number y = yllcorner + (nrows - i - 1) * cellsize;
-                real_number z = std::stod(token);
+                real_number z = real_number(std::stod(token));
                 Vec3 node(x, y, z);
-                mesh.mNodes.push_back(node);
+                mesh.mNodes.push_back(Node(counter, node));
+                counter++;
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -198,7 +202,6 @@ public:
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
-        int counter = 0;
         std::vector<std::vector<Triangle*>> triangles_by_threads;
         triangles_by_threads.resize(omp_get_max_threads());
         for (int i=0; i<omp_get_max_threads(); i++){
@@ -207,31 +210,16 @@ public:
         #pragma omp parallel for
         for (int i=0; i<actual_rows_read-1; i++){
             for(int j=0; j<actual_cols_read-1; j++){
-                Triangle* t = new Triangle(mesh);
-                t->mNodeIndices[0] = j + i * actual_cols_read;
-                t->mNodeIndices[1] = j + (i+1) * actual_cols_read;
-                t->mNodeIndices[2] = (j+1) + i * actual_cols_read;
-                t->p0 = mesh.mNodes[t->mNodeIndices[0]];
-                t->p1 = mesh.mNodes[t->mNodeIndices[1]];
-                t->p2 = mesh.mNodes[t->mNodeIndices[2]];
-                t->SetEdgesAndPrecomputedValues();
-                t->mId = counter;
-                counter++;
+                Triangle* t = new Triangle(mesh.mNodes[j + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
                 triangles_by_threads[omp_get_thread_num()].push_back(t);
-                //mesh.mTriangles.push_back(t);
 
-                Triangle* t2 = new Triangle(mesh);
-                t2->mNodeIndices[0] = (j+1) + i * actual_cols_read;
-                t2->mNodeIndices[1] = j + (i+1) * actual_cols_read;
-                t2->mNodeIndices[2] = (j+1) + (i+1) * actual_cols_read;
-                t2->p0 = mesh.mNodes[t2->mNodeIndices[0]];
-                t2->p1 = mesh.mNodes[t2->mNodeIndices[1]];
-                t2->p2 = mesh.mNodes[t2->mNodeIndices[2]];
-                t2->SetEdgesAndPrecomputedValues();
-                t2->mId = counter;
-                counter++;
+                Triangle* t2 = new Triangle(mesh.mNodes[(j+1) + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+
                 triangles_by_threads[omp_get_thread_num()].push_back(t2);
-                //mesh.mTriangles.push_back(t2);
             }
         }
 
@@ -248,15 +236,23 @@ public:
 
     bool ReadTerrainSTLMesh(Mesh& mesh, const std::string& file_name) {
 
+        std::string file_name_to_be_used_here = file_name;
+
         if (!std::filesystem::exists(file_name)) {
-            std::cout << "Error: file \""<<file_name<<"\" not found!"<<std::endl;
-            return 1;
+            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            if (!std::filesystem::exists(file_name_with_current_path)) {
+                std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
+                return 1;
+            }
+            else{
+               file_name_to_be_used_here = file_name_with_current_path;
+            }
         }
 
         try {
 
-            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"Reading STL mesh ("<<file_name<<")..."<<std::endl;
-            stl_reader::StlMesh <real_number, unsigned int> stl_mesh (file_name);
+            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"Reading STL mesh ("<<file_name_to_be_used_here<<")..."<<std::endl;
+            stl_reader::StlMesh <real_number, unsigned int> stl_mesh (file_name_to_be_used_here);
 
             if (RAY_IT_ECHO_LEVEL > 1) {
                 for(size_t itri = 0; itri < stl_mesh.num_tris(); ++itri) {
@@ -285,7 +281,7 @@ public:
 
             for(int i=0; i<stl_mesh.num_vrts(); i++){
                 Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
-                mesh.mNodes.push_back(node);
+                mesh.mNodes.push_back(Node(i, node));
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -309,20 +305,14 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle(mesh);
-                t->mNodeIndices[0] = stl_mesh.tri_corner_ind(i, 0);
-                t->mNodeIndices[1] = stl_mesh.tri_corner_ind(i, 1);
-                t->mNodeIndices[2] = stl_mesh.tri_corner_ind(i, 2);
-                t->p0 = mesh.mNodes[t->mNodeIndices[0]];
-                t->p1 = mesh.mNodes[t->mNodeIndices[1]];
-                t->p2 = mesh.mNodes[t->mNodeIndices[2]];
-                t->SetEdgesAndPrecomputedValues();
-                t->mId = i;
+                Triangle* t = new Triangle(mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
 
                 mesh.mTriangles.push_back(t);
             }
 
-            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
+            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name_to_be_used_here<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
         } catch (std::exception& e) {
             std::cout<<e.what()<<std::endl;
@@ -335,48 +325,11 @@ public:
     bool ReadAntennas(std::vector<Antenna>& antennas, const json& input_parameters){
 
         for (auto& single_antenna_data : input_parameters["antennas_list"]) {
-            Antenna a;
-            a.mName = single_antenna_data["name"].get<std::string>();
-
-            auto coords = single_antenna_data["coordinates"].get<std::vector<real_number>>();
-            a.mCoordinates[0] = coords[0];
-            a.mCoordinates[1] = coords[1];
-            a.mCoordinates[2] = coords[2];
-
-            auto vector = single_antenna_data["orientation"]["front"].get<std::vector<real_number>>();
-            Vec3 vector_pointing_front;
-            vector_pointing_front[0] = vector[0];
-            vector_pointing_front[1] = vector[1];
-            vector_pointing_front[2] = vector[2];
-
-            vector = single_antenna_data["orientation"]["up"].get<std::vector<real_number>>();
-            Vec3 vector_pointing_up;
-            vector_pointing_up[0] = vector[0];
-            vector_pointing_up[1] = vector[1];
-            vector_pointing_up[2] = vector[2];
-
-            a.InitializeOrientation(vector_pointing_front, vector_pointing_up);
-
-            const std::string radiation_pattern_file_name = single_antenna_data["radiation_pattern_file_name"].get<std::string>();
-            std::string file_name_to_be_used_here = radiation_pattern_file_name;
-
-            if (!std::filesystem::exists(radiation_pattern_file_name)) {
-                const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
-                if (!std::filesystem::exists(file_name_with_current_path)) {
-                    std::cout << "Error: files \""<<radiation_pattern_file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
-                    return 1;
-                }
-                else{
-                file_name_to_be_used_here = file_name_with_current_path;
-                }
-            }
-
-            a.LoadRadiationPattern(file_name_to_be_used_here);
-
+            Antenna a = Antenna(single_antenna_data);
             antennas.push_back(a);
         }
         return 0;
     }
 
 };
-#endif /* defined(__Ray_it__InputsReader__) */
+#endif
