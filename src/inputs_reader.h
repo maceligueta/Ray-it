@@ -236,15 +236,23 @@ public:
 
     bool ReadTerrainSTLMesh(Mesh& mesh, const std::string& file_name) {
 
+        std::string file_name_to_be_used_here = file_name;
+
         if (!std::filesystem::exists(file_name)) {
-            std::cout << "Error: file \""<<file_name<<"\" not found!"<<std::endl;
-            return 1;
+            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            if (!std::filesystem::exists(file_name_with_current_path)) {
+                std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
+                return 1;
+            }
+            else{
+               file_name_to_be_used_here = file_name_with_current_path;
+            }
         }
 
         try {
 
-            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"Reading STL mesh ("<<file_name<<")..."<<std::endl;
-            stl_reader::StlMesh <real_number, unsigned int> stl_mesh (file_name);
+            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"Reading STL mesh ("<<file_name_to_be_used_here<<")..."<<std::endl;
+            stl_reader::StlMesh <real_number, unsigned int> stl_mesh (file_name_to_be_used_here);
 
             if (RAY_IT_ECHO_LEVEL > 1) {
                 for(size_t itri = 0; itri < stl_mesh.num_tris(); ++itri) {
@@ -304,7 +312,7 @@ public:
                 mesh.mTriangles.push_back(t);
             }
 
-            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
+            if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name_to_be_used_here<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
         } catch (std::exception& e) {
             std::cout<<e.what()<<std::endl;
