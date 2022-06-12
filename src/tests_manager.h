@@ -2,6 +2,7 @@
 #define __Ray_ittests_manager
 
 #include "../tests/test.h"
+#include <memory>
 
 void FillListOfTests(std::vector<std::shared_ptr<Test>>& list_of_tests);
 int RunAllTests();
