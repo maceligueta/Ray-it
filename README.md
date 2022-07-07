@@ -25,4 +25,15 @@ Go to the Ray-it folder and simply type
 ```Shell
 sh linux_compile_release.sh
 ```
-  
+
+
+## Run a case
+### Docker
+#### Build
+`docker build -t ray-it:latest .`
+#### Run
+`docker run -it ray-it`
+
+in the docker terminal:
+
+`./Ray-it_Release tests`
