@@ -14,18 +14,18 @@
                                      - - - - COMMENTS - - - -
 
 
-                          Dipole in free space, converted with 4nec2 on 29-Mar-06 22:08              
-                          	Dipole1                                                                   
-                          This is a plain dipole in free space, about the simplest                   
-                          antenna you're likely to model.                                            
-                          The frequency is 299.7+ MHz, at which a wavelength is one                  
-                          meter. The antenna dimensions, in meters, are therefore                    
-                          also the dimensions in wavelengths. Note that this antenna,                
-                          exactly a half wavelength long, is greater than a resonant                 
-                          length, as indicated by the positive feedpoint reactance.                  
-                          A resonant "half-wave" antenna is somewhat shorter than 0.5                
-                          wavelength, the amount depending on its diameter.                          
-                                                                                                     
+                          Dipole in free space, converted with 4nec2 on 29-Mar-06 22:08
+                          	Dipole1
+                          This is a plain dipole in free space, about the simplest
+                          antenna you're likely to model.
+                          The frequency is 299.7+ MHz, at which a wavelength is one
+                          meter. The antenna dimensions, in meters, are therefore
+                          also the dimensions in wavelengths. Note that this antenna,
+                          exactly a half wavelength long, is greater than a resonant
+                          length, as indicated by the positive feedpoint reactance.
+                          A resonant "half-wave" antenna is somewhat shorter than 0.5
+                          wavelength, the amount depending on its diameter.
+                                                 
 
 
 
@@ -123,7 +123,7 @@
       - FROM -    - TO -                          -  -  ADMITTANCE MATRIX ELEMENTS (MHOS)  -  -
       TAG  SEG.   TAG  SEG.             (ONE,ONE)                   (ONE,TWO)                   (TWO,TWO)
       NO.   NO.   NO.   NO.        REAL          IMAG.         REAL          IMAG.         REAL          IMAG.
-     9901    12     1     6     0.0000E+00    0.0000E+00    0.0000E+00    1.0000E+00    0.0000E+00    0.0000E+00           
+     9901    12     1     6     0.0000E+00    0.0000E+00    0.0000E+00    1.0000E+00    0.0000E+00    0.0000E+00
 
 
 
@@ -179,7 +179,7 @@
                                                 - - - RADIATION PATTERNS - - -
 
   - - ANGLES - -           - POWER GAINS -       - - - POLARIZATION - - -    - - - E(THETA) - - -    - - - E(PHI) - - -
-  THETA     PHI        VERT.   HOR.    TOTAL      AXIAL     TILT   SENSE     MAGNITUDE    PHASE      MAGNITUDE    PHASE 
+  THETA     PHI        VERT.   HOR.    TOTAL      AXIAL     TILT   SENSE     MAGNITUDE    PHASE      MAGNITUDE    PHASE
  DEGREES  DEGREES       DB      DB      DB        RATIO     DEG.              VOLTS/M    DEGREES      VOLTS/M    DEGREES
  -180.00     0.00    -157.28    2.16    2.16    0.00000   -90.00  LINEAR    6.77465E-07    28.75    6.34887E+01   -92.93
  -175.00     0.00    -157.31    2.16    2.16    0.00000    90.00  LINEAR    6.74887E-07   -88.24    6.34887E+01   -92.93
