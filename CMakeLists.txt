@@ -32,6 +32,10 @@ set(FILES_TO_BE_COMPILED
     src/jones.cpp
     tests/test.cpp
     external_libraries/timer.cpp
+    external_libraries/DxfLib/Src/DxfParser.cpp
+    external_libraries/DxfLib/Src/DxfDrawing.cpp
+    external_libraries/DxfLib/Src/DataSource.cpp
+    external_libraries/DxfLib/Src/LineExtractor.cpp
 )
 
 # add the executable
