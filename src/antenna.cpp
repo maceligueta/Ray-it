@@ -20,6 +20,8 @@ bool Antenna::InitializeFromParameters(const json& single_antenna_settings) {
     vector_pointing_up[1] = vector[1];
     vector_pointing_up[2] = vector[2];
 
+    mRadiationPattern = std::make_shared<RadiationPattern>();
+
     InitializeOrientation(vector_pointing_front, vector_pointing_up);
 
     const std::string radiation_pattern_file_name = single_antenna_settings["radiation_pattern_file_name"].get<std::string>();
@@ -65,25 +67,23 @@ inline void Antenna::InitializeOrientation(const Vec3& front_direction, const Ve
 }
 
 void Antenna::AddContributionOfAnotherAntenna(const Antenna& other) {
-    mRadiationPattern.mTotalPower += other.mRadiationPattern.mTotalPower;
-    for(size_t i=0; i<mRadiationPattern.mRadiationMap.size(); i++) {
-        for(size_t j=0; j<mRadiationPattern.mRadiationMap[i].size(); j++) {
+    mRadiationPattern->mTotalPower += other.mRadiationPattern->mTotalPower;
+    for(size_t i=0; i<mRadiationPattern->mRadiationMap.size(); i++) {
+        for(size_t j=0; j<mRadiationPattern->mRadiationMap[i].size(); j++) {
 
             //obtain direction in local and global coordinates
-            const SphericalCoordinates sp = mRadiationPattern.GetSphericalCoordinatesFromIndices(i, j);
-            const Vec3 my_local_dir = sp.ConvertIntoCartesianCoordinates();
-            const Vec3 global_dir = ConvertLocalDirIntoGlobalDir(my_local_dir);
-            const JonesVector global_previous_jones_vector = GetDirectionalJonesVector(global_dir);
-            const JonesVector global_jones_vector_to_be_added = other.GetDirectionalJonesVector(global_dir);
-            const JonesVector to_remove = other.GetDirectionalJonesVector(Vec3(0.0, 0.0, 1.0));
-            const JonesVector to_remove2 = GetDirectionalJonesVector(Vec3(0.0, 0.0, 1.0));
-            const OrientedJonesVector sum = OrientedJonesVector(global_previous_jones_vector) + OrientedJonesVector(global_jones_vector_to_be_added);
+            const SphericalCoordinates sp = mRadiationPattern->GetSphericalCoordinatesFromIndices(i, j);
+            const JonesVector global_previous_jones_vector = GetDirectionalJonesVector(sp);
+            const JonesVector global_jones_vector_to_be_added = other.GetDirectionalJonesVector(sp);
+            const OrientedJonesVector a = OrientedJonesVector(global_previous_jones_vector);
+            const OrientedJonesVector b = OrientedJonesVector(global_jones_vector_to_be_added);
+            const OrientedJonesVector sum = a + b;
             const JonesVector new_jones_vector = sum.ConvertToJonesVector(global_previous_jones_vector.mX, global_previous_jones_vector.mY);
-            mRadiationPattern.mRadiationMap[i][j][ETheta] = new_jones_vector.mWaves[0].mAmplitude;
-            mRadiationPattern.mRadiationMap[i][j][EThetaPhase] = new_jones_vector.mWaves[0].mPhase;
-            mRadiationPattern.mRadiationMap[i][j][EPhi] = new_jones_vector.mWaves[1].mAmplitude;
-            mRadiationPattern.mRadiationMap[i][j][EPhiPhase] = new_jones_vector.mWaves[1].mPhase;
+            mRadiationPattern->mRadiationMap[i][j][ETheta] = new_jones_vector.mWaves[0].mAmplitude;
+            mRadiationPattern->mRadiationMap[i][j][EThetaPhase] = new_jones_vector.mWaves[0].mPhase;
+            mRadiationPattern->mRadiationMap[i][j][EPhi] = new_jones_vector.mWaves[1].mAmplitude;
+            mRadiationPattern->mRadiationMap[i][j][EPhiPhase] = new_jones_vector.mWaves[1].mPhase;
         }
     }
-    mRadiationPattern.SetGainValuesAccordingToElectricFieldValues();
+    mRadiationPattern->SetGainValuesAccordingToElectricFieldValues();
 }

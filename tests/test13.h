@@ -81,8 +81,8 @@ class Test13: public Test {
         empty_antenna_vars.mCoordinates = triangle.mCenter;
         empty_antenna_vars.mName = "";
         empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
-        empty_antenna_vars.mVectorPointingUp = (triangle.mP0 - triangle.mCenter).Normalize();
-        empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, frequency, 10.0);
+        empty_antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+        empty_antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(0.0, frequency, 10.0);
         Antenna added_up_brdf = Antenna(empty_antenna_vars);
 
         //Compute main reflection direction
@@ -102,14 +102,9 @@ class Test13: public Test {
         AntennaVariables antenna_vars = AntennaVariables();
         antenna_vars.mCoordinates = triangle.mCenter;
         antenna_vars.mName = "";
-        antenna_vars.mVectorPointingFront = reflection_dir;
-        if(Vec3::DotProduct(reflection_dir, triangle.mNormal) < 1.0-EPSILON) {
-            antenna_vars.mVectorPointingUp = Vec3::CrossProduct(reflection_dir, Vec3::CrossProduct(triangle.mNormal, reflection_dir));
-        }
-        else {
-            antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-        }
-        antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(total_power_received_by_triangle, frequency, 10.0); // Here we are reflecting all the power received (not realistic)
+        antenna_vars.mVectorPointingFront = triangle.mNormal;
+        antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+        antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(total_power_received_by_triangle, frequency, 10.0); // Here we are reflecting all the power received (not realistic)
 
         Antenna brdf1 = Antenna(antenna_vars);
         brdf1.FillReflectedPatternInfoFromIncidentRay(unitary_vec_origin_to_triangle_center, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);

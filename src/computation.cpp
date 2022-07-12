@@ -42,8 +42,8 @@ void Computation::InitializeAllReflexionBrdfs() {
             empty_antenna_vars.mCoordinates = triangle.mCenter;
             empty_antenna_vars.mName = "";
             empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
-            empty_antenna_vars.mVectorPointingUp = (triangle.mP0 - triangle.mCenter).Normalize();
-            empty_antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(0.0, mAntennas[0].mRadiationPattern.mFrequency, 10.0);
+            empty_antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+            empty_antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(0.0, mAntennas[0].mRadiationPattern->mFrequency, 20.0);
             Antenna empty_brdf = Antenna(empty_antenna_vars);
             mBrdfAntennas[reflexion_number][i] = empty_brdf;
         }
@@ -104,7 +104,7 @@ void Computation::ComputeDirectIncidence() {
         Triangle& triangle = *mMesh.mTriangles[i];
         for(size_t antenna_index=0; antenna_index<mAntennas.size(); ++antenna_index) {
             Vec3 origin = mAntennas[antenna_index].mCoordinates;
-            const real_number measuring_dist_squared = mAntennas[antenna_index].mRadiationPattern.mMeasuringDistance * mAntennas[antenna_index].mRadiationPattern.mMeasuringDistance;
+            const real_number measuring_dist_squared = mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance * mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance;
             Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - origin[0], triangle.mCenter[1] - origin[1], triangle.mCenter[2] - origin[2]);
             Ray ray(origin, vec_origin_to_triangle_center);
             ray.Intersect(mMesh);
@@ -113,7 +113,7 @@ void Computation::ComputeDirectIncidence() {
             if(std::abs(ray.t_max - distance) < 1.0) {
                 const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
-                jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern.mMeasuringDistance);
+                jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance);
                 triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
 
                 if (mNumberOfReflexions) {
@@ -149,15 +149,9 @@ Antenna Computation::BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const
     AntennaVariables antenna_vars = AntennaVariables();
     antenna_vars.mCoordinates = triangle.mCenter;
     antenna_vars.mName = "";
-    antenna_vars.mVectorPointingFront = reflection_dir;
-
-    if(Vec3::DotProduct(reflection_dir, triangle.mNormal) < 1.0-EPSILON) {
-        antenna_vars.mVectorPointingUp = Vec3::CrossProduct(reflection_dir, Vec3::CrossProduct(triangle.mNormal, reflection_dir));
-    }
-    else {
-        antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-    }
-    antenna_vars.mRadiationPattern = BRDFDiffuseRadiationPattern(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency, 10.0);
+    antenna_vars.mVectorPointingFront = triangle.mNormal;
+    antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+    antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency, 20.0);
 
     Antenna brdf = Antenna(antenna_vars);
     brdf.FillReflectedPatternInfoFromIncidentRay(ray_direction, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
@@ -196,7 +190,7 @@ void Computation::ComputeEffectOfReflexions() {
                 for(int j = 0; j<(int)vector_of_contributing_brdfs.size(); j++) {
                     const Antenna& contributor_brdf = *vector_of_contributing_brdfs[j];
                     if(j == i) continue;
-                    if(contributor_brdf.mRadiationPattern.mTotalPower * 0.25 * M_1_PI < mMinimumIntensityToBeReflected) continue;
+                    if(contributor_brdf.mRadiationPattern->mTotalPower * 0.25 * M_1_PI < mMinimumIntensityToBeReflected) continue;
                     const int index_in_mesh = id_map_of_contributing_brdfs[j];
                     if(Vec3::DotProduct(triangle.mNormal, mMesh.mTriangles[index_in_mesh]->mNormal) < 0.0) continue;
 
@@ -209,7 +203,7 @@ void Computation::ComputeEffectOfReflexions() {
                     if(std::abs(ray.t_max - distance) < 1.0) {
                         const JonesVector jones_vector_at_origin = contributor_brdf.GetDirectionalJonesVector(vec_origin_to_triangle_center);
                         JonesVector jones_vector_at_destination = jones_vector_at_origin;
-                        jones_vector_at_destination.PropagateDistance(distance - contributor_brdf.mRadiationPattern.mMeasuringDistance);
+                        jones_vector_at_destination.PropagateDistance(distance - contributor_brdf.mRadiationPattern->mMeasuringDistance);
                         jones_vector_at_destination *= representation_factor;
                         triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
 
