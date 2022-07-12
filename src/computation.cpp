@@ -115,7 +115,6 @@ void Computation::ComputeDirectIncidence() {
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
                 jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern.mMeasuringDistance);
                 triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
-                triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
 
                 if (mNumberOfReflexions) {
                     const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
@@ -130,6 +129,8 @@ void Computation::ComputeDirectIncidence() {
                 }
             }
         }
+        triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
+
         thread_iteration_counter++;
         if(thread_iteration_counter == jump_between_progress_bar_update && RAY_IT_ECHO_LEVEL>0) {
             thread_iteration_counter = 0;
@@ -211,7 +212,6 @@ void Computation::ComputeEffectOfReflexions() {
                         jones_vector_at_destination.PropagateDistance(distance - contributor_brdf.mRadiationPattern.mMeasuringDistance);
                         jones_vector_at_destination *= representation_factor;
                         triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
-                        triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
 
                         if (mNumberOfReflexions > reflexion_number+1){
                             const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
@@ -226,6 +226,8 @@ void Computation::ComputeEffectOfReflexions() {
                         }
                     }
                 }
+                triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
+
                 thread_iteration_counter++;
                 if(thread_iteration_counter == jump_between_progress_bar_update && RAY_IT_ECHO_LEVEL>0) {
                     thread_iteration_counter = 0;
