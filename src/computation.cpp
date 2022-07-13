@@ -33,21 +33,31 @@ bool Computation::PrintResults(const json& parameters) {
 
 void Computation::InitializeAllReflexionBrdfs() {
     mBrdfAntennas.resize(mNumberOfReflexions);
-    for(int reflexion_number=0; reflexion_number<mNumberOfReflexions; reflexion_number++) {
-        mBrdfAntennas[reflexion_number].resize(mMesh.mTriangles.size());
-        //TODO: parallelize this?
-        for(size_t i=0; i<mMesh.mTriangles.size(); i++){
-            const Triangle& triangle = *mMesh.mTriangles[i];
-            AntennaVariables empty_antenna_vars = AntennaVariables();
-            empty_antenna_vars.mCoordinates = triangle.mCenter;
-            empty_antenna_vars.mName = "";
-            empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
-            empty_antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-            empty_antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(0.0, mAntennas[0].mRadiationPattern->mFrequency, 20.0);
-            Antenna empty_brdf = Antenna(empty_antenna_vars);
-            mBrdfAntennas[reflexion_number][i] = empty_brdf;
-        }
+    mIdMapOfContributingBrdfs.resize(mNumberOfReflexions);
+    mBrdfIndexForEachElement.resize(mMesh.mTriangles.size());
 
+    for(int reflexion_number=0; reflexion_number<mNumberOfReflexions; reflexion_number++) {
+        int count = 0;
+        mBrdfIndexForEachElement[reflexion_number].resize(mMesh.mTriangles.size());
+        for(size_t i=0; i<mMesh.mTriangles.size(); i++){
+            if(mVectorsOfActiveElements[reflexion_number][i]){
+                const Triangle& triangle = *mMesh.mTriangles[i];
+                AntennaVariables empty_antenna_vars = AntennaVariables();
+                empty_antenna_vars.mCoordinates = triangle.mCenter;
+                empty_antenna_vars.mName = "";
+                empty_antenna_vars.mVectorPointingFront = triangle.mNormal;
+                empty_antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
+                empty_antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(real_number(0.0), mAntennas[0].mRadiationPattern->mFrequency, real_number(20.0));
+                Antenna empty_brdf = Antenna(empty_antenna_vars);
+                mBrdfAntennas[reflexion_number].push_back(empty_brdf);
+                mIdMapOfContributingBrdfs[reflexion_number].push_back(i);
+                mBrdfIndexForEachElement[reflexion_number][i] = count;
+                count++;
+            }
+            else{
+                mBrdfIndexForEachElement[reflexion_number][i] = -1;
+            }
+        }
     }
 }
 
@@ -82,8 +92,8 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     mMinimumIntensityToBeReflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<double>());
 
     if(mNumberOfReflexions) {
-        InitializeAllReflexionBrdfs();
         InitializeVectorsOfActiveElements();
+        InitializeAllReflexionBrdfs();
     }
     return 0;
 }
@@ -117,15 +127,20 @@ void Computation::ComputeDirectIncidence() {
                 triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
 
                 if (mNumberOfReflexions) {
-                    const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
-                    #if RAY_IT_DEBUG
-                    if(power_of_ray_received_by_triangle < 0.0) {
-                        std::cout<<"Error: negative power!"<<std::endl;
+                    if(mVectorsOfActiveElements[0][i]){ //Only building and adding the brdf if this triangle will be used in the next reflexion
+                        const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
+                        #if RAY_IT_DEBUG
+                        if(power_of_ray_received_by_triangle < 0.0) {
+                            std::cout<<"Error: negative power!"<<std::endl;
+                        }
+                        #endif
+                        const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
+                        if(power_of_ray_reflected_by_triangle * 0.25 * M_1_PI > mMinimumIntensityToBeReflected) {
+                            Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
+                            int which_brdf_index = mBrdfIndexForEachElement[0][i];
+                            mBrdfAntennas[0][which_brdf_index] += brdf;
+                        }
                     }
-                    #endif
-                    const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
-                    Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
-                    mBrdfAntennas[0][i] += brdf;
                 }
             }
         }
@@ -151,7 +166,7 @@ Antenna Computation::BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const
     antenna_vars.mName = "";
     antenna_vars.mVectorPointingFront = triangle.mNormal;
     antenna_vars.mVectorPointingUp = triangle.mLocalAxis1;
-    antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency, 20.0);
+    antenna_vars.mRadiationPattern = std::make_shared<BRDFDiffuseRadiationPattern>(power_of_ray_reflected_by_triangle, jones_vector_at_destination.mWaves[0].mFrequency, real_number(20.0));
 
     Antenna brdf = Antenna(antenna_vars);
     brdf.FillReflectedPatternInfoFromIncidentRay(ray_direction, OrientedJonesVector(jones_vector_at_destination), triangle.mNormal);
@@ -169,12 +184,8 @@ void Computation::ComputeEffectOfReflexions() {
             if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\n\nComputing reflexion "<< reflexion_number + 1 << " with "<<mNumberOfActiveElements[reflexion_number]<<" rays to each triangle..."<<std::endl;
 
             std::vector<Antenna*> vector_of_contributing_brdfs;
-            std::vector<int> id_map_of_contributing_brdfs;
             for(int i = 0; i<(int)mBrdfAntennas[reflexion_number].size(); i++) {
-                if( mVectorsOfActiveElements[reflexion_number][i]) {
-                    vector_of_contributing_brdfs.push_back(&mBrdfAntennas[reflexion_number][i]);
-                    id_map_of_contributing_brdfs.push_back(i);
-                }
+                vector_of_contributing_brdfs.push_back(&mBrdfAntennas[reflexion_number][i]);
             }
             progressbar bar((int)mMesh.mTriangles.size());
             bar.set_done_char("*");
@@ -191,10 +202,12 @@ void Computation::ComputeEffectOfReflexions() {
                     const Antenna& contributor_brdf = *vector_of_contributing_brdfs[j];
                     if(j == i) continue;
                     if(contributor_brdf.mRadiationPattern->mTotalPower * 0.25 * M_1_PI < mMinimumIntensityToBeReflected) continue;
-                    const int index_in_mesh = id_map_of_contributing_brdfs[j];
-                    if(Vec3::DotProduct(triangle.mNormal, mMesh.mTriangles[index_in_mesh]->mNormal) < 0.0) continue;
+                    const size_t index_in_mesh = mIdMapOfContributingBrdfs[reflexion_number][j];
 
                     Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - mMesh.mTriangles[index_in_mesh]->mCenter[0], triangle.mCenter[1] - mMesh.mTriangles[index_in_mesh]->mCenter[1], triangle.mCenter[2] - mMesh.mTriangles[index_in_mesh]->mCenter[2]);
+                    if(Vec3::DotProduct(triangle.mNormal, vec_origin_to_triangle_center) > 0.0) continue; // It would mean that the ray comes from behind // OPTIONAL
+                    if(Vec3::DotProduct(mMesh.mTriangles[index_in_mesh]->mNormal, vec_origin_to_triangle_center) < 0.0) continue; // It would mean that the ray goes through the floor of the brdf
+
                     Ray ray(mMesh.mTriangles[index_in_mesh]->mCenter, vec_origin_to_triangle_center);
                     ray.Intersect(mMesh);
                     const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
@@ -208,15 +221,20 @@ void Computation::ComputeEffectOfReflexions() {
                         triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
 
                         if (mNumberOfReflexions > reflexion_number+1){
-                            const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
-                            #if RAY_IT_DEBUG
-                            if(power_of_ray_received_by_triangle < 0.0) {
-                                std::cout<<"Error: negative power!"<<std::endl;
+                            if(mVectorsOfActiveElements[reflexion_number+1][i]){ //Only building and adding the brdf if this triangle will be used in the next reflexion
+                                const real_number power_of_ray_received_by_triangle = jones_vector_at_destination.ComputeRMSPowerDensity() * triangle.ComputeArea() * Vec3::DotProduct(ray.mDirection * -1.0, triangle.mNormal);
+                                #if RAY_IT_DEBUG
+                                if(power_of_ray_received_by_triangle < 0.0) {
+                                    std::cout<<"Error: negative power!"<<std::endl;
+                                }
+                                #endif
+                                const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
+                                if(power_of_ray_reflected_by_triangle * 0.25 * M_1_PI > mMinimumIntensityToBeReflected) {
+                                    Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
+                                    int which_brdf_index = mBrdfIndexForEachElement[reflexion_number+1][i];
+                                    mBrdfAntennas[reflexion_number+1][which_brdf_index] += brdf;
+                                }
                             }
-                            #endif
-                            const real_number power_of_ray_reflected_by_triangle = mFresnelReflexionCoefficient * mFresnelReflexionCoefficient * power_of_ray_received_by_triangle; //squared coefficient because we are reflecting power
-                            Antenna brdf = BuildBrdfAtReflectionPoint(ray.mDirection, triangle, jones_vector_at_destination, power_of_ray_reflected_by_triangle);
-                            mBrdfAntennas[reflexion_number+1][i] += brdf;
                         }
                     }
                 }

@@ -36,6 +36,8 @@ public:
     real_number mMinimumIntensityToBeReflected;
     real_number mPortionOfElementsContributingToReflexion;
     std::vector<std::vector<bool>> mVectorsOfActiveElements;
+    std::vector<std::vector<int>> mBrdfIndexForEachElement;
+    std::vector<std::vector<size_t>> mIdMapOfContributingBrdfs;
 
 
     virtual bool Run(const json& parameters);
