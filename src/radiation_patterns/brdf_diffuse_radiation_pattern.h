@@ -33,7 +33,7 @@ class BRDFDiffuseRadiationPattern: public RadiationPattern {
     };
 
     real_number IntegratePatternSurfaceTotalPowerBasedOnGain() override {
-        #include "points_on_unit_sphere.h"
+        #include "../points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();
         const real_number weight_of_each_point = real_number(4.0 * M_PI / num_points);
@@ -56,7 +56,7 @@ class BRDFDiffuseRadiationPattern: public RadiationPattern {
     }
 
     real_number IntegratePatternSurfaceTotalPowerBasedOnElectricField() override {
-        #include "points_on_unit_sphere.h"
+        #include "../points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();
         const real_number weight_of_each_point = real_number(4.0 * M_PI / num_points);
