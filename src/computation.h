@@ -71,6 +71,7 @@ public:
     virtual bool BuildKdTree();
     virtual bool PrintResults(const json& parameters);
     virtual void ComputeEffectOfReflexions();
+    virtual void FillNextArrayWithEmptyBrdfs(const int reflexion_number);
     Antenna BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const Triangle& triangle, const JonesVector& jones_vector_at_destination, const real_number& power_of_ray_reflected_by_triangle);
 
 };
