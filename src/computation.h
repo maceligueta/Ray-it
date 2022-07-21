@@ -35,7 +35,8 @@ public:
     real_number mFresnelReflexionCoefficient;
     real_number mMinimumIntensityToBeReflected;
     real_number mPortionOfElementsContributingToReflexion;
-    std::vector<std::vector<bool>> mVectorsOfActiveElements;
+    std::vector<std::vector<int>> mBrdfIndexForEachElement;
+    std::vector<std::vector<size_t>> mIdMapOfContributingBrdfs;
 
 
     virtual bool Run(const json& parameters);
@@ -56,11 +57,12 @@ public:
         return rand() < p * (RAND_MAX+1.0);
     }
 
-    virtual void InitializeVectorsOfActiveElements();
 
     virtual bool RandomBoolAccordingToProbability(std::uniform_real_distribution<>& uniform_distribution_zero_to_one, const real_number prob) {  // probability between 0.0 and 1.0
         return uniform_distribution_zero_to_one(mRandomEngine) < prob;
     }
+
+    void GenerateMatrixOfLinesOfSight();
 
     virtual void InitializeAllReflexionBrdfs();
     virtual bool InitializeComputationOfRays(const json& computation_settings);
@@ -69,6 +71,7 @@ public:
     virtual bool BuildKdTree();
     virtual bool PrintResults(const json& parameters);
     virtual void ComputeEffectOfReflexions();
+    virtual void FillNextArrayWithEmptyBrdfs(const int reflexion_number);
     Antenna BuildBrdfAtReflectionPoint(const Vec3& ray_direction, const Triangle& triangle, const JonesVector& jones_vector_at_destination, const real_number& power_of_ray_reflected_by_triangle);
 
 };

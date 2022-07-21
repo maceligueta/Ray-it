@@ -27,19 +27,19 @@ class JonesVector {
         mWaves[1].PropagateDistance(distance);
     }
 
-    inline real_number ComputeElectricFieldIntensity() {
+    inline real_number ComputeElectricFieldIntensity() const {
         return std::sqrt(mWaves[0].mAmplitude*mWaves[0].mAmplitude + mWaves[1].mAmplitude*mWaves[1].mAmplitude);
     }
 
-    inline real_number ComputePowerDensity() {
+    inline real_number ComputePowerDensity() const {
         return (mWaves[0].mAmplitude*mWaves[0].mAmplitude + mWaves[1].mAmplitude*mWaves[1].mAmplitude) * INVERSE_OF_IMPEDANCE_OF_FREE_SPACE;
     }
 
-    inline real_number ComputeRMSPowerDensity() {
+    inline real_number ComputeRMSPowerDensity() const {
         return SQRT_OF_2_OVER_2 * ComputePowerDensity();
     }
 
-    inline real_number ComputeRMSElectricFieldIntensity() {
+    inline real_number ComputeRMSElectricFieldIntensity() const {
         return SQRT_OF_2_OVER_2 * ComputeElectricFieldIntensity();
     }
 
@@ -58,6 +58,10 @@ class JonesVector {
     }
 
     inline Wave& operator[](const int i) {
+        return mWaves[i];
+    }
+
+    inline const Wave& operator[](const int i) const {
         return mWaves[i];
     }
 };

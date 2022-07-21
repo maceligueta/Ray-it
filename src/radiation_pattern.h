@@ -92,8 +92,24 @@ class RadiationPattern {
         CheckConstantSpacingBetweenValues();
     }
 
-    inline SphericalCoordinates GetSphericalCoordinatesFromIndices(const size_t i, const size_t j) {
-        return SphericalCoordinates(real_number(-180.0) + i * mSeparationBetweenPhiValues, j * mSeparationBetweenThetaValues);
+    virtual inline real_number GetBottomLimitPhi() const {
+        return -180.0;
+    }
+
+    virtual inline real_number GetTopLimitPhi() const {
+        return 180.0;
+    }
+
+    virtual inline real_number GetBottomLimitTheta() const {
+        return 0.0;
+    }
+
+    virtual inline real_number GetTopLimitTheta() const {
+        return 180.0;
+    }
+
+    virtual inline SphericalCoordinates GetSphericalCoordinatesFromIndices(const size_t i, const size_t j) {
+        return SphericalCoordinates(GetBottomLimitPhi() + i * mSeparationBetweenPhiValues, j * mSeparationBetweenThetaValues);
     }
 
     inline real_number GetDirectionalGainValue(const Vec3& cartesian_direction) const {
@@ -107,24 +123,24 @@ class RadiationPattern {
     inline real_number GetDirectionalValue(const ValueType variable, const SphericalCoordinates& spherical_coordinates) const {
         // phi must come [-180, 180] while theta must be [0, 180]
         #ifdef RAY_IT_DEBUG
-        if(spherical_coordinates.mPhi < -180 ||  spherical_coordinates.mPhi > 180.0 || spherical_coordinates.mTheta < 0.0 || spherical_coordinates.mTheta > 180.0) {
+        if(spherical_coordinates.mPhi < GetBottomLimitPhi() ||  spherical_coordinates.mPhi > GetTopLimitPhi() || spherical_coordinates.mTheta < GetBottomLimitTheta() || spherical_coordinates.mTheta > GetTopLimitTheta()) {
             std::cout<<"WARNING: Spherical coordinates out of range when trying to get directional value in radiation pattern! \n";
         }
         #endif
         const real_number inv_sep_between_phi_vals = real_number(1.0) / mSeparationBetweenPhiValues;
         const real_number inv_sep_between_theta_vals = real_number(1.0) / mSeparationBetweenThetaValues;
-        int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + real_number(180.0)) * inv_sep_between_phi_vals);
-        if(std::abs((spherical_coordinates.mPhi + real_number(180.0)) - 360.0) < EPSILON) floor_phi_index--;
+        int floor_phi_index = (int)std::floor((spherical_coordinates.mPhi + GetTopLimitPhi()) * inv_sep_between_phi_vals);
+        if(std::abs((spherical_coordinates.mPhi + GetTopLimitPhi()) - (GetTopLimitPhi()-GetBottomLimitPhi())) < EPSILON) floor_phi_index--;
         int floor_theta_index = (int)std::floor(spherical_coordinates.mTheta * inv_sep_between_theta_vals);
-        if(std::abs(spherical_coordinates.mTheta - 180.0) < EPSILON) floor_theta_index--;
+        if(std::abs(spherical_coordinates.mTheta - GetTopLimitTheta()) < EPSILON) floor_theta_index--;
 
         const real_number p_0_0 = mRadiationMap[floor_phi_index][floor_theta_index][variable];
         const real_number p_1_0 = mRadiationMap[floor_phi_index + 1][floor_theta_index][variable];
         const real_number p_0_1 = mRadiationMap[floor_phi_index][floor_theta_index + 1][variable];
         const real_number p_1_1 = mRadiationMap[floor_phi_index + 1][floor_theta_index + 1][variable];
 
-        const real_number value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) * inv_sep_between_phi_vals * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
-        const real_number value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) * inv_sep_between_phi_vals * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - real_number(180.0)));
+        const real_number value_at_floor_theta = p_0_0 + (p_1_0 - p_0_0) * inv_sep_between_phi_vals * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - GetTopLimitPhi()));
+        const real_number value_at_floor_theta_plus_one = p_0_1 + (p_1_1 - p_0_1) * inv_sep_between_phi_vals * (spherical_coordinates.mPhi - (floor_phi_index*mSeparationBetweenPhiValues - GetTopLimitPhi()));
         const real_number final_value = value_at_floor_theta + (value_at_floor_theta_plus_one - value_at_floor_theta) * inv_sep_between_theta_vals * (spherical_coordinates.mTheta - floor_theta_index*mSeparationBetweenThetaValues);
         return final_value;
     }
@@ -367,11 +383,11 @@ class RadiationPattern {
         const real_number wave_number = real_number(2.0 * M_PI * mFrequency * INVERSE_OF_SPEED_OF_LIGHT);
 
         for(size_t i=0; i<mRadiationMap.size(); i++){
-            const real_number theta = (real_number(-180.0) + i * mSeparationBetweenPhiValues);
-            const real_number theta_rads = theta * DEG_TO_RAD_FACTOR;
+            const real_number phi = (GetBottomLimitPhi() + i * mSeparationBetweenPhiValues);
+            const real_number phi_rads = phi * DEG_TO_RAD_FACTOR;
             for(size_t j=0; j<mRadiationMap[i].size(); j++){
-                const real_number phi = j * mSeparationBetweenThetaValues;
-                const real_number phi_rads = phi * DEG_TO_RAD_FACTOR;
+                const real_number theta = j * mSeparationBetweenThetaValues;
+                const real_number theta_rads = theta * DEG_TO_RAD_FACTOR;
                 const Vec3 sub_reflected_dir = Vec3(cos(phi_rads)*sin(theta_rads), sin(phi_rads)*sin(theta_rads), cos(theta_rads));
 
                 Vec3 local_incident_s_axis = Vec3::CrossProduct(local_triangle_normal, -1.0 * local_incident_dir);
@@ -417,19 +433,22 @@ class RadiationPattern {
                 } else {
                     correction_factor = 0.0;
                 }
+
+                real_number sqrt_of_correction_factor = sqrt(correction_factor);
+
                 const real_number phase_phi_at_distance_one_meter = real_number(std::arg(E_phi) + wave_number * 1.0);
                 const real_number phase_theta_at_distance_one_meter = real_number(std::arg(E_theta) + wave_number * 1.0);
 
                 //PROJECT REFLECTED JONES TO THETA PHI UNITARY TANGENT VECTORS
-                mRadiationMap[i][j][EPhi] = E_phi * correction_factor;
-                mRadiationMap[i][j][ETheta] = E_theta * correction_factor;
+                mRadiationMap[i][j][EPhi] = E_phi * sqrt_of_correction_factor;
+                mRadiationMap[i][j][ETheta] = E_theta * sqrt_of_correction_factor;
                 mRadiationMap[i][j][EPhiPhase] = phase_phi_at_distance_one_meter;
                 mRadiationMap[i][j][EThetaPhase] = phase_theta_at_distance_one_meter;
             }
         }
     }
 
-    real_number IntegratePatternSurfaceTotalPowerBasedOnGain() {
+    virtual real_number IntegratePatternSurfaceTotalPowerBasedOnGain() {
         #include "points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();
@@ -447,7 +466,7 @@ class RadiationPattern {
         return integral;
     }
 
-    real_number IntegratePatternSurfaceTotalPowerBasedOnElectricField() {
+    virtual real_number IntegratePatternSurfaceTotalPowerBasedOnElectricField() {
         #include "points_on_unit_sphere.h"
         const auto& p = POINT_COORDINATES_ON_SPHERE;
         const size_t num_points = p.size();

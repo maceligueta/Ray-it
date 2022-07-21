@@ -20,6 +20,7 @@
 #include "../tests/test12.h"
 #include "../tests/test13.h"
 #include "../tests/test14.h"
+#include "../tests/test15.h"
 
 extern unsigned int RAY_IT_ECHO_LEVEL;
 
@@ -39,6 +40,7 @@ void FillListOfTests(std::vector<std::shared_ptr<Test>>& list_of_tests) {
     list_of_tests.push_back(std::make_shared<Test12>());
     list_of_tests.push_back(std::make_shared<Test13>());
     list_of_tests.push_back(std::make_shared<Test14>());
+    list_of_tests.push_back(std::make_shared<Test15>());
 }
 
 int RunAllTests() {

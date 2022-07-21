@@ -20,9 +20,9 @@ class Test10: public Test7 {
     bool Run() override{
         std::cout<<"Running test "<<std::setw(3)<<std::setfill('0')<<mNumber<<"... ";
 
-        RadiationPattern pattern;
-        Test7::FillRadiationPattern(pattern);
-        pattern.mTotalPower = 1.0;
+        std::shared_ptr<RadiationPattern> pattern = std::make_shared<RadiationPattern>();
+        Test7::FillRadiationPattern(*pattern);
+        pattern->mTotalPower = 1.0;
 
         AntennaVariables antenna_vars_1 = AntennaVariables();
         antenna_vars_1.mCoordinates = Vec3(0.0, 0.0, 0.0);

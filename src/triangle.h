@@ -10,6 +10,7 @@ class Mesh;
 
 class Triangle {
 public:
+    int mId;
     unsigned int mNodeIndices[3];
     Vec3 mP0, mP1, mP2;
     Vec3 mFirstSide, mSecondSide;
@@ -20,7 +21,8 @@ public:
     real_number mIntensity = 0.0;
     VecC3 mElectricField;
 
-    Triangle(const Node& n0, const Node& n1, const Node& n2){
+    Triangle(const int id, const Node& n0, const Node& n1, const Node& n2){
+        mId = id;
         mNodeIndices[0] = n0.mId;
         mNodeIndices[1] = n1.mId;
         mNodeIndices[2] = n2.mId;
