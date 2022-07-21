@@ -86,4 +86,5 @@ void Antenna::AddContributionOfAnotherAntenna(const Antenna& other) {
         }
     }
     mRadiationPattern->SetGainValuesAccordingToElectricFieldValues();
+    //auto integral = mRadiationPattern->IntegratePatternSurfaceTotalPowerBasedOnElectricField(); //TODO: remove this or make it in DEBUG mode
 }

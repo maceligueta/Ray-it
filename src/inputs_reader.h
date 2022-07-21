@@ -202,7 +202,7 @@ public:
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
-        std::vector<std::vector<Triangle*>> triangles_by_threads;
+        /*std::vector<std::vector<Triangle*>> triangles_by_threads;
         triangles_by_threads.resize(omp_get_max_threads());
         for (int i=0; i<omp_get_max_threads(); i++){
             triangles_by_threads[i].reserve( nrows * ncols * 2 / omp_get_max_threads());
@@ -225,6 +225,24 @@ public:
 
         for (int i=0; i<omp_get_max_threads(); i++){
             mesh.mTriangles.insert( mesh.mTriangles.end(), triangles_by_threads[i].begin(), triangles_by_threads[i].end() );
+        }*/
+        int count = 0;
+        for (int i=0; i<actual_rows_read-1; i++){
+            for(int j=0; j<actual_cols_read-1; j++){
+                Triangle* t = new Triangle( count,
+                                            mesh.mNodes[j + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
+                mesh.mTriangles.push_back(t);
+                count++;
+
+                Triangle* t2 = new Triangle( count,
+                                            mesh.mNodes[(j+1) + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+                mesh.mTriangles.push_back(t2);
+                count++;
+            }
         }
 
 
@@ -305,7 +323,8 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle(mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
+                Triangle* t = new Triangle( i,
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
                                             mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
                                             mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
 

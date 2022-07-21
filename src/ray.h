@@ -11,24 +11,23 @@ class Ray {
 
 public:
 	static size_t mCounter;
-    bool mTriangleFound = false;
-
     Vec3 mStartPosition;
     Vec3 mDirection;
-
     Vec3 mInvDirection;
     int mSign[3];
-
     real_number t_max;
     real_number u;
     real_number v;
-    Vec3 intersectionNormal;
-    real_number mPower = 0.0;
+    int mIdOfFirstCrossedTriangle = -1;
+
 
     Ray(const Vec3& mStartPosition, const Vec3& direction);
 
     Vec3 ComputeIntersectionPoint() const;
     bool Intersect(const Mesh& mesh);
+    inline bool ConfirmHitAtDistance(const real_number& distance, const real_number& tolerance) {
+        return std::abs(t_max - distance) < tolerance;
+    }
 };
 
 #endif

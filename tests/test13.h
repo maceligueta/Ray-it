@@ -38,7 +38,7 @@ class Test13: public Test {
         Node n1 = Node(1, 1.0, 0.0, 0.0);
         Node n2 = Node(2, 0.0, 1.0, 0.0);
 
-        Triangle triangle = Triangle(n0, n1, n2);
+        Triangle triangle = Triangle(0, n0, n1, n2);
 
         const Vec3 vec_origin_to_triangle_center = triangle.mCenter - origin;
         Vec3 unitary_vec_origin_to_triangle_center = vec_origin_to_triangle_center.Normalize();
@@ -115,7 +115,7 @@ class Test13: public Test {
         Node n4 = Node(4, 1.0, 0.0, 6.0);
         Node n5 = Node(5, 0.0, 1.0, 6.0);
 
-        Triangle triangle2 = Triangle(n3, n4, n5);
+        Triangle triangle2 = Triangle(1, n3, n4, n5);
 
         const Vec3 vec_triangle1_center_to_triangle2_center = triangle2.mCenter - triangle.mCenter;
         Vec3 unitary_vec_triangle1_center_to_triangle2_center = vec_triangle1_center_to_triangle2_center.Normalize();

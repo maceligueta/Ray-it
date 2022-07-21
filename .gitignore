@@ -36,3 +36,5 @@ cases/double_antenna_over_1km_square.post.res
 cases/double_antenna_over_1km_square.post.msh
 cases/simple_run.post.msh
 cases/simple_run.post.res
+cases/3faces.post.msh
+cases/3faces.post.res
