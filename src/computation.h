@@ -37,6 +37,7 @@ public:
     real_number mPortionOfElementsContributingToReflexion;
     std::vector<std::vector<int>> mBrdfIndexForEachElement;
     std::vector<std::vector<size_t>> mIdMapOfContributingBrdfs;
+    std::string mDiffractionModel = "None";
 
 
     virtual bool Run(const json& parameters);

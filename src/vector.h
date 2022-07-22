@@ -86,7 +86,7 @@ public:
         return Vector3(X()-other.X(), Y()-other.Y(), Z()-other.Z());
     };
 
-    inline Vector3 operator+=(const Vector3 &other){
+    inline Vector3& operator+=(const Vector3 &other){
         X() += other.X(), Y()+= other.Y(), Z() += other.Z();
         return *this;
     };
@@ -97,6 +97,13 @@ public:
 
     inline Vector3 operator*(const T scale) const{
         return Vector3(X()*scale, Y()*scale, Z()*scale);
+    };
+
+    inline Vector3& operator*= (const real_number& multiplier) {
+        X() *= multiplier;
+        Y() *= multiplier;
+        Z() *= multiplier;
+        return *this;
     };
 
     inline T operator[](const int axis) const{

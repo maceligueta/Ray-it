@@ -1,6 +1,7 @@
 #include "computation.h"
 
 #include "../external_libraries/MeshPlaneIntersect.hpp"
+#include "bullington.h"
 
 extern unsigned int RAY_IT_ECHO_LEVEL;
 
@@ -87,6 +88,8 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     if(mNumberOfReflexions) {
         InitializeAllReflexionBrdfs();
     }
+    mDiffractionModel = computation_settings["diffraction_model"].get<std::string>();
+
     return 0;
 }
 
@@ -110,7 +113,6 @@ void Computation::ComputeDirectIncidence() {
         Triangle& triangle = *mMesh.mTriangles[i];
         for(size_t antenna_index=0; antenna_index<mAntennas.size(); ++antenna_index) {
             Vec3 origin = mAntennas[antenna_index].mCoordinates;
-            const real_number measuring_dist_squared = mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance * mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance;
             Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - origin[0], triangle.mCenter[1] - origin[1], triangle.mCenter[2] - origin[2]);
             Ray ray(origin, vec_origin_to_triangle_center);
             ray.Intersect(mMesh);
@@ -253,7 +255,9 @@ void Computation::ComputeEffectOfReflexions() {
 }
 
 void Computation::ComputeDiffraction() {
+    if(mDiffractionModel != "Bullington") return;
 
+    if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nComputing effect of diffraction ("<<mDiffractionModel<<")..."<<std::endl;
     typedef MeshPlaneIntersect<real_number, int> Intersector;
     std::vector<Intersector::Vec3D> vertices;
     for(size_t i = 0; i<mMesh.mNodes.size(); i++) {
@@ -267,43 +271,74 @@ void Computation::ComputeDiffraction() {
         faces.push_back(Intersector::Face{ {a, b, c} });
     }
 
-    Intersector::Mesh mesh(vertices, faces);
+    Intersector::Mesh intersectable_mesh(vertices, faces);
 
-    //#pragma omp parallel for schedule(dynamic, 50)
+    progressbar bar((int)mMesh.mTriangles.size());
+    bar.set_done_char("*");
+
+    #pragma omp parallel
+    {
+    int thread_iteration_counter = 0;
+    const size_t jump_between_progress_bar_update = mMesh.mTriangles.size() / 100;
+
+    #pragma omp for schedule(dynamic, 50)
     for(int i = 0; i<(int)mMesh.mTriangles.size(); i++) {
         Triangle& triangle = *mMesh.mTriangles[i];
         for(size_t antenna_index=0; antenna_index<mAntennas.size(); ++antenna_index) {
-            const auto& antenna_coords = mAntennas[antenna_index].mCoordinates;
-            Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - antenna_coords[0], triangle.mCenter[1] - antenna_coords[1], triangle.mCenter[2] - antenna_coords[2]);
+            const auto& origin = mAntennas[antenna_index].mCoordinates;
+            Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - origin[0], triangle.mCenter[1] - origin[1], triangle.mCenter[2] - origin[2]);
             Vec3 horizontal_dir = Vec3(vec_origin_to_triangle_center[0], vec_origin_to_triangle_center[1], 0.0);
             Intersector::Plane plane;
-            plane.origin = {{antenna_coords[0], antenna_coords[1], antenna_coords[2]}};
+            plane.origin = {{origin[0], origin[1], origin[2]}};
             Vec3 normal = Vec3::CrossProduct(vec_origin_to_triangle_center, Vec3(0, 0, 1));
             plane.normal = {{normal[0], normal[1], normal[2]}};
-            auto result = mesh.Intersect(plane);
+            const auto& result = intersectable_mesh.Intersect(plane);
             std::vector<real_number> heights;
             std::vector<real_number> distances;
-            heights.push_back(antenna_coords[2]);
+            heights.push_back(origin[2]);
             distances.push_back(0.0);
             for(int j=0; j<result[0].points.size(); j++) {
                 const auto& result_coords = result[0].points[j];
-                Vec3 origin_to_profile_point(result_coords[0] - antenna_coords[0], result_coords[1] - antenna_coords[1], result_coords[2] - antenna_coords[2]);
+                Vec3 origin_to_profile_point(result_coords[0] - origin[0], result_coords[1] - origin[1], result_coords[2] - origin[2]);
                 Vec3 target_to_profile_point(result_coords[0] - triangle.mCenter[0], result_coords[1] - triangle.mCenter[1], result_coords[2] - triangle.mCenter[2]);
                 if(Vec3::DotProduct(horizontal_dir, origin_to_profile_point)>0.0 && Vec3::DotProduct(horizontal_dir, target_to_profile_point)<0.0) {
                     heights.push_back(result_coords[2]);
-                    const real_number horizontal_squared_distance = (result_coords[0]-antenna_coords[0])*(result_coords[0]-antenna_coords[0]) + (result_coords[1]-antenna_coords[1])*(result_coords[1]-antenna_coords[1]);
+                    const real_number horizontal_squared_distance = (result_coords[0]-origin[0])*(result_coords[0]-origin[0]) + (result_coords[1]-origin[1])*(result_coords[1]-origin[1]);
                     distances.push_back(sqrt(horizontal_squared_distance));
                 }
             }
             heights.push_back(triangle.mCenter[2]);
-            distances.push_back(sqrt((triangle.mCenter[0]-antenna_coords[0])*(triangle.mCenter[0]-antenna_coords[0]) + (triangle.mCenter[1]-antenna_coords[1])*(triangle.mCenter[1]-antenna_coords[1])));
+            distances.push_back(sqrt((triangle.mCenter[0]-origin[0])*(triangle.mCenter[0]-origin[0]) + (triangle.mCenter[1]-origin[1])*(triangle.mCenter[1]-origin[1])));
+            real_number db_loss_wrt_free_space = 0.0;
+            real_number slope_from_transmitter = 0.0;
+            BullingtonDiffraction::ComputeBullington(distances, heights, mAntennas[antenna_index].mRadiationPattern->mFrequency, db_loss_wrt_free_space, slope_from_transmitter);
             /*std::cout<<"\n";
             for(int j=0; j<heights.size(); j++) {
                 std::cout<<heights[j]<<"  ";
                 std::cout<<distances[j]<<"  ";
             }
             std::cout<<"\n";*/
+            if(triangle.mIntensity<EPSILON) {
+                const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
+                const real_number distance = std::sqrt(distance_squared);
+                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
+                JonesVector jones_vector_at_destination = jones_vector_at_origin;
+                jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance);
+                triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
+            }
+            triangle.mElectricField *= std::pow(real_number(10.0), -db_loss_wrt_free_space * real_number(0.05));
+            triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
         }
+
+        thread_iteration_counter++;
+        if(thread_iteration_counter == jump_between_progress_bar_update && RAY_IT_ECHO_LEVEL>0) {
+            thread_iteration_counter = 0;
+            #pragma omp critical
+            {
+            bar.update((int)jump_between_progress_bar_update);
+            }
+        }
+    }
     }
 }
 
