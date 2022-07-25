@@ -71,5 +71,12 @@ public:
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "  done!"<<std::endl;
     }
 
+    void PrintProfileInXYZFormat(const std::vector<Vec3> profile, const std::string filename) {
+        std::ofstream profile_output(CURRENT_WORKING_DIR + "/" + filename + ".xyz");
+        for(int i=0; i<profile.size(); i++) {
+            profile_output<<profile[i][0]<<"    "<<profile[i][1]<<"    "<<profile[i][2]<<"\n";
+        }
+    }
+
 };
 #endif

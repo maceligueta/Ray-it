@@ -146,4 +146,9 @@ inline std::complex<real_number> DotProduct(const Vec3 vector, const VecC3& comp
     return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
 }
 
+static real_number Vec3SquareDistance(const Vec3& a, const Vec3& b) {
+    const Vec3 vec = b - a;
+    return Vec3::DotProduct(vec, vec);
+}
+
 #endif

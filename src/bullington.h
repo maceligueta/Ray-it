@@ -46,7 +46,7 @@ void ComputeBullington(std::vector<real_number> distances,
 
     real_number l_uc;
 
-    if(s_tim < slope_end_to_end) {
+    if(s_tim < slope_end_to_end) { // LOS - Direct sight
         real_number v_max = std::numeric_limits<real_number>::lowest();
         for(size_t i=1; i<len-1; i++) {
             const real_number aux = distances[i] * (d_end_to_end_distance - distances[i]);
@@ -59,7 +59,7 @@ void ComputeBullington(std::vector<real_number> distances,
         }
         l_uc = ComputeJAccordingToEq31(v_max);
     }
-    else {
+    else { // No LOS
         real_number s_rim = std::numeric_limits<real_number>::lowest();
         for(size_t i=1; i<len-1; i++) {
             const real_number aux = distances[i] * (d_end_to_end_distance - distances[i]);

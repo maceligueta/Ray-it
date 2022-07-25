@@ -2,6 +2,7 @@
 
 #include "../external_libraries/MeshPlaneIntersect.hpp"
 #include "bullington.h"
+#include <stdlib.h>
 
 extern unsigned int RAY_IT_ECHO_LEVEL;
 
@@ -293,35 +294,49 @@ void Computation::ComputeDiffraction() {
             Vec3 normal = Vec3::CrossProduct(vec_origin_to_triangle_center, Vec3(0, 0, 1));
             plane.normal = {{normal[0], normal[1], normal[2]}};
             const auto& result = intersectable_mesh.Intersect(plane);
-            std::vector<real_number> heights;
-            std::vector<real_number> distances;
-            heights.push_back(origin[2]);
-            distances.push_back(0.0);
-            for(int j=0; j<result[0].points.size(); j++) {
-                const auto& result_coords = result[0].points[j];
-                Vec3 origin_to_profile_point(result_coords[0] - origin[0], result_coords[1] - origin[1], result_coords[2] - origin[2]);
-                Vec3 target_to_profile_point(result_coords[0] - triangle.mCenter[0], result_coords[1] - triangle.mCenter[1], result_coords[2] - triangle.mCenter[2]);
-                if(Vec3::DotProduct(horizontal_dir, origin_to_profile_point)>0.0 && Vec3::DotProduct(horizontal_dir, target_to_profile_point)<0.0) {
-                    heights.push_back(result_coords[2]);
-                    const real_number horizontal_squared_distance = (result_coords[0]-origin[0])*(result_coords[0]-origin[0]) + (result_coords[1]-origin[1])*(result_coords[1]-origin[1]);
-                    distances.push_back(sqrt(horizontal_squared_distance));
+
+            std::vector<Vec3> profile;
+            profile.push_back(origin);
+            for(int k=0; k<result.size(); k++){
+                for(int j=0; j<result[k].points.size(); j++) {
+                    const auto& result_coords = result[k].points[j];
+                    Vec3 origin_to_profile_point(result_coords[0] - origin[0], result_coords[1] - origin[1], result_coords[2] - origin[2]);
+                    Vec3 target_to_profile_point(result_coords[0] - triangle.mCenter[0], result_coords[1] - triangle.mCenter[1], result_coords[2] - triangle.mCenter[2]);
+                    if(Vec3::DotProduct(horizontal_dir, origin_to_profile_point)>0.0 && Vec3::DotProduct(horizontal_dir, target_to_profile_point)<0.0) {
+                        profile.push_back(Vec3(result_coords[0],result_coords[1], result_coords[2]));
+
+                    }
                 }
             }
-            heights.push_back(triangle.mCenter[2]);
-            distances.push_back(sqrt((triangle.mCenter[0]-origin[0])*(triangle.mCenter[0]-origin[0]) + (triangle.mCenter[1]-origin[1])*(triangle.mCenter[1]-origin[1])));
+            profile.push_back(triangle.mCenter);
+            std::sort(profile.begin(), profile.end(), [origin](const Vec3& lhs, const Vec3& rhs){ return Vec3SquareDistance(origin, lhs) < Vec3SquareDistance(origin, rhs); });
+            //OutputsWriter().PrintProfileInXYZFormat(profile, "profile_"+std::to_string(i));
+
+            std::vector<real_number> heights;
+            std::vector<real_number> distances;
+            for(int k=0; k<profile.size(); k++){
+                heights.push_back(profile[k][2]);
+                const real_number horizontal_squared_distance = (profile[k][0]-origin[0])*(profile[k][0]-origin[0]) + (profile[k][1]-origin[1])*(profile[k][1]-origin[1]);
+                distances.push_back(sqrt(horizontal_squared_distance));
+            }
+
+            #if RAY_IT_DEBUG
+            for(int l=0; l<distances.size()-1; l++){
+                if(distances[l+1]<distances[l]){
+                    std::cout<<"\nWARNNIG: profile distances not in ascending order! \n";
+                    break;
+                }
+            }
+            #endif
+
             real_number db_loss_wrt_free_space = 0.0;
             real_number slope_from_transmitter = 0.0;
             BullingtonDiffraction::ComputeBullington(distances, heights, mAntennas[antenna_index].mRadiationPattern->mFrequency, db_loss_wrt_free_space, slope_from_transmitter);
-            /*std::cout<<"\n";
-            for(int j=0; j<heights.size(); j++) {
-                std::cout<<heights[j]<<"  ";
-                std::cout<<distances[j]<<"  ";
-            }
-            std::cout<<"\n";*/
+
             if(triangle.mIntensity<EPSILON) {
                 const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
                 const real_number distance = std::sqrt(distance_squared);
-                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
+                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center); //TODO: questionable, what is the best direction? SHould we use slope_from_transmitter ??
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
                 jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance);
                 triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);
