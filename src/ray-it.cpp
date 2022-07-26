@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 #include <omp.h>
+#include <chrono>
 
 #include "constants.h"
 #include "time.h"
@@ -17,6 +18,7 @@ using namespace nlohmann;
 extern unsigned int RAY_IT_ECHO_LEVEL;
 
 int main(int argc, char *argv[]) {
+
 
     int test_number = 0;
 
@@ -71,20 +73,47 @@ int main(int argc, char *argv[]) {
         else {
             RunTest(test_number);
         }
+        total_timer.stop();
+        std::cout << "\nTotal time: " << total_timer.getElapsedTimeInSec() << " s." << std::endl;
+        std::cout << "Process finished normally."<<std::endl;
     } else {
+
         parameters_filename = argv[1];
 
         json parameters;
         InputsReader reader;
         CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
+
+
         if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
+
+
+        #pragma warning(disable : 4996)
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+        std::tm now_tm = *std::localtime(&now_c);
+        char time_string [80];
+        strftime (time_string, 80, "%F@%H.%M.%S", &now_tm);
+        const std::string log_out_filename = CURRENT_WORKING_DIR + "/" + "run_log_"+ time_string + ".out";
+        std::ofstream log_out(log_out_filename);
+        log_out<<"--- Log file for Ray-it --- \n\n";
+        strftime (time_string, 80, "%F_%T", &now_tm);
+        log_out<<"Computation started: "<<time_string<<"\n\n";
+        log_out<<"With these input parameters: \n";
+        log_out<<parameters.dump(4)<<"\n"<<std::flush;
+
 
         Computation job;
         if( job.Run(parameters) ) return 1;
+
+
+        total_timer.stop();
+        std::cout << "\nTotal time: " << total_timer.getElapsedTimeInSec() << " s.\n";
+        std::cout << "Process finished normally and log was printed in file "<<log_out_filename<<std::endl;
+        log_out<<"\nComputation ended: "<<time_string<<"\n";
+        log_out << "\nTotal time: " << total_timer.getElapsedTimeInSec() << " s." << std::endl;
     }
 
-    total_timer.stop();
-    std::cout << "\nTotal time: " << total_timer.getElapsedTimeInSec() << " s." << std::endl;
-    std::cout << "Process finished normally."<<std::endl;
+
     return 0;
 }
