@@ -2,6 +2,8 @@
 #include <vector>
 #include <limits>
 
+// EQUATIONS EXTRACTED FROM ITU-R 526-14
+
 namespace BullingtonDiffraction {
 
 real_number ComputeJAccordingToEq31(const real_number v) {
@@ -28,55 +30,56 @@ void ComputeBullington(std::vector<real_number> distances,
         distances[i] *= 0.001;
     }
 
-    const real_number h_ts = heights[0];
-    const real_number h_rs = heights[len-1];
+    const real_number height_transmitter = heights[0];
+    const real_number height_receiver = heights[len-1];
 
-    real_number s_tim = std::numeric_limits<real_number>::lowest();
+    real_number max_slope_from_transmitter = std::numeric_limits<real_number>::lowest();
 
     for(size_t i=1; i<len-1; i++) {
-		const real_number aux = (heights[i] + 500.0 * c_e * distances[i] * (d_end_to_end_distance - distances[i]) - h_ts) / distances[i];
-        if(aux > s_tim) {
-            s_tim = aux;
+		const real_number aux = (heights[i] + 500.0 * c_e * distances[i] * (d_end_to_end_distance - distances[i]) - height_transmitter) / distances[i];
+        if(aux > max_slope_from_transmitter) {
+            max_slope_from_transmitter = aux;
         }
 	}
 
+    const real_number slope_end_to_end = (height_receiver - height_transmitter) / d_end_to_end_distance;
+    size_t point_at_which_v_is_computed = -1;
 
-
-    const real_number slope_end_to_end = (h_rs - h_ts) / d_end_to_end_distance;
-
-    real_number l_uc;
-
-    if(s_tim < slope_end_to_end) { // LOS - Direct sight
+    if(max_slope_from_transmitter < slope_end_to_end) { // LOS - Direct sight
         real_number v_max = std::numeric_limits<real_number>::lowest();
         for(size_t i=1; i<len-1; i++) {
             const real_number aux = distances[i] * (d_end_to_end_distance - distances[i]);
             real_number value = heights[i] + 500.0 * c_e * aux;
-            value -= (h_ts * (d_end_to_end_distance - distances[i]) + h_rs * distances[i]) / d_end_to_end_distance;
+            value -= (height_transmitter * (d_end_to_end_distance - distances[i]) + height_receiver * distances[i]) / d_end_to_end_distance;
             value *= sqrt(0.002 * d_end_to_end_distance / (wave_length * aux));
             if(value > v_max) {
                 v_max = value;
+                point_at_which_v_is_computed = i;
             }
         }
-        l_uc = ComputeJAccordingToEq31(v_max);
+        db_loss_wrt_free_space = ComputeJAccordingToEq31(v_max);
+        if(db_loss_wrt_free_space > EPSILON) {
+            slope_from_transmitter = (heights[point_at_which_v_is_computed]-heights[0]) / distances[point_at_which_v_is_computed];
+        } else {
+            slope_from_transmitter = slope_end_to_end;
+        }
     }
     else { // No LOS
-        real_number s_rim = std::numeric_limits<real_number>::lowest();
+        real_number max_slope_to_receiver = std::numeric_limits<real_number>::lowest();
         for(size_t i=1; i<len-1; i++) {
             const real_number aux = distances[i] * (d_end_to_end_distance - distances[i]);
-            real_number value = heights[i] + 500.0 * c_e * aux - h_rs;
+            real_number value = heights[i] + 500.0 * c_e * aux - height_receiver;
             value /= d_end_to_end_distance - distances[i];
-            if(value > s_rim) {
-                s_rim = value;
+            if(value > max_slope_to_receiver) {
+                max_slope_to_receiver = value;
             }
         }
-        const real_number d_b = (h_rs - h_ts + s_rim * d_end_to_end_distance) / (s_tim + s_rim);
-        real_number v_b = (h_ts + s_tim * d_b - (h_ts * (d_end_to_end_distance - d_b) + h_rs * d_b) / d_end_to_end_distance);
+        const real_number d_b = (height_receiver - height_transmitter + max_slope_to_receiver * d_end_to_end_distance) / (max_slope_from_transmitter + max_slope_to_receiver);
+        real_number v_b = (height_transmitter + max_slope_from_transmitter * d_b - (height_transmitter * (d_end_to_end_distance - d_b) + height_receiver * d_b) / d_end_to_end_distance);
         v_b *= sqrt(0.002 * d_end_to_end_distance / (wave_length * d_b * (d_end_to_end_distance - d_b)));
-        l_uc = ComputeJAccordingToEq31(v_b);
+        db_loss_wrt_free_space = ComputeJAccordingToEq31(v_b);
+        slope_from_transmitter = max_slope_from_transmitter;
     }
-
-    slope_from_transmitter = s_tim;
-    db_loss_wrt_free_space = l_uc;
 }
 
 

@@ -38,5 +38,6 @@ cases/simple_run.post.msh
 cases/simple_run.post.res
 cases/3faces.post.msh
 cases/3faces.post.res
-cases/simple_run_with_bullington.post.res
-cases/simple_run_with_bullington.post.msh
+cases/bullington.post.res
+cases/bullington.post.msh
+cases/run_log_*.out

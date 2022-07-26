@@ -335,8 +335,9 @@ void Computation::ComputeDiffraction() {
 
             if(triangle.mIntensity<EPSILON) {
                 const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
-                const real_number distance = std::sqrt(distance_squared);
-                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center); //TODO: questionable, what is the best direction? SHould we use slope_from_transmitter ??
+                const real_number distance = std::sqrt(distance_squared); // TODO: QUESTIONABLE, the distance travelled by the wave is not the direct line. However, Bullington's estimation is far from correct either.
+                const Vec3 transmitter_to_edge_direction = horizontal_dir.Normalize() + Vec3(0.0, 0.0, slope_from_transmitter);
+                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(transmitter_to_edge_direction);
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
                 jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance);
                 triangle.ProjectJonesVectorToTriangleAxesAndAdd(jones_vector_at_destination);

@@ -13,16 +13,16 @@ class ComputationForTest16: public Computation {
     bool Run(const json& parameters) override {
         Computation::Run(parameters);
 
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[50]->mIntensity, 9.20018e-05)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[100]->mIntensity, 8.18296e-05)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[150]->mIntensity, 8.89053e-05)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[200]->mIntensity, 0.000263729)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[250]->mIntensity, 8.40223e-05)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[300]->mIntensity, 0.000723068)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[350]->mIntensity, 0.00213076)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[400]->mIntensity, 0.0033753)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[450]->mIntensity, 0.00183044)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[500]->mIntensity, 9.64986e-05)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[50]->mIntensity, 0.000311092)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[100]->mIntensity, 0.000165445)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[150]->mIntensity, 0.000131197)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[200]->mIntensity, 0.00011165)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[250]->mIntensity, 9.4995e-05)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[300]->mIntensity, 0.000439704)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[350]->mIntensity, 0.000611452)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[400]->mIntensity, 0.000312998)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[450]->mIntensity, 0.000212023)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[500]->mIntensity, 9.79505e-05)) return 1;
         return 0;
     }
 };
@@ -39,7 +39,7 @@ class Test16: public Test {
 
         json parameters;
 
-        std::string parameters_filename  = "cases/simple_run_with_bullington.json";
+        std::string parameters_filename  = "cases/bullington.json";
         InputsReader reader;
         CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
         if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
