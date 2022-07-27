@@ -19,7 +19,8 @@ public:
     Box mBoundingBox;
     Vec3 mCenter;
     real_number mIntensity = 0.0;
-    VecC3 mElectricField;
+    VecC3 mElectricFieldWithoutDiffraction;
+    VecC3 mElectricFieldDueToDiffraction;
 
     Triangle(const int id, const Node& n0, const Node& n1, const Node& n2){
         mId = id;
@@ -40,7 +41,8 @@ public:
         mLocalAxis1 = Vec3::Normalize(mFirstSide);
         mLocalAxis2 = Vec3::Normalize(Vec3::CrossProduct(mNormal, mFirstSide));
         mCenter = ComputeCenter();
-        mElectricField = VecC3(0.0, 0.0, 0.0);
+        mElectricFieldWithoutDiffraction = VecC3(0.0, 0.0, 0.0);
+        mElectricFieldDueToDiffraction = VecC3(0.0, 0.0, 0.0);
     }
 
     Vec3 ComputeCenter() {
@@ -72,13 +74,19 @@ public:
 
     void ProjectJonesVectorToTriangleAxesAndAdd(JonesVector& jones_vector) {
         OrientedJonesVector oriented_jones_vector(jones_vector);
-        mElectricField[0] += oriented_jones_vector * mLocalAxis1;
-        mElectricField[1] += oriented_jones_vector * mLocalAxis2;
-        mElectricField[2] += oriented_jones_vector * mNormal;
+        mElectricFieldWithoutDiffraction[0] += oriented_jones_vector * mLocalAxis1;
+        mElectricFieldWithoutDiffraction[1] += oriented_jones_vector * mLocalAxis2;
+        mElectricFieldWithoutDiffraction[2] += oriented_jones_vector * mNormal;
+    }
+
+    VecC3 ProjectJonesVectorToTriangleAxes(JonesVector& jones_vector) {
+        OrientedJonesVector oriented_jones_vector(jones_vector);
+        return VecC3(oriented_jones_vector * mLocalAxis1, oriented_jones_vector * mLocalAxis2, oriented_jones_vector * mNormal);
     }
 
     real_number ComputeRMSElectricFieldIntensityFromLocalAxesComponents() const {
-        return SQRT_OF_2_OVER_2 * std::sqrt(abs(mElectricField[0])*abs(mElectricField[0]) + abs(mElectricField[1])*abs(mElectricField[1]) + abs(mElectricField[2])*abs(mElectricField[2]));
+        VecC3 total_electric_field = mElectricFieldWithoutDiffraction + mElectricFieldDueToDiffraction;
+        return SQRT_OF_2_OVER_2 * std::sqrt(abs(total_electric_field[0])*abs(total_electric_field[0]) + abs(total_electric_field[1])*abs(total_electric_field[1]) + abs(total_electric_field[2])*abs(total_electric_field[2]));
     }
 
 
