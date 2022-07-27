@@ -13,14 +13,14 @@ class ComputationForTest15: public Computation {
     bool Run(const json& parameters) override {
         Computation::Run(parameters);
 
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[0]->mIntensity, 0.24699)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[1]->mIntensity, 0.167739)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[2]->mIntensity, 2.97226)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[3]->mIntensity, 3.31896)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[4]->mIntensity, 0.197424)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[5]->mIntensity, 0.164267)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[6]->mIntensity, 7.22847)) return 1;
-        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[7]->mIntensity, 4.89339)) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[0]->mIntensity, real_number(0.24699))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[1]->mIntensity, real_number(0.167739))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[2]->mIntensity, real_number(2.97226))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[3]->mIntensity, real_number(3.31896))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[4]->mIntensity, real_number(0.197424))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[5]->mIntensity, real_number(0.164267))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[6]->mIntensity, real_number(7.22847))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[7]->mIntensity, real_number(4.89339))) return 1;
         return 0;
     }
 };

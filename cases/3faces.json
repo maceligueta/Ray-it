@@ -23,7 +23,8 @@
         },
         "Fresnel_reflexion_coefficient": 0.2,
         "minimum_intensity_to_be_reflected": 1.0e-6,
-        "distance_between_elements_ignored_by_rays": 0.1
+        "distance_between_elements_ignored_by_rays": 0.1,
+        "diffraction_model": "None"
     },
     "output_settings":{
         "print_for_gid": true,

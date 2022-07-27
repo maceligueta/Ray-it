@@ -1,5 +1,9 @@
 #include "computation.h"
 
+#include "../external_libraries/MeshPlaneIntersect.hpp"
+#include "bullington.h"
+#include <stdlib.h>
+
 extern unsigned int RAY_IT_ECHO_LEVEL;
 
 bool Computation::Run(const json& parameters) {
@@ -85,6 +89,8 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     if(mNumberOfReflexions) {
         InitializeAllReflexionBrdfs();
     }
+    mDiffractionModel = computation_settings["diffraction_model"].get<std::string>();
+
     return 0;
 }
 
@@ -103,12 +109,11 @@ void Computation::ComputeDirectIncidence() {
     int thread_iteration_counter = 0;
     const size_t jump_between_progress_bar_update = mMesh.mTriangles.size() / 100;
 
-    #pragma omp for schedule(dynamic, 500)
+    #pragma omp for schedule(dynamic, 50)
     for(int i = 0; i<(int)mMesh.mTriangles.size(); i++) {
         Triangle& triangle = *mMesh.mTriangles[i];
         for(size_t antenna_index=0; antenna_index<mAntennas.size(); ++antenna_index) {
             Vec3 origin = mAntennas[antenna_index].mCoordinates;
-            const real_number measuring_dist_squared = mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance * mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance;
             Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - origin[0], triangle.mCenter[1] - origin[1], triangle.mCenter[2] - origin[2]);
             Ray ray(origin, vec_origin_to_triangle_center);
             ray.Intersect(mMesh);
@@ -250,10 +255,120 @@ void Computation::ComputeEffectOfReflexions() {
     }
 }
 
+void Computation::ComputeDiffraction() {
+    if(mDiffractionModel != "Bullington") return;
+
+    if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nComputing effect of diffraction ("<<mDiffractionModel<<")..."<<std::endl;
+    typedef MeshPlaneIntersect<real_number, int> Intersector;
+    std::vector<Intersector::Vec3D> vertices;
+    for(size_t i = 0; i<mMesh.mNodes.size(); i++) {
+        vertices.push_back(Intersector::Vec3D{ {mMesh.mNodes[i][0], mMesh.mNodes[i][1], mMesh.mNodes[i][2]} });
+    }
+    std::vector<Intersector::Face> faces;
+    for(size_t i = 0; i<mMesh.mTriangles.size(); i++) {
+        const int& a = mMesh.mTriangles[i]->mNodeIndices[0];
+        const int& b = mMesh.mTriangles[i]->mNodeIndices[1];
+        const int& c = mMesh.mTriangles[i]->mNodeIndices[2];
+        faces.push_back(Intersector::Face{ {a, b, c} });
+    }
+
+    Intersector::Mesh intersectable_mesh(vertices, faces);
+
+    progressbar bar((int)mMesh.mTriangles.size());
+    bar.set_done_char("*");
+
+    #pragma omp parallel
+    {
+    int thread_iteration_counter = 0;
+    const size_t jump_between_progress_bar_update = mMesh.mTriangles.size() / 100;
+
+    #pragma omp for schedule(dynamic, 50)
+    for(int i = 0; i<(int)mMesh.mTriangles.size(); i++) {
+        Triangle& triangle = *mMesh.mTriangles[i];
+        for(size_t antenna_index=0; antenna_index<mAntennas.size(); ++antenna_index) {
+            const auto& origin = mAntennas[antenna_index].mCoordinates;
+            Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - origin[0], triangle.mCenter[1] - origin[1], triangle.mCenter[2] - origin[2]);
+            Vec3 horizontal_dir = Vec3(vec_origin_to_triangle_center[0], vec_origin_to_triangle_center[1], 0.0);
+            Intersector::Plane plane;
+            plane.origin = {{origin[0], origin[1], origin[2]}};
+            Vec3 normal = Vec3::CrossProduct(vec_origin_to_triangle_center, Vec3(0, 0, 1));
+            plane.normal = {{normal[0], normal[1], normal[2]}};
+            const auto& result = intersectable_mesh.Intersect(plane);
+
+            std::vector<Vec3> profile;
+            profile.push_back(origin);
+            for(int k=0; k<result.size(); k++){
+                for(int j=0; j<result[k].points.size(); j++) {
+                    const auto& result_coords = result[k].points[j];
+                    Vec3 origin_to_profile_point(result_coords[0] - origin[0], result_coords[1] - origin[1], result_coords[2] - origin[2]);
+                    Vec3 target_to_profile_point(result_coords[0] - triangle.mCenter[0], result_coords[1] - triangle.mCenter[1], result_coords[2] - triangle.mCenter[2]);
+                    if(Vec3::DotProduct(horizontal_dir, origin_to_profile_point)>0.0 && Vec3::DotProduct(horizontal_dir, target_to_profile_point)<0.0) {
+                        profile.push_back(Vec3(result_coords[0],result_coords[1], result_coords[2]));
+
+                    }
+                }
+            }
+            profile.push_back(triangle.mCenter);
+            std::sort(profile.begin(), profile.end(), [origin](const Vec3& lhs, const Vec3& rhs){ return Vec3SquareDistance(origin, lhs) < Vec3SquareDistance(origin, rhs); });
+            //OutputsWriter().PrintProfileInXYZFormat(profile, "profile_"+std::to_string(i));
+
+            std::vector<real_number> heights;
+            std::vector<real_number> distances;
+            for(int k=0; k<profile.size(); k++){
+                heights.push_back(profile[k][2]);
+                const real_number horizontal_squared_distance = (profile[k][0]-origin[0])*(profile[k][0]-origin[0]) + (profile[k][1]-origin[1])*(profile[k][1]-origin[1]);
+                distances.push_back(sqrt(horizontal_squared_distance));
+            }
+
+            #if RAY_IT_DEBUG
+            for(int l=0; l<distances.size()-1; l++){
+                if(distances[l+1]<distances[l]){
+                    std::cout<<"\nWARNNIG: profile distances not in ascending order! \n";
+                    break;
+                }
+            }
+            #endif
+
+            real_number db_loss_wrt_free_space = 0.0;
+            real_number slope_from_transmitter = 0.0;
+            BullingtonDiffraction::ComputeBullington(distances, heights, mAntennas[antenna_index].mRadiationPattern->mFrequency, db_loss_wrt_free_space, slope_from_transmitter);
+
+            VecC3 electric_field_before_diffraction;
+
+            if(triangle.mIntensity<EPSILON) {
+                const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
+                const real_number distance = std::sqrt(distance_squared); // TODO: QUESTIONABLE, the distance travelled by the wave is not the direct line. However, Bullington's estimation is far from correct either.
+                const Vec3 transmitter_to_edge_direction = horizontal_dir.Normalize() + Vec3(0.0, 0.0, slope_from_transmitter);
+                const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(transmitter_to_edge_direction);
+                JonesVector jones_vector_at_destination = jones_vector_at_origin;
+                jones_vector_at_destination.PropagateDistance(distance - mAntennas[antenna_index].mRadiationPattern->mMeasuringDistance);
+                electric_field_before_diffraction = triangle.ProjectJonesVectorToTriangleAxes(jones_vector_at_destination);
+            } else {
+                electric_field_before_diffraction = triangle.mElectricFieldWithoutDiffraction;
+            }
+
+            const VecC3 electric_field_after_diffraction = electric_field_before_diffraction * std::pow(real_number(10.0), -db_loss_wrt_free_space * real_number(0.05));
+            triangle.mElectricFieldDueToDiffraction = electric_field_after_diffraction - triangle.mElectricFieldWithoutDiffraction;
+            triangle.mIntensity = triangle.ComputeRMSElectricFieldIntensityFromLocalAxesComponents();
+        }
+
+        thread_iteration_counter++;
+        if(thread_iteration_counter == jump_between_progress_bar_update && RAY_IT_ECHO_LEVEL>0) {
+            thread_iteration_counter = 0;
+            #pragma omp critical
+            {
+            bar.update((int)jump_between_progress_bar_update);
+            }
+        }
+    }
+    }
+}
+
 bool Computation::ComputeRays(const json& computation_settings){
 
     InitializeComputationOfRays(computation_settings);
     ComputeDirectIncidence();
+    ComputeDiffraction();
     ComputeEffectOfReflexions();
 
     if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\n\nComputation finished."<<std::endl;

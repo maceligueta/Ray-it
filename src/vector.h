@@ -86,7 +86,7 @@ public:
         return Vector3(X()-other.X(), Y()-other.Y(), Z()-other.Z());
     };
 
-    inline Vector3 operator+=(const Vector3 &other){
+    inline Vector3& operator+=(const Vector3 &other){
         X() += other.X(), Y()+= other.Y(), Z() += other.Z();
         return *this;
     };
@@ -97,6 +97,13 @@ public:
 
     inline Vector3 operator*(const T scale) const{
         return Vector3(X()*scale, Y()*scale, Z()*scale);
+    };
+
+    inline Vector3& operator*= (const real_number& multiplier) {
+        X() *= multiplier;
+        Y() *= multiplier;
+        Z() *= multiplier;
+        return *this;
     };
 
     inline T operator[](const int axis) const{
@@ -137,6 +144,11 @@ inline std::complex<real_number> DotProduct(const VecC3& complex_vector, const V
 
 inline std::complex<real_number> DotProduct(const Vec3 vector, const VecC3& complex_vector) {
     return complex_vector[0] * vector[0] + complex_vector[1] * vector[1] + complex_vector[2] * vector[2];
+}
+
+static real_number Vec3SquareDistance(const Vec3& a, const Vec3& b) {
+    const Vec3 vec = b - a;
+    return Vec3::DotProduct(vec, vec);
 }
 
 #endif
