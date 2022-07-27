@@ -55,6 +55,16 @@ public:
         if(!CheckPresenceOfKey(input_parameters, "computation_settings")) return 1;
         if(!CheckPresenceOfKey(input_parameters["computation_settings"], "number_of_reflexions")) return 1;
         if(!CheckPresenceOfKey(input_parameters["computation_settings"], "montecarlo_settings")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "type_of_decimation")) return 1;
+        if(input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
+            if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) return 1;
+        } else if (input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
+             if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "number_of_rays")) return 1;
+        } else {
+            std::cout<<"ERROR: unkown type of decimation for the Monte-Carlo method \n";
+            return 1;
+        }
+
         if(!CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_intensity_to_be_reflected")) return 1;
         if(!CheckPresenceOfKey(input_parameters["computation_settings"], "diffraction_model")) return 1;
         const std::string diffraction_model = input_parameters["computation_settings"]["diffraction_model"].get<std::string>();
