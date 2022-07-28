@@ -15,10 +15,10 @@ class ComputationForTest14: public Computation {
         if( ! Computation::ReadAntennas(parameters) ) {
             for(auto& ant:mAntennas){
                 auto& rm = ant.mRadiationPattern;
-                rm.mFrequency = 1.0e6; // 1 MHz
-                rm.mMeasuringDistance = 2.0;
-                auto& map = rm.mRadiationMap;
-                rm.mTotalPower = 1000.0;
+                rm->mFrequency = 1.0e6; // 1 MHz
+                rm->mMeasuringDistance = 2.0;
+                auto& map = rm->mRadiationMap;
+                rm->mTotalPower = 1000.0;
                 for(size_t i=0; i<map.size(); i++) {
                     for(size_t j=0; j<map[i].size(); j++) {
                         map[i][j][EPhi] = 0.0;

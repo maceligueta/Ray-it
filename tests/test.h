@@ -17,7 +17,7 @@ class Test {
     virtual bool Run(){
         return 1;
     }
-    bool CheckIfValuesAreEqual(const real_number& a, const real_number& b) {
+    static bool CheckIfValuesAreEqual(const real_number& a, const real_number& b) {
         if(std::abs(a - b) < TOLERANCE_FOR_TESTS){
             return true;
         }
@@ -27,7 +27,7 @@ class Test {
         }
     }
 
-    bool CheckIfValuesAreEqual(const Vec3& a, const Vec3& b) {
+    static bool CheckIfValuesAreEqual(const Vec3& a, const Vec3& b) {
         for(int i=0; i<3; i++){
             if(std::abs(a[i] - b[i]) > TOLERANCE_FOR_TESTS){
                 std::cout<<a[i]<<" is not equal to "<<b[i]<<" when comparing component "<<i<<" of Vec3"<<std::endl;
@@ -37,7 +37,7 @@ class Test {
         return true;
     }
 
-    bool CheckIfValuesAreEqual(const JonesVector& a, const JonesVector& b) {
+    static bool CheckIfValuesAreEqual(const JonesVector& a, const JonesVector& b) {
         for(int i=0; i<3; i++){
             if(std::abs(a.mX[i] - b.mX[i]) > TOLERANCE_FOR_TESTS ||
             std::abs(a.mY[i] - b.mY[i]) > TOLERANCE_FOR_TESTS ){
@@ -51,7 +51,7 @@ class Test {
         return true;
     }
 
-    bool CheckIfValuesAreEqual(const OrientedJonesVector& a, const OrientedJonesVector& b) {
+    static bool CheckIfValuesAreEqual(const OrientedJonesVector& a, const OrientedJonesVector& b) {
 
         for(int i=0; i<3; i++){
             if(a.mOrientedVectorSum[i].real() - b.mOrientedVectorSum[i].real() > TOLERANCE_FOR_TESTS) {
@@ -76,7 +76,7 @@ class Test {
         return true;
     }
 
-    bool CheckIfValuesAreEqual(const Wave& a, const Wave& b) {
+    static bool CheckIfValuesAreEqual(const Wave& a, const Wave& b) {
 
         if(! CheckIfValuesAreEqual(a.mFrequency, b.mFrequency)) return false;
         if(! CheckIfValuesAreEqual(a.mAmplitude, b.mAmplitude)) return false;
@@ -86,7 +86,7 @@ class Test {
         return true;
     }
 
-    bool CheckMeshResultsAreEqualToReference(const std::string& results_mesh_file_name, const std::string& mesh_reference_file_name);
+    static bool CheckMeshResultsAreEqualToReference(const std::string& results_mesh_file_name, const std::string& mesh_reference_file_name);
 };
 
 #endif

@@ -27,9 +27,61 @@ public:
     }
 
     bool CheckInputParameters(json& input_parameters) {
+
+        //NAME
         if(!CheckPresenceOfKey(input_parameters, "case_name")) return 1;
+
+        //TERRAIN
         if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters,"antennas_list")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "type")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "file_name")) return 1;
+        if(input_parameters["terrain_input_settings"]["type"].get<std::string>()=="asc") {
+            if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "keep_one_node_out_of")) return 1;
+        }
+
+        //ANTENNAS
+        if(!CheckPresenceOfKey(input_parameters, "antennas_list")) return 1;
+        for (auto& single_antenna_data : input_parameters["antennas_list"]) {
+            if(!CheckPresenceOfKey(single_antenna_data, "name")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data, "coordinates")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data, "power")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data, "orientation")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "front")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "up")) return 1;
+            if(!CheckPresenceOfKey(single_antenna_data, "radiation_pattern_file_name")) return 1;
+        }
+
+        //COMPUTATION
+        if(!CheckPresenceOfKey(input_parameters, "computation_settings")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "number_of_reflexions")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "montecarlo_settings")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "type_of_decimation")) return 1;
+        if(input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
+            if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) return 1;
+        } else if (input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
+             if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "number_of_rays")) return 1;
+        } else {
+            std::cout<<"ERROR: unkown type of decimation for the Monte-Carlo method \n";
+            return 1;
+        }
+
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_intensity_to_be_reflected")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "diffraction_model")) return 1;
+        const std::string diffraction_model = input_parameters["computation_settings"]["diffraction_model"].get<std::string>();
+        std::vector<std::string> available_diffraction_models = {"None","Bullington"};
+        bool found = false;
+        for(auto& name:available_diffraction_models){
+            if(diffraction_model == name) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! ("<<diffraction_model<<" ???)"<<std::endl;
+            return 1;
+        }
+
+        if(!CheckPresenceOfKey(input_parameters, "output_settings")) return 1;
         return 0;
     }
 
@@ -202,7 +254,7 @@ public:
         mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
         mesh.mBoundingBox[1] = Vec3(xmax+added_tolerance, ymax+added_tolerance, zmax+added_tolerance);
 
-        std::vector<std::vector<Triangle*>> triangles_by_threads;
+        /*std::vector<std::vector<Triangle*>> triangles_by_threads;
         triangles_by_threads.resize(omp_get_max_threads());
         for (int i=0; i<omp_get_max_threads(); i++){
             triangles_by_threads[i].reserve( nrows * ncols * 2 / omp_get_max_threads());
@@ -225,6 +277,24 @@ public:
 
         for (int i=0; i<omp_get_max_threads(); i++){
             mesh.mTriangles.insert( mesh.mTriangles.end(), triangles_by_threads[i].begin(), triangles_by_threads[i].end() );
+        }*/
+        int count = 0;
+        for (int i=0; i<actual_rows_read-1; i++){
+            for(int j=0; j<actual_cols_read-1; j++){
+                Triangle* t = new Triangle( count,
+                                            mesh.mNodes[j + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
+                mesh.mTriangles.push_back(t);
+                count++;
+
+                Triangle* t2 = new Triangle( count,
+                                            mesh.mNodes[(j+1) + i * actual_cols_read],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+                mesh.mTriangles.push_back(t2);
+                count++;
+            }
         }
 
 
@@ -305,7 +375,8 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle(mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
+                Triangle* t = new Triangle( i,
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
                                             mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
                                             mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
 

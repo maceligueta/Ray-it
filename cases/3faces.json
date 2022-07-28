@@ -1,13 +1,12 @@
 {
-    "case_name": "simple_run_matlab_output",
+    "case_name": "3faces",
     "terrain_input_settings":{
-        "type": "asc",
-        "file_name": "111531.asc",
-        "keep_one_node_out_of": 100
+        "type": "stl",
+        "file_name": "3faces.stl"
     },
     "antennas_list":[{
         "name": "Corner antenna",
-        "coordinates":[742499, 232999, 1850.0],
+        "coordinates":[-2, 5, 12],
         "power": 100.0,
         "orientation":{
             "front": [1.0, 0.0, 0.0],
@@ -16,17 +15,19 @@
         "radiation_pattern_file_name": "Dipole1.out"
     }],
     "computation_settings":{
-        "number_of_reflexions": 0,
+        "number_of_reflexions": 3,
         "montecarlo_settings":{
             "type_of_decimation" : "portion_of_elements",
-            "portion_of_elements_contributing_to_reflexion": 0.5
+            "portion_of_elements_contributing_to_reflexion": 1.0,
+            "number_of_rays": 4000
         },
-        "Fresnel_reflexion_coefficient": 0.3,
-        "minimum_intensity_to_be_reflected": 1.0e-8,
+        "Fresnel_reflexion_coefficient": 0.2,
+        "minimum_intensity_to_be_reflected": 1.0e-6,
+        "distance_between_elements_ignored_by_rays": 0.1,
         "diffraction_model": "None"
     },
     "output_settings":{
-        "print_for_gid": false,
-        "print_for_matlab": true
+        "print_for_gid": true,
+        "print_for_matlab": false
     }
 }

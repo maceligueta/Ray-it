@@ -34,3 +34,10 @@ Ray-it_Debug_float.exe
 Ray-it_Release_float.exe
 cases/double_antenna_over_1km_square.post.res
 cases/double_antenna_over_1km_square.post.msh
+cases/simple_run.post.msh
+cases/simple_run.post.res
+cases/3faces.post.msh
+cases/3faces.post.res
+cases/bullington.post.res
+cases/bullington.post.msh
+cases/run_log_*.out

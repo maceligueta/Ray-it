@@ -30,11 +30,11 @@ bool Triangle::Intersect(Ray &ray) const{
 
     const real_number t = Vec3::DotProduct(mSecondSide, qvec) * invDet;
 
-    if(!ray.mTriangleFound || t < ray.t_max) {
+    if(ray.mIdOfFirstCrossedTriangle<0 || t < ray.t_max) {
         ray.t_max= t;
         ray.u = u;
         ray.v = v;
-        ray.mTriangleFound = true;
+        ray.mIdOfFirstCrossedTriangle = mId;
     }
 
     return ray.t_max < INFINITY;
