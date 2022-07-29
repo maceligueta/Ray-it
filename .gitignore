@@ -41,3 +41,5 @@ cases/3faces.post.res
 cases/bullington.post.res
 cases/bullington.post.msh
 cases/run_log_*.out
+cases/dxf_buildings_no_terrain.post.msh
+cases/dxf_buildings_no_terrain.post.res
