@@ -2,7 +2,7 @@
     "case_name": "double_antenna_over_1km_square",
     "terrain_input_settings":{
         "type": "stl",
-        "file_name": "1km_square_20m.stl"
+        "file_names": ["1km_square_20m.stl"]
     },
     "antennas_list":[{
         "name": "Lower corner antenna",

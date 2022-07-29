@@ -34,7 +34,7 @@ public:
         //TERRAIN
         if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
         if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "type")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "file_name")) return 1;
+        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "file_names")) return 1;
         if(input_parameters["terrain_input_settings"]["type"].get<std::string>()=="asc") {
             if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "keep_one_node_out_of")) return 1;
         }
@@ -112,17 +112,21 @@ public:
 
     bool ReadTerrainMesh(Mesh& mesh, const json& terrain_input_settings) {
 
-        const std::string& file_name = terrain_input_settings["file_name"].get<std::string>();
+        const std::vector<std::string>& file_names_list = terrain_input_settings["file_names"];
 
         if (terrain_input_settings["type"].get<std::string>() == "stl"){
-            ReadTerrainSTLMesh(mesh, file_name);
+            for(std::string file_name : file_names_list) {
+                if(ReadTerrainSTLMesh(mesh, file_name)) return 1;
+            }
             return 0;
         }
         if (terrain_input_settings["type"].get<std::string>() == "asc"){
             if(terrain_input_settings["keep_one_node_out_of"].is_number_integer()){
                 const int keep_one_node_out_of = terrain_input_settings["keep_one_node_out_of"].get<int>();
                 if(keep_one_node_out_of>=1){
-                    ReadTerrainASCMesh(mesh, file_name, keep_one_node_out_of);
+                    for(std::string file_name : file_names_list) {
+                        if(ReadTerrainASCMesh(mesh, file_name, keep_one_node_out_of)) return 1;
+                    }
                     return 0;
                 }
                 else {

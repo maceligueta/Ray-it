@@ -2,7 +2,7 @@
     "case_name": "simple_run_matlab_output",
     "terrain_input_settings":{
         "type": "asc",
-        "file_name": "111531.asc",
+        "file_names": ["111531.asc"],
         "keep_one_node_out_of": 100
     },
     "antennas_list":[{

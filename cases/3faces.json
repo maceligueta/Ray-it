@@ -2,7 +2,7 @@
     "case_name": "3faces",
     "terrain_input_settings":{
         "type": "stl",
-        "file_name": "3faces.stl"
+        "file_names": ["3faces.stl"]
     },
     "antennas_list":[{
         "name": "Corner antenna",
