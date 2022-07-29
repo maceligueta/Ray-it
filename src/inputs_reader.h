@@ -148,7 +148,7 @@ public:
         std::string file_name_to_be_used_here = file_name;
 
         if (!std::filesystem::exists(file_name)) {
-            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
             if (!std::filesystem::exists(file_name_with_current_path)) {
                 std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
                 return 1;
@@ -309,7 +309,7 @@ public:
         std::string file_name_to_be_used_here = file_name;
 
         if (!std::filesystem::exists(file_name)) {
-            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
             if (!std::filesystem::exists(file_name_with_current_path)) {
                 std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
                 return 1;

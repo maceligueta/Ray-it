@@ -49,7 +49,7 @@ class Test14: public Test {
 
         std::string parameters_filename  = "cases/double_antenna.json";
         InputsReader reader;
-        CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
+        RAY_IT_CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
         if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
 
         ComputationForTest14 job;

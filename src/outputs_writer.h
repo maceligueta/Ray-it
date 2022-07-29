@@ -20,10 +20,10 @@ public:
 
     void PrintResultsInMatlabFormat(const Mesh& mesh, const std::vector<Antenna>& antennas, const TypeOfResultsPrint& print_type) {
         if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nPrinting results for Matlab... ";
-        std::ofstream Xfo(CURRENT_WORKING_DIR + "/" + "X.mat");
-        std::ofstream Yfo(CURRENT_WORKING_DIR + "/" + "Y.mat");
-        std::ofstream Zfo(CURRENT_WORKING_DIR + "/" + "Z.mat");
-        std::ofstream Vfo(CURRENT_WORKING_DIR + "/" + "V.mat");
+        std::ofstream Xfo(RAY_IT_CURRENT_WORKING_DIR + "/" + "X.mat");
+        std::ofstream Yfo(RAY_IT_CURRENT_WORKING_DIR + "/" + "Y.mat");
+        std::ofstream Zfo(RAY_IT_CURRENT_WORKING_DIR + "/" + "Z.mat");
+        std::ofstream Vfo(RAY_IT_CURRENT_WORKING_DIR + "/" + "V.mat");
 
         std::string X0buffer = "";
         std::string X1buffer = "";
@@ -72,7 +72,7 @@ public:
     }
 
     void PrintProfileInXYZFormat(const std::vector<Vec3> profile, const std::string filename) {
-        std::ofstream profile_output(CURRENT_WORKING_DIR + "/" + filename + ".xyz");
+        std::ofstream profile_output(RAY_IT_CURRENT_WORKING_DIR + "/" + filename + ".xyz");
         for(int i=0; i<profile.size(); i++) {
             profile_output<<profile[i][0]<<"    "<<profile[i][1]<<"    "<<profile[i][2]<<"\n";
         }

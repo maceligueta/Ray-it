@@ -28,7 +28,7 @@ bool Antenna::InitializeFromParameters(const json& single_antenna_settings) {
     std::string file_name_to_be_used_here = radiation_pattern_file_name;
 
     if (!std::filesystem::exists(radiation_pattern_file_name)) {
-        const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
+        const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + radiation_pattern_file_name;
         if (!std::filesystem::exists(file_name_with_current_path)) {
             std::cout << "Error: files \""<<radiation_pattern_file_name<<"\" or \""<<file_name_with_current_path<<"\" not found! \n";
             return 1;

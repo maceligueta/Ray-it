@@ -25,7 +25,7 @@ bool Computation::BuildKdTree() {
 
 bool Computation::PrintResults(const json& parameters) {
     OutputsWriter writer;
-    const std::string output_file_name_with_current_path = CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
+    const std::string output_file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
     if(parameters["output_settings"]["print_for_gid"].get<bool>()) {
         writer.PrintResultsInGidFormat(mMesh, mAntennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
     }

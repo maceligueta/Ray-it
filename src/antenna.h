@@ -10,7 +10,7 @@
 #include "triangle.h"
 
 using namespace nlohmann;
-extern std::string CURRENT_WORKING_DIR;
+extern std::string RAY_IT_CURRENT_WORKING_DIR;
 
 struct AntennaVariables {
     Vec3 mCoordinates;
