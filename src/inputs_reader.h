@@ -9,6 +9,7 @@
 #include "antenna.h"
 #include "../external_libraries/stl_reader.h"
 #include "../external_libraries/json.hpp"
+#include "dxf_parser.h"
 
 using namespace nlohmann;
 extern unsigned int RAY_IT_ECHO_LEVEL;
@@ -403,6 +404,42 @@ public:
             Antenna a = Antenna(single_antenna_data);
             antennas.push_back(a);
         }
+        return 0;
+    }
+
+    bool ReadBuildingsMesh(Mesh& mesh, const json& buildings_input_settings) {
+
+        const std::vector<std::string>& file_names_list = buildings_input_settings["file_names"];
+
+        if (buildings_input_settings["type"].get<std::string>() == "dxf"){
+            for(std::string file_name : file_names_list) {
+                if(ReadBuildingsDxfMesh(mesh, file_name)) return 1;
+            }
+            return 0;
+        }
+        return 0;
+    }
+
+
+    bool ReadBuildingsDxfMesh(Mesh& mesh, const std::string& file_name) {
+
+        std::string file_name_to_be_used_here = file_name;
+
+        if (!std::filesystem::exists(file_name)) {
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
+            if (!std::filesystem::exists(file_name_with_current_path)) {
+                std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
+                return 1;
+            }
+            else{
+                file_name_to_be_used_here = file_name_with_current_path;
+            }
+        }
+
+        std::cout << "Parsing file " << file_name_to_be_used_here << "..." << std::endl;
+
+        AddDxfInfoToMesh(mesh, file_name_to_be_used_here);
+
         return 0;
     }
 

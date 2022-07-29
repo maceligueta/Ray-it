@@ -9,6 +9,7 @@ extern unsigned int RAY_IT_ECHO_LEVEL;
 bool Computation::Run(const json& parameters) {
     if(ReadAntennas(parameters)) return 1;
     if(ReadTerrainMesh(parameters["terrain_input_settings"])) return 1;
+    if(ReadBuildingsMesh(parameters["buildings_input_settings"])) return 1;
     if(BuildKdTree()) return 1;
     if(ComputeRays(parameters["computation_settings"])) return 1;
     if(PrintResults(parameters)) return 1;

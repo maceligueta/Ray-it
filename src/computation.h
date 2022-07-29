@@ -54,6 +54,12 @@ public:
         else return 0;
     }
 
+    virtual bool ReadBuildingsMesh(const json& parameters) {
+        InputsReader reader;
+        if(reader.ReadBuildingsMesh(mMesh, parameters)) return 1;
+        else return 0;
+    }
+
     virtual bool RandomBoolAccordingToProbabilityFast(const double p){
         return rand() < p * (RAND_MAX+1.0);
     }
