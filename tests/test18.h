@@ -13,6 +13,18 @@ class ComputationForTest18: public Computation {
     bool Run(const json& parameters) override {
         Computation::Run(parameters);
 
+        #ifdef RAY_IT_USE_FLOATS
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[0]->mIntensity,  real_number(0.00155082))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[100]->mIntensity, real_number(0.0))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[150]->mIntensity, real_number(0.0))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[200]->mIntensity, real_number(0.00135554))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[250]->mIntensity, real_number(0.0))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[300]->mIntensity, real_number(0.00429186))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[350]->mIntensity, real_number(0.00966596))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[400]->mIntensity, real_number(0.16378))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[450]->mIntensity, real_number(0.0))) return 1;
+        if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[500]->mIntensity, real_number(0.0))) return 1;
+        #else
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[0]->mIntensity,  real_number(0.00155082))) return 1;
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[100]->mIntensity, real_number(0.0))) return 1;
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[150]->mIntensity, real_number(0.000618464))) return 1;
@@ -23,6 +35,7 @@ class ComputationForTest18: public Computation {
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[400]->mIntensity, real_number(0.164134))) return 1;
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[450]->mIntensity, real_number(0.00520601))) return 1;
         if(!Test::CheckIfValuesAreEqual(mMesh.mTriangles[500]->mIntensity, real_number(0.0))) return 1;
+        #endif
 
         return 0;
     }

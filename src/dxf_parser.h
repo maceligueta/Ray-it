@@ -82,17 +82,17 @@ static bool AddDxfInfoToMesh(Mesh& mesh, const std::string& dxf_filename) {
                                         getline(file_reader, line); line_count++;
                                         line_stream = std::stringstream(line);
                                         line_stream >> token;
-                                        const double coordsX = std::stod(token);
+                                        const real_number coordsX = real_number(std::stod(token));
                                         getline(file_reader, line); line_count++;
                                         getline(file_reader, line); line_count++;
                                         line_stream = std::stringstream(line);
                                         line_stream >> token;
-                                        const double coordsY = std::stod(token);
+                                        const real_number coordsY = real_number(std::stod(token));
                                         getline(file_reader, line); line_count++;
                                         getline(file_reader, line); line_count++;
                                         line_stream = std::stringstream(line);
                                         line_stream >> token;
-                                        const double coordsZ = std::stod(token);
+                                        const real_number coordsZ = real_number(std::stod(token));
                                         mesh.mNodes.push_back(Node(int(local_node_count+global_node_count), coordsX, coordsY, coordsZ));
                                         if(coordsX > xmax) { xmax = coordsX;}
                                         if(coordsX < xmin) { xmin = coordsX;}

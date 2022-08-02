@@ -79,21 +79,21 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     const json montecarlo_settings = computation_settings["montecarlo_settings"];
 
     if(montecarlo_settings["type_of_decimation"].get<std::string>() == "portion_of_elements") {
-        mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["portion_of_elements_contributing_to_reflexion"].get<double>());
+        mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["portion_of_elements_contributing_to_reflexion"].get<real_number>());
     } else if (montecarlo_settings["type_of_decimation"].get<std::string>() == "number_of_rays") {
         mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["number_of_rays"].get<int>()) / mMesh.mTriangles.size();
         if(mPortionOfElementsContributingToReflexion > 1.0) mPortionOfElementsContributingToReflexion = real_number(1.0);
     }
-    mFresnelReflexionCoefficient =  real_number(computation_settings["Fresnel_reflexion_coefficient"].get<double>());
-    mMinimumIntensityToBeReflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<double>());
+    mFresnelReflexionCoefficient =  real_number(computation_settings["Fresnel_reflexion_coefficient"].get<real_number>());
+    mMinimumIntensityToBeReflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<real_number>());
 
     if(mNumberOfReflexions) {
         InitializeAllReflexionBrdfs();
     }
     mDiffractionModel = computation_settings["diffraction_model"].get<std::string>();
 
-    mMinimumDistanceBetweenTransmitterAndReceiver = computation_settings["minimum_distance_between_transmitter_and_receiver"].get<double>();
-    mMaximumDistanceBetweenTransmitterAndReceiver = computation_settings["maximum_distance_between_transmitter_and_receiver"].get<double>();
+    mMinimumDistanceBetweenTransmitterAndReceiver = computation_settings["minimum_distance_between_transmitter_and_receiver"].get<real_number>();
+    mMaximumDistanceBetweenTransmitterAndReceiver = computation_settings["maximum_distance_between_transmitter_and_receiver"].get<real_number>();
     return 0;
 }
 
