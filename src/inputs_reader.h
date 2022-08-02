@@ -32,9 +32,26 @@ public:
         const auto& params = input_parameters[key_to_be_checked];
 
         if(!send_error && !CheckPresenceOfKey(params, "type")) { send_error = true; }
+        if(!send_error) {
+            std::vector<std::string> available_terrain_input_file_formats = {"stl", "asc"};
+            std::string selected_format = params["type"].get<std::string>();
+            bool found = false;
+            for(auto& name:available_terrain_input_file_formats){
+                if(selected_format == name) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown terrain file format \"type\" (\" "<<selected_format<<" \" ???)";
+                send_error = true;
+            }
+        }
         if(!send_error && !CheckPresenceOfKey(params, "file_names")) { send_error = true; }
-        if(params["type"].get<std::string>()=="asc") {
-            if(!send_error && !CheckPresenceOfKey(params, "keep_one_node_out_of")) { send_error = true; }
+        if(!send_error) {
+            if(params["type"].get<std::string>()=="asc") {
+                if(!send_error && !CheckPresenceOfKey(params, "keep_one_node_out_of")) { send_error = true; }
+            }
         }
 
         if(send_error) {
@@ -51,7 +68,23 @@ public:
         const auto& params = input_parameters[key_to_be_checked];
 
         if(!send_error && !CheckPresenceOfKey(params, "type")) {send_error = true;}
-        if(!send_error && !CheckPresenceOfKey(params, "file_names")) {send_error = true;}
+
+        if(!send_error) {
+            std::vector<std::string> available_buildings_input_file_formats = {"dxf"};
+            std::string selected_format = params["type"].get<std::string>();
+            bool found = false;
+            for(auto& name:available_buildings_input_file_formats){
+                if(selected_format == name) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown buildings file format \"type\" (\" "<<selected_format<<" \" ???)";
+                send_error = true;
+            }
+            if(!send_error && !CheckPresenceOfKey(params, "file_names")) {send_error = true;}
+        }
 
         if(send_error) {
             std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
@@ -93,32 +126,32 @@ public:
         if(!send_error && !CheckPresenceOfKey(params, "montecarlo_settings")) {send_error = true;}
         if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "type_of_decimation")) {send_error = true;}
 
-        if(params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
+        if(!send_error && params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
             if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) {send_error = true;}
-        } else if (params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
+        } else if (!send_error && params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
             if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "number_of_rays")) {send_error = true;}
         } else {
             std::cout<<"ERROR: unkown \"type_of_decimation\" field for the Monte-Carlo method ";
             send_error = true;
         }
 
-
-        if(send_error) {}
         if(!send_error && !CheckPresenceOfKey(params, "minimum_intensity_to_be_reflected")) {send_error = true;}
         if(!send_error && !CheckPresenceOfKey(params, "diffraction_model")) {send_error = true;}
 
-        const std::string diffraction_model = params["diffraction_model"].get<std::string>();
-        std::vector<std::string> available_diffraction_models = {"None","Bullington"};
-        bool found = false;
-        for(auto& name:available_diffraction_models){
-            if(diffraction_model == name) {
-                found = true;
-                break;
+        if(!send_error) {
+            const std::string diffraction_model = params["diffraction_model"].get<std::string>();
+            std::vector<std::string> available_diffraction_models = {"None","Bullington"};
+            bool found = false;
+            for(auto& name:available_diffraction_models){
+                if(diffraction_model == name) {
+                    found = true;
+                    break;
+                }
             }
-        }
-        if(!found) {
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! (\" "<<diffraction_model<<" \" ???)";
-            send_error = true;
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! (\" "<<diffraction_model<<" \" ???)";
+                send_error = true;
+            }
         }
 
         if(!send_error && !CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_distance_between_transmitter_and_receiver")) {send_error = true;}
@@ -233,7 +266,7 @@ public:
                 return 1;
             }
             else{
-               file_name_to_be_used_here = file_name_with_current_path;
+                file_name_to_be_used_here = file_name_with_current_path;
             }
         }
 
@@ -294,7 +327,9 @@ public:
 
         int actual_rows_read = 0;
         int actual_cols_read = 0;
-        int counter = 0;
+
+        const int initial_nodes_counter = (int)mesh.mNodes.size();
+        int counter = (int)mesh.mNodes.size();
         for (int i=0; i<nrows; i++){
             getline(asc_file, line); line_count++;
             line_stream = std::stringstream(line);
@@ -357,25 +392,24 @@ public:
         for (int i=0; i<omp_get_max_threads(); i++){
             mesh.mTriangles.insert( mesh.mTriangles.end(), triangles_by_threads[i].begin(), triangles_by_threads[i].end() );
         }*/
-        int count = 0;
+        int count = (int)mesh.mTriangles.size();
         for (int i=0; i<actual_rows_read-1; i++){
             for(int j=0; j<actual_cols_read-1; j++){
                 Triangle* t = new Triangle( count,
-                                            mesh.mNodes[j + i * actual_cols_read],
-                                            mesh.mNodes[j + (i+1) * actual_cols_read],
-                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
+                                            mesh.mNodes[j + i * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read + initial_nodes_counter]);
                 mesh.mTriangles.push_back(t);
                 count++;
 
                 Triangle* t2 = new Triangle( count,
-                                            mesh.mNodes[(j+1) + i * actual_cols_read],
-                                            mesh.mNodes[j + (i+1) * actual_cols_read],
-                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+                                            mesh.mNodes[(j+1) + i * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read + initial_nodes_counter]);
                 mesh.mTriangles.push_back(t2);
                 count++;
             }
         }
-
 
         if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name_to_be_used_here<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
@@ -428,9 +462,12 @@ public:
             real_number xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
             real_number xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
 
+            const int initial_nodes_counter = (int)mesh.mNodes.size();
+            const int initial_elements_counter = (int)mesh.mTriangles.size();
+
             for(int i=0; i<stl_mesh.num_vrts(); i++){
                 Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
-                mesh.mNodes.push_back(Node(i, node));
+                mesh.mNodes.push_back(Node(i + initial_nodes_counter, node));
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -454,10 +491,10 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle( i,
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
+                Triangle* t = new Triangle( i  + initial_elements_counter,
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0) + initial_nodes_counter],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1) + initial_nodes_counter],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2) + initial_nodes_counter]);
 
                 mesh.mTriangles.push_back(t);
             }
