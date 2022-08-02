@@ -38,6 +38,8 @@ public:
     std::vector<std::vector<int>> mBrdfIndexForEachElement;
     std::vector<std::vector<size_t>> mIdMapOfContributingBrdfs;
     std::string mDiffractionModel = "None";
+    real_number mMinimumDistanceBetweenTransmitterAndReceiver = 0.0;
+    real_number mMaximumDistanceBetweenTransmitterAndReceiver = std::numeric_limits<real_number>::max();
 
 
     virtual bool Run(const json& parameters);

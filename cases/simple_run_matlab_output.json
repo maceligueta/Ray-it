@@ -5,6 +5,10 @@
         "file_names": ["111531.asc"],
         "keep_one_node_out_of": 100
     },
+    "buildings_input_settings":{
+        "type": "dxf",
+        "file_names": []
+    },
     "antennas_list":[{
         "name": "Corner antenna",
         "coordinates":[742499, 232999, 1850.0],
@@ -23,7 +27,9 @@
         },
         "Fresnel_reflexion_coefficient": 0.3,
         "minimum_intensity_to_be_reflected": 1.0e-8,
-        "diffraction_model": "None"
+        "diffraction_model": "None",
+        "minimum_distance_between_transmitter_and_receiver": 0.0,
+        "maximum_distance_between_transmitter_and_receiver": 100000
     },
     "output_settings":{
         "print_for_gid": false,

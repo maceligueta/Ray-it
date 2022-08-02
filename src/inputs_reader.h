@@ -27,48 +27,87 @@ public:
         else{ return true; }
     }
 
-    bool CheckInputParameters(json& input_parameters) {
+    bool CheckTerrainParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
 
-        //NAME
-        if(!CheckPresenceOfKey(input_parameters, "case_name")) return 1;
-
-        //TERRAIN
-        if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "type")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "file_names")) return 1;
-        if(input_parameters["terrain_input_settings"]["type"].get<std::string>()=="asc") {
-            if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "keep_one_node_out_of")) return 1;
+        if(!send_error && !CheckPresenceOfKey(params, "type")) { send_error = true; }
+        if(!send_error && !CheckPresenceOfKey(params, "file_names")) { send_error = true; }
+        if(params["type"].get<std::string>()=="asc") {
+            if(!send_error && !CheckPresenceOfKey(params, "keep_one_node_out_of")) { send_error = true; }
         }
 
-        //ANTENNAS
-        if(!CheckPresenceOfKey(input_parameters, "antennas_list")) return 1;
-        for (auto& single_antenna_data : input_parameters["antennas_list"]) {
-            if(!CheckPresenceOfKey(single_antenna_data, "name")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "coordinates")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "power")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "orientation")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "front")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "up")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "radiation_pattern_file_name")) return 1;
-        }
-
-        //COMPUTATION
-        if(!CheckPresenceOfKey(input_parameters, "computation_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "number_of_reflexions")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "montecarlo_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "type_of_decimation")) return 1;
-        if(input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
-            if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) return 1;
-        } else if (input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
-             if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "number_of_rays")) return 1;
-        } else {
-            std::cout<<"ERROR: unkown type of decimation for the Monte-Carlo method \n";
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
             return 1;
         }
+        else {
+            return 0;
+        }
+    }
 
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_intensity_to_be_reflected")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "diffraction_model")) return 1;
-        const std::string diffraction_model = input_parameters["computation_settings"]["diffraction_model"].get<std::string>();
+    bool CheckBuildingsParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        if(!send_error && !CheckPresenceOfKey(params, "type")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params, "file_names")) {send_error = true;}
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckAntennasParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        for (auto& single_antenna_data :params) {
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "name")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "coordinates")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "power")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "orientation")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data["orientation"], "front")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data["orientation"], "up")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "radiation_pattern_file_name")) {send_error = true;}
+        }
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckComputationSettings(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        if(!send_error && !CheckPresenceOfKey(params, "number_of_reflexions")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params, "montecarlo_settings")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "type_of_decimation")) {send_error = true;}
+
+        if(params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
+            if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) {send_error = true;}
+        } else if (params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
+            if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "number_of_rays")) {send_error = true;}
+        } else {
+            std::cout<<"ERROR: unkown \"type_of_decimation\" field for the Monte-Carlo method ";
+            send_error = true;
+        }
+
+
+        if(send_error) {}
+        if(!send_error && !CheckPresenceOfKey(params, "minimum_intensity_to_be_reflected")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params, "diffraction_model")) {send_error = true;}
+
+        const std::string diffraction_model = params["diffraction_model"].get<std::string>();
         std::vector<std::string> available_diffraction_models = {"None","Bullington"};
         bool found = false;
         for(auto& name:available_diffraction_models){
@@ -78,9 +117,44 @@ public:
             }
         }
         if(!found) {
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! ("<<diffraction_model<<" ???)"<<std::endl;
+            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! (\" "<<diffraction_model<<" \" ???)";
+            send_error = true;
+        }
+
+        if(!send_error && !CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_distance_between_transmitter_and_receiver")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(input_parameters["computation_settings"], "maximum_distance_between_transmitter_and_receiver")) {send_error = true;}
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
             return 1;
         }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckInputParameters(json& input_parameters) {
+
+        //NAME
+        if(!CheckPresenceOfKey(input_parameters, "case_name")) return 1;
+
+        //TERRAIN
+        if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
+        if(CheckTerrainParameters(input_parameters, "terrain_input_settings")) return 1;
+
+        //BUILDINGS
+        if(!CheckPresenceOfKey(input_parameters, "buildings_input_settings")) return 1;
+        if(CheckBuildingsParameters(input_parameters, "buildings_input_settings")) return 1;
+
+        //ANTENNAS
+        if(!CheckPresenceOfKey(input_parameters, "antennas_list")) return 1;
+        if(CheckAntennasParameters(input_parameters, "antennas_list")) return 1;
+
+
+        //COMPUTATION
+        if(!CheckPresenceOfKey(input_parameters, "computation_settings")) return 1;
+        if(CheckComputationSettings(input_parameters, "computation_settings")) return 1;
+
 
         if(!CheckPresenceOfKey(input_parameters, "output_settings")) return 1;
         return 0;
@@ -436,7 +510,7 @@ public:
             }
         }
 
-        std::cout << "Parsing file " << file_name_to_be_used_here << "..." << std::endl;
+        if(RAY_IT_ECHO_LEVEL > 0) { std::cout << "Parsing file " << file_name_to_be_used_here << "..." << std::endl; }
 
         AddDxfInfoToMesh(mesh, file_name_to_be_used_here);
 

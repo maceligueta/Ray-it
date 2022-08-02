@@ -92,6 +92,8 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     }
     mDiffractionModel = computation_settings["diffraction_model"].get<std::string>();
 
+    mMinimumDistanceBetweenTransmitterAndReceiver = computation_settings["minimum_distance_between_transmitter_and_receiver"].get<double>();
+    mMaximumDistanceBetweenTransmitterAndReceiver = computation_settings["maximum_distance_between_transmitter_and_receiver"].get<double>();
     return 0;
 }
 
@@ -120,6 +122,9 @@ void Computation::ComputeDirectIncidence() {
             ray.Intersect(mMesh);
             const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
             const real_number distance = std::sqrt(distance_squared);
+            if(distance < mMinimumDistanceBetweenTransmitterAndReceiver || distance > mMaximumDistanceBetweenTransmitterAndReceiver) {
+                continue;
+            }
             if(ray.mIdOfFirstCrossedTriangle == triangle.mId) {
                 const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
@@ -208,13 +213,17 @@ void Computation::ComputeEffectOfReflexions() {
                     const auto& emitting_triangle = mMesh.mTriangles[index_of_emitting_triangle];
 
                     Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - emitting_triangle->mCenter[0], triangle.mCenter[1] - emitting_triangle->mCenter[1], triangle.mCenter[2] - emitting_triangle->mCenter[2]);
-                    if(Vec3::DotProduct(triangle.mNormal, vec_origin_to_triangle_center) > EPSILON) continue; // It would mean that the ray comes from behind or parallel // OPTIONAL
+                    //if(Vec3::DotProduct(triangle.mNormal, vec_origin_to_triangle_center) > EPSILON) continue; // It would mean that the ray comes from behind or parallel // OPTIONAL
                     if(Vec3::DotProduct(emitting_triangle->mNormal, vec_origin_to_triangle_center) < EPSILON) continue; // It would mean that the ray goes through the floor of the brdf or comes parallel
 
                     Ray ray(emitting_triangle->mCenter, vec_origin_to_triangle_center);
                     ray.Intersect(mMesh);
                     const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
                     const real_number distance = sqrt(distance_squared);
+
+                    if(distance < mMinimumDistanceBetweenTransmitterAndReceiver || distance > mMaximumDistanceBetweenTransmitterAndReceiver) {
+                        continue;
+                    }
 
                     if(ray.mIdOfFirstCrossedTriangle == triangle.mId) {
                         const JonesVector jones_vector_at_origin = contributor_brdf.GetDirectionalJonesVector(vec_origin_to_triangle_center);

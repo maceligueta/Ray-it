@@ -144,9 +144,11 @@ static bool AddDxfInfoToMesh(Mesh& mesh, const std::string& dxf_filename) {
         }
     }
 
-    std::cout<<"Number of polylines read: "<<num_polyline_entities<<"\n";
-    std::cout<<"Number of nodes added: "<<global_node_count-initial_global_node_count<<"\n";
-    std::cout<<"Number of triangles added: "<<global_elem_count-initial_global_elem_count<<"\n";
+    if(RAY_IT_ECHO_LEVEL > 0) {
+    //std::cout<<"Number of polylines read: "<<num_polyline_entities<<"\n";
+    //std::cout<<"Number of nodes added: "<<global_node_count-initial_global_node_count<<"\n";
+    //std::cout<<"Number of triangles added: "<<global_elem_count-initial_global_elem_count<<"\n";
+    }
 
     real_number added_tolerance = 0.001f * fmax( xmax-xmin, fmax(ymax-ymin, zmax-zmin));
     mesh.mBoundingBox[0] = Vec3(xmin-added_tolerance, ymin-added_tolerance, zmin-added_tolerance);
