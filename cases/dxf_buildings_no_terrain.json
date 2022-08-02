@@ -1,17 +1,17 @@
 {
-    "case_name": "simple_run",
+    "case_name": "dxf_buildings_no_terrain",
     "terrain_input_settings":{
         "type": "asc",
-        "file_names": ["111531.asc"],
+        "file_names": [],
         "keep_one_node_out_of": 100
     },
     "buildings_input_settings":{
         "type": "dxf",
-        "file_names": []
+        "file_names": ["SWISSBUILDINGS3D_2_0_CHLV95LN02_1373-43.dxf"]
     },
     "antennas_list":[{
         "name": "Corner antenna",
-        "coordinates":[742499, 233187, 2000.0],
+        "coordinates":[2719115, 1076807, 480],
         "power": 100.0,
         "orientation":{
             "front": [1.0, 0.0, 0.0],
@@ -20,20 +20,21 @@
         "radiation_pattern_file_name": "Dipole1.out"
     }],
     "computation_settings":{
-        "number_of_reflexions": 0,
+        "number_of_reflexions": 1,
         "montecarlo_settings":{
-            "type_of_decimation" : "number_of_rays",
-            "portion_of_elements_contributing_to_reflexion": 0.1,
+            "type_of_decimation" : "portion_of_elements",
+            "portion_of_elements_contributing_to_reflexion": 1.0,
             "number_of_rays": 4000
         },
         "Fresnel_reflexion_coefficient": 0.3,
         "minimum_intensity_to_be_reflected": 1.0e-6,
-        "diffraction_model": "Bullington",
-        "minimum_distance_between_transmitter_and_receiver": 0.0,
+        "diffraction_model": "None",
+        "minimum_distance_between_transmitter_and_receiver": 1.0,
         "maximum_distance_between_transmitter_and_receiver": 100000
     },
     "output_settings":{
         "print_for_gid": true,
-        "print_for_matlab": false
+        "print_for_matlab": false,
+        "print_log": true
     }
 }

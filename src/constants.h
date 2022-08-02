@@ -8,7 +8,7 @@
 //#pragma message("Compiling Ray-it with float (simple precision)")
 typedef float real_number;
 #define EPSILON 0.00001f
-#define TOLERANCE_FOR_TESTS 0.0002f
+#define TOLERANCE_FOR_TESTS 0.0001f
 #define ONE_THIRD 0.33333333333f
 #else
 //#pragma message("Compiling Ray-it with double precision")

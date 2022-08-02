@@ -39,7 +39,7 @@ class Test15: public Test {
 
         std::string parameters_filename  = "cases/3faces.json";
         InputsReader reader;
-        CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
+        RAY_IT_CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
         if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
 
         ComputationForTest15 job;

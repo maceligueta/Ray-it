@@ -7,7 +7,7 @@
     },
     "buildings_input_settings":{
         "type": "dxf",
-        "file_names": []
+        "file_names": ["aaa.dxf"]
     },
     "antennas_list":[{
         "name": "Corner antenna",
@@ -20,7 +20,7 @@
         "radiation_pattern_file_name": "Dipole1.out"
     }],
     "computation_settings":{
-        "number_of_reflexions": 0,
+        "number_of_reflexions": 1,
         "montecarlo_settings":{
             "type_of_decimation" : "number_of_rays",
             "portion_of_elements_contributing_to_reflexion": 0.1,
@@ -28,7 +28,7 @@
         },
         "Fresnel_reflexion_coefficient": 0.3,
         "minimum_intensity_to_be_reflected": 1.0e-6,
-        "diffraction_model": "Bullington",
+        "diffraction_model": "None",
         "minimum_distance_between_transmitter_and_receiver": 0.0,
         "maximum_distance_between_transmitter_and_receiver": 100000
     },

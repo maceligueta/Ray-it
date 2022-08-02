@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 
         json parameters;
         InputsReader reader;
-        CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
+        RAY_IT_CURRENT_WORKING_DIR = reader.FindFolderOfFile(parameters_filename);
 
 
         if(reader.ReadInputParameters(parameters_filename, parameters)) return 1;
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
         std::tm now_tm = *std::localtime(&now_c);
         char time_string [80];
         strftime (time_string, 80, "%F@%H.%M.%S", &now_tm);
-        const std::string log_out_filename = CURRENT_WORKING_DIR + "/" + "run_log_"+ time_string + ".out";
+        const std::string log_out_filename = RAY_IT_CURRENT_WORKING_DIR + "/" + "run_log_"+ time_string + ".out";
         std::ofstream log_out(log_out_filename);
         log_out<<"--- Log file for Ray-it --- \n\n";
         strftime (time_string, 80, "%F_%T", &now_tm);

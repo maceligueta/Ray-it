@@ -9,6 +9,7 @@ extern unsigned int RAY_IT_ECHO_LEVEL;
 bool Computation::Run(const json& parameters) {
     if(ReadAntennas(parameters)) return 1;
     if(ReadTerrainMesh(parameters["terrain_input_settings"])) return 1;
+    if(ReadBuildingsMesh(parameters["buildings_input_settings"])) return 1;
     if(BuildKdTree()) return 1;
     if(ComputeRays(parameters["computation_settings"])) return 1;
     if(PrintResults(parameters)) return 1;
@@ -25,7 +26,7 @@ bool Computation::BuildKdTree() {
 
 bool Computation::PrintResults(const json& parameters) {
     OutputsWriter writer;
-    const std::string output_file_name_with_current_path = CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
+    const std::string output_file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + parameters["case_name"].get<std::string>();
     if(parameters["output_settings"]["print_for_gid"].get<bool>()) {
         writer.PrintResultsInGidFormat(mMesh, mAntennas, output_file_name_with_current_path, TypeOfResultsPrint::RESULTS_ON_ELEMENTS);
     }
@@ -78,19 +79,21 @@ bool Computation::InitializeComputationOfRays(const json& computation_settings) 
     const json montecarlo_settings = computation_settings["montecarlo_settings"];
 
     if(montecarlo_settings["type_of_decimation"].get<std::string>() == "portion_of_elements") {
-        mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["portion_of_elements_contributing_to_reflexion"].get<double>());
+        mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["portion_of_elements_contributing_to_reflexion"].get<real_number>());
     } else if (montecarlo_settings["type_of_decimation"].get<std::string>() == "number_of_rays") {
         mPortionOfElementsContributingToReflexion = real_number(montecarlo_settings["number_of_rays"].get<int>()) / mMesh.mTriangles.size();
         if(mPortionOfElementsContributingToReflexion > 1.0) mPortionOfElementsContributingToReflexion = real_number(1.0);
     }
-    mFresnelReflexionCoefficient =  real_number(computation_settings["Fresnel_reflexion_coefficient"].get<double>());
-    mMinimumIntensityToBeReflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<double>());
+    mFresnelReflexionCoefficient =  real_number(computation_settings["Fresnel_reflexion_coefficient"].get<real_number>());
+    mMinimumIntensityToBeReflected = real_number(computation_settings["minimum_intensity_to_be_reflected"].get<real_number>());
 
     if(mNumberOfReflexions) {
         InitializeAllReflexionBrdfs();
     }
     mDiffractionModel = computation_settings["diffraction_model"].get<std::string>();
 
+    mMinimumDistanceBetweenTransmitterAndReceiver = computation_settings["minimum_distance_between_transmitter_and_receiver"].get<real_number>();
+    mMaximumDistanceBetweenTransmitterAndReceiver = computation_settings["maximum_distance_between_transmitter_and_receiver"].get<real_number>();
     return 0;
 }
 
@@ -119,6 +122,9 @@ void Computation::ComputeDirectIncidence() {
             ray.Intersect(mMesh);
             const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
             const real_number distance = std::sqrt(distance_squared);
+            if(distance < mMinimumDistanceBetweenTransmitterAndReceiver || distance > mMaximumDistanceBetweenTransmitterAndReceiver) {
+                continue;
+            }
             if(ray.mIdOfFirstCrossedTriangle == triangle.mId) {
                 const JonesVector jones_vector_at_origin = mAntennas[antenna_index].GetDirectionalJonesVector(vec_origin_to_triangle_center);
                 JonesVector jones_vector_at_destination = jones_vector_at_origin;
@@ -207,13 +213,17 @@ void Computation::ComputeEffectOfReflexions() {
                     const auto& emitting_triangle = mMesh.mTriangles[index_of_emitting_triangle];
 
                     Vec3 vec_origin_to_triangle_center = Vec3(triangle.mCenter[0] - emitting_triangle->mCenter[0], triangle.mCenter[1] - emitting_triangle->mCenter[1], triangle.mCenter[2] - emitting_triangle->mCenter[2]);
-                    if(Vec3::DotProduct(triangle.mNormal, vec_origin_to_triangle_center) > EPSILON) continue; // It would mean that the ray comes from behind or parallel // OPTIONAL
+                    //if(Vec3::DotProduct(triangle.mNormal, vec_origin_to_triangle_center) > EPSILON) continue; // It would mean that the ray comes from behind or parallel // OPTIONAL
                     if(Vec3::DotProduct(emitting_triangle->mNormal, vec_origin_to_triangle_center) < EPSILON) continue; // It would mean that the ray goes through the floor of the brdf or comes parallel
 
                     Ray ray(emitting_triangle->mCenter, vec_origin_to_triangle_center);
                     ray.Intersect(mMesh);
                     const real_number distance_squared = vec_origin_to_triangle_center[0] * vec_origin_to_triangle_center[0] + vec_origin_to_triangle_center[1] *vec_origin_to_triangle_center[1] + vec_origin_to_triangle_center[2] * vec_origin_to_triangle_center[2];
                     const real_number distance = sqrt(distance_squared);
+
+                    if(distance < mMinimumDistanceBetweenTransmitterAndReceiver || distance > mMaximumDistanceBetweenTransmitterAndReceiver) {
+                        continue;
+                    }
 
                     if(ray.mIdOfFirstCrossedTriangle == triangle.mId) {
                         const JonesVector jones_vector_at_origin = contributor_brdf.GetDirectionalJonesVector(vec_origin_to_triangle_center);

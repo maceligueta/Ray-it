@@ -9,6 +9,7 @@
 #include "antenna.h"
 #include "../external_libraries/stl_reader.h"
 #include "../external_libraries/json.hpp"
+#include "dxf_parser.h"
 
 using namespace nlohmann;
 extern unsigned int RAY_IT_ECHO_LEVEL;
@@ -26,6 +27,145 @@ public:
         else{ return true; }
     }
 
+    bool CheckTerrainParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        if(!send_error && !CheckPresenceOfKey(params, "type")) { send_error = true; }
+        if(!send_error) {
+            std::vector<std::string> available_terrain_input_file_formats = {"stl", "asc"};
+            std::string selected_format = params["type"].get<std::string>();
+            bool found = false;
+            for(auto& name:available_terrain_input_file_formats){
+                if(selected_format == name) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown terrain file format \"type\" (\" "<<selected_format<<" \" ???)";
+                send_error = true;
+            }
+        }
+        if(!send_error && !CheckPresenceOfKey(params, "file_names")) { send_error = true; }
+        if(!send_error) {
+            if(params["type"].get<std::string>()=="asc") {
+                if(!send_error && !CheckPresenceOfKey(params, "keep_one_node_out_of")) { send_error = true; }
+            }
+        }
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckBuildingsParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        if(!send_error && !CheckPresenceOfKey(params, "type")) {send_error = true;}
+
+        if(!send_error) {
+            std::vector<std::string> available_buildings_input_file_formats = {"dxf"};
+            std::string selected_format = params["type"].get<std::string>();
+            bool found = false;
+            for(auto& name:available_buildings_input_file_formats){
+                if(selected_format == name) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown buildings file format \"type\" (\" "<<selected_format<<" \" ???)";
+                send_error = true;
+            }
+            if(!send_error && !CheckPresenceOfKey(params, "file_names")) {send_error = true;}
+        }
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckAntennasParameters(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        for (auto& single_antenna_data :params) {
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "name")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "coordinates")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "power")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "orientation")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data["orientation"], "front")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data["orientation"], "up")) {send_error = true;}
+            if(!send_error && !CheckPresenceOfKey(single_antenna_data, "radiation_pattern_file_name")) {send_error = true;}
+        }
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    bool CheckComputationSettings(const json& input_parameters, const std::string& key_to_be_checked) {
+        bool send_error = false;
+        const auto& params = input_parameters[key_to_be_checked];
+
+        if(!send_error && !CheckPresenceOfKey(params, "number_of_reflexions")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params, "montecarlo_settings")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "type_of_decimation")) {send_error = true;}
+
+        if(!send_error && params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
+            if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) {send_error = true;}
+        } else if (!send_error && params["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
+            if(!send_error && !CheckPresenceOfKey(params["montecarlo_settings"], "number_of_rays")) {send_error = true;}
+        } else {
+            std::cout<<"ERROR: unkown \"type_of_decimation\" field for the Monte-Carlo method ";
+            send_error = true;
+        }
+
+        if(!send_error && !CheckPresenceOfKey(params, "minimum_intensity_to_be_reflected")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(params, "diffraction_model")) {send_error = true;}
+
+        if(!send_error) {
+            const std::string diffraction_model = params["diffraction_model"].get<std::string>();
+            std::vector<std::string> available_diffraction_models = {"None","Bullington"};
+            bool found = false;
+            for(auto& name:available_diffraction_models){
+                if(diffraction_model == name) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! (\" "<<diffraction_model<<" \" ???)";
+                send_error = true;
+            }
+        }
+
+        if(!send_error && !CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_distance_between_transmitter_and_receiver")) {send_error = true;}
+        if(!send_error && !CheckPresenceOfKey(input_parameters["computation_settings"], "maximum_distance_between_transmitter_and_receiver")) {send_error = true;}
+
+        if(send_error) {
+            std::cout<<"  in branch \""<<key_to_be_checked<<"\"\n";
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
     bool CheckInputParameters(json& input_parameters) {
 
         //NAME
@@ -33,53 +173,21 @@ public:
 
         //TERRAIN
         if(!CheckPresenceOfKey(input_parameters, "terrain_input_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "type")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "file_name")) return 1;
-        if(input_parameters["terrain_input_settings"]["type"].get<std::string>()=="asc") {
-            if(!CheckPresenceOfKey(input_parameters["terrain_input_settings"], "keep_one_node_out_of")) return 1;
-        }
+        if(CheckTerrainParameters(input_parameters, "terrain_input_settings")) return 1;
+
+        //BUILDINGS
+        if(!CheckPresenceOfKey(input_parameters, "buildings_input_settings")) return 1;
+        if(CheckBuildingsParameters(input_parameters, "buildings_input_settings")) return 1;
 
         //ANTENNAS
         if(!CheckPresenceOfKey(input_parameters, "antennas_list")) return 1;
-        for (auto& single_antenna_data : input_parameters["antennas_list"]) {
-            if(!CheckPresenceOfKey(single_antenna_data, "name")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "coordinates")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "power")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "orientation")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "front")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data["orientation"], "up")) return 1;
-            if(!CheckPresenceOfKey(single_antenna_data, "radiation_pattern_file_name")) return 1;
-        }
+        if(CheckAntennasParameters(input_parameters, "antennas_list")) return 1;
+
 
         //COMPUTATION
         if(!CheckPresenceOfKey(input_parameters, "computation_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "number_of_reflexions")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "montecarlo_settings")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "type_of_decimation")) return 1;
-        if(input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "portion_of_elements") {
-            if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "portion_of_elements_contributing_to_reflexion")) return 1;
-        } else if (input_parameters["computation_settings"]["montecarlo_settings"]["type_of_decimation"].get<std::string>() == "number_of_rays") {
-             if(!CheckPresenceOfKey(input_parameters["computation_settings"]["montecarlo_settings"], "number_of_rays")) return 1;
-        } else {
-            std::cout<<"ERROR: unkown type of decimation for the Monte-Carlo method \n";
-            return 1;
-        }
+        if(CheckComputationSettings(input_parameters, "computation_settings")) return 1;
 
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "minimum_intensity_to_be_reflected")) return 1;
-        if(!CheckPresenceOfKey(input_parameters["computation_settings"], "diffraction_model")) return 1;
-        const std::string diffraction_model = input_parameters["computation_settings"]["diffraction_model"].get<std::string>();
-        std::vector<std::string> available_diffraction_models = {"None","Bullington"};
-        bool found = false;
-        for(auto& name:available_diffraction_models){
-            if(diffraction_model == name) {
-                found = true;
-                break;
-            }
-        }
-        if(!found) {
-            if(RAY_IT_ECHO_LEVEL > 0) std::cout << "\nERROR: Unknown diffraction model! ("<<diffraction_model<<" ???)"<<std::endl;
-            return 1;
-        }
 
         if(!CheckPresenceOfKey(input_parameters, "output_settings")) return 1;
         return 0;
@@ -112,17 +220,21 @@ public:
 
     bool ReadTerrainMesh(Mesh& mesh, const json& terrain_input_settings) {
 
-        const std::string& file_name = terrain_input_settings["file_name"].get<std::string>();
+        const std::vector<std::string>& file_names_list = terrain_input_settings["file_names"];
 
         if (terrain_input_settings["type"].get<std::string>() == "stl"){
-            ReadTerrainSTLMesh(mesh, file_name);
+            for(std::string file_name : file_names_list) {
+                if(ReadTerrainSTLMesh(mesh, file_name)) return 1;
+            }
             return 0;
         }
         if (terrain_input_settings["type"].get<std::string>() == "asc"){
             if(terrain_input_settings["keep_one_node_out_of"].is_number_integer()){
                 const int keep_one_node_out_of = terrain_input_settings["keep_one_node_out_of"].get<int>();
                 if(keep_one_node_out_of>=1){
-                    ReadTerrainASCMesh(mesh, file_name, keep_one_node_out_of);
+                    for(std::string file_name : file_names_list) {
+                        if(ReadTerrainASCMesh(mesh, file_name, keep_one_node_out_of)) return 1;
+                    }
                     return 0;
                 }
                 else {
@@ -148,13 +260,13 @@ public:
         std::string file_name_to_be_used_here = file_name;
 
         if (!std::filesystem::exists(file_name)) {
-            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
             if (!std::filesystem::exists(file_name_with_current_path)) {
                 std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
                 return 1;
             }
             else{
-               file_name_to_be_used_here = file_name_with_current_path;
+                file_name_to_be_used_here = file_name_with_current_path;
             }
         }
 
@@ -215,7 +327,9 @@ public:
 
         int actual_rows_read = 0;
         int actual_cols_read = 0;
-        int counter = 0;
+
+        const int initial_nodes_counter = (int)mesh.mNodes.size();
+        int counter = (int)mesh.mNodes.size();
         for (int i=0; i<nrows; i++){
             getline(asc_file, line); line_count++;
             line_stream = std::stringstream(line);
@@ -278,25 +392,24 @@ public:
         for (int i=0; i<omp_get_max_threads(); i++){
             mesh.mTriangles.insert( mesh.mTriangles.end(), triangles_by_threads[i].begin(), triangles_by_threads[i].end() );
         }*/
-        int count = 0;
+        int count = (int)mesh.mTriangles.size();
         for (int i=0; i<actual_rows_read-1; i++){
             for(int j=0; j<actual_cols_read-1; j++){
                 Triangle* t = new Triangle( count,
-                                            mesh.mNodes[j + i * actual_cols_read],
-                                            mesh.mNodes[j + (i+1) * actual_cols_read],
-                                            mesh.mNodes[(j+1) + i * actual_cols_read]);
+                                            mesh.mNodes[j + i * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[(j+1) + i * actual_cols_read + initial_nodes_counter]);
                 mesh.mTriangles.push_back(t);
                 count++;
 
                 Triangle* t2 = new Triangle( count,
-                                            mesh.mNodes[(j+1) + i * actual_cols_read],
-                                            mesh.mNodes[j + (i+1) * actual_cols_read],
-                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read]);
+                                            mesh.mNodes[(j+1) + i * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[j + (i+1) * actual_cols_read + initial_nodes_counter],
+                                            mesh.mNodes[(j+1) + (i+1) * actual_cols_read + initial_nodes_counter]);
                 mesh.mTriangles.push_back(t2);
                 count++;
             }
         }
-
 
         if (RAY_IT_ECHO_LEVEL > 0) std::cout<<"File "<<file_name_to_be_used_here<<" was read correctly. "<<mesh.mNodes.size()<<" nodes and "<<mesh.mTriangles.size()<<" elements."<<std::endl;
 
@@ -309,7 +422,7 @@ public:
         std::string file_name_to_be_used_here = file_name;
 
         if (!std::filesystem::exists(file_name)) {
-            const std::string file_name_with_current_path = CURRENT_WORKING_DIR + "/" + file_name;
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
             if (!std::filesystem::exists(file_name_with_current_path)) {
                 std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
                 return 1;
@@ -349,9 +462,12 @@ public:
             real_number xmin = INFINITY, ymin = INFINITY, zmin = INFINITY;
             real_number xmax = -INFINITY, ymax = -INFINITY, zmax = -INFINITY;
 
+            const int initial_nodes_counter = (int)mesh.mNodes.size();
+            const int initial_elements_counter = (int)mesh.mTriangles.size();
+
             for(int i=0; i<stl_mesh.num_vrts(); i++){
                 Vec3 node(stl_mesh.vrt_coords(i)[0], stl_mesh.vrt_coords(i)[1], stl_mesh.vrt_coords(i)[2]);
-                mesh.mNodes.push_back(Node(i, node));
+                mesh.mNodes.push_back(Node(i + initial_nodes_counter, node));
                 xmin = fmin(xmin, node[0]);
                 ymin = fmin(ymin, node[1]);
                 zmin = fmin(zmin, node[2]);
@@ -375,10 +491,10 @@ public:
                 //Vec3 N(stl_mesh.tri_normal(i)[0], stl_mesh.tri_normal(i)[1], stl_mesh.tri_normal(i)[2]);
                 //mesh.mNormals.push_back(N);
 
-                Triangle* t = new Triangle( i,
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0)],
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1)],
-                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2)]);
+                Triangle* t = new Triangle( i  + initial_elements_counter,
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 0) + initial_nodes_counter],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 1) + initial_nodes_counter],
+                                            mesh.mNodes[stl_mesh.tri_corner_ind(i, 2) + initial_nodes_counter]);
 
                 mesh.mTriangles.push_back(t);
             }
@@ -399,6 +515,42 @@ public:
             Antenna a = Antenna(single_antenna_data);
             antennas.push_back(a);
         }
+        return 0;
+    }
+
+    bool ReadBuildingsMesh(Mesh& mesh, const json& buildings_input_settings) {
+
+        const std::vector<std::string>& file_names_list = buildings_input_settings["file_names"];
+
+        if (buildings_input_settings["type"].get<std::string>() == "dxf"){
+            for(std::string file_name : file_names_list) {
+                if(ReadBuildingsDxfMesh(mesh, file_name)) return 1;
+            }
+            return 0;
+        }
+        return 0;
+    }
+
+
+    bool ReadBuildingsDxfMesh(Mesh& mesh, const std::string& file_name) {
+
+        std::string file_name_to_be_used_here = file_name;
+
+        if (!std::filesystem::exists(file_name)) {
+            const std::string file_name_with_current_path = RAY_IT_CURRENT_WORKING_DIR + "/" + file_name;
+            if (!std::filesystem::exists(file_name_with_current_path)) {
+                std::cout << "Error: files \""<<file_name<<"\" or \""<<file_name_with_current_path<<"\" not found!"<<std::endl;
+                return 1;
+            }
+            else{
+                file_name_to_be_used_here = file_name_with_current_path;
+            }
+        }
+
+        if(RAY_IT_ECHO_LEVEL > 0) { std::cout << "Parsing file " << file_name_to_be_used_here << "..." << std::endl; }
+
+        AddDxfInfoToMesh(mesh, file_name_to_be_used_here);
+
         return 0;
     }
 
